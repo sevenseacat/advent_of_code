@@ -15,30 +15,26 @@ defmodule Y2016.Day04 do
 
   @doc """
   iex> Day04.parse_room_details("aaaaa-bbb-z-y-x-123[abxyz]")
-  %{"name" => "aaaaabbbzyx", "sector" => 123, "checksum" => "abxyz",
+  %{"name" => "aaaaa-bbb-z-y-x", "sector" => 123, "checksum" => "abxyz",
     "letter_frequency" => [a: 5, b: 3, x: 1, y: 1, z: 1]}
 
   iex> Day04.parse_room_details("a-b-c-d-e-f-g-h-987[abcde]")
-  %{"name" => "abcdefgh", "sector" => 987, "checksum" => "abcde",
+  %{"name" => "a-b-c-d-e-f-g-h", "sector" => 987, "checksum" => "abcde",
     "letter_frequency" => [a: 1, b: 1, c: 1, d: 1, e: 1, f: 1, g: 1, h: 1]}
 
   iex> Day04.parse_room_details("not-a-real-room-404[oarel]")
-  %{"name" => "notarealroom", "sector" => 404, "checksum" => "oarel",
+  %{"name" => "not-a-real-room", "sector" => 404, "checksum" => "oarel",
     "letter_frequency" => [a: 2, e: 1, l: 1, m: 1, n: 1, o: 3, r: 2, t: 1]}
 
   iex> Day04.parse_room_details("totally-real-room-200[decoy]")
-  %{"name" => "totallyrealroom", "sector" => 200, "checksum" => "decoy",
+  %{"name" => "totally-real-room", "sector" => 200, "checksum" => "decoy",
     "letter_frequency" => [a: 2, e: 1, l: 3, m: 1, o: 3, r: 2, t: 2, y: 1]}
   """
   def parse_room_details(room) do
-    short_room =
-      room
-      |> String.replace("-", "")
-
     details =
       Regex.named_captures(
-        ~r/^(?P<name>[a-z]+)(?P<sector>\d+)\[(?P<checksum>[a-z]+)\]$/,
-        short_room
+        ~r/^(?P<name>[a-z\-]+)\-(?P<sector>\d+)\[(?P<checksum>[a-z]+)\]$/,
+        room
       )
 
     details
@@ -48,6 +44,7 @@ defmodule Y2016.Day04 do
 
   defp letter_frequency(name) do
     name
+    |> String.replace("-", "")
     |> String.to_charlist()
     |> Enum.sort()
     |> Enum.chunk_by(& &1)
