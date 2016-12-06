@@ -14,10 +14,12 @@ You can check out the code yourself and run the benchmarks with `mix bench 2016`
 
 ```
 Name                     ips        average  deviation         median         99th %
-day 01, part 1      13812.34      0.0724 ms    ±23.49%      0.0660 ms       0.125 ms
-day 01, part 2       3283.79        0.30 ms    ±28.96%        0.30 ms        0.48 ms
-day 02, part 1        315.27        3.17 ms     ±1.54%        3.16 ms        3.33 ms
-day 02, part 2        184.97        5.41 ms     ±1.67%        5.38 ms        5.92 ms
-day 03, part 1        662.92        1.51 ms     ±8.14%        1.49 ms        1.80 ms
-day 03, part 2        573.23        1.74 ms    ±11.81%        1.80 ms        2.02 ms
+day 01, part 1      14917.75      0.0670 ms    ±33.38%      0.0620 ms       0.133 ms
+day 01, part 2       3495.02        0.29 ms    ±17.21%        0.28 ms        0.45 ms
+day 02, part 1        303.71        3.29 ms    ±12.21%        3.18 ms        5.42 ms
+day 02, part 2        184.04        5.43 ms     ±1.92%        5.41 ms        5.92 ms
+day 03, part 1        831.07        1.20 ms     ±9.40%        1.21 ms        1.39 ms
+day 03, part 2        755.75        1.32 ms    ±12.61%        1.32 ms        1.87 ms
+day 04, part 1         63.48       15.75 ms     ±2.39%       15.70 ms       17.99 ms
+day 04, part 2         70.80       14.12 ms     ±1.78%       14.07 ms       15.43 ms
 ```

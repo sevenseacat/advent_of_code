@@ -9,6 +9,41 @@ defmodule Y2016.Day04 do
     |> Enum.sum()
   end
 
+  def north_pole_rooms do
+    parse_input()
+    |> Stream.map(&parse_room_details/1)
+    |> Stream.map(&{decode_name(&1), &1["sector"]})
+    |> Enum.find("", fn {name, _} -> String.match?(name, ~r/north/) end)
+  end
+
+  @doc """
+  iex> Day04.decode_name(%{"name" => "qzmt-zixmtkozy-ivhz", "sector" => 343})
+  "very encrypted name"
+  """
+  def decode_name(room) do
+    room["name"]
+    |> to_charlist
+    |> decode_letters(room["sector"])
+    |> to_string
+  end
+
+  def decode_letters([], _), do: []
+
+  def decode_letters([letter | letters], cipher) do
+    [decode_letter(letter, cipher) | decode_letters(letters, cipher)]
+  end
+
+  def decode_letter(?-, _), do: ' '
+
+  def decode_letter(letter, cipher) do
+    new_letter = letter + rem(cipher, 26)
+
+    case new_letter > ?z do
+      true -> new_letter - 26
+      false -> new_letter
+    end
+  end
+
   def parse_input do
     input() |> String.split()
   end
@@ -73,4 +108,5 @@ defmodule Y2016.Day04 do
   end
 
   def part1_verify, do: real_room_sector_sum()
+  def part2_verify, do: north_pole_rooms() |> elem(1)
 end
