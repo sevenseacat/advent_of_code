@@ -1,7 +1,6 @@
 defmodule Y2016.Day01 do
   use Advent.Day, no: 1
 
-  @directions [:north, :west, :south, :east]
   @doc """
   iex> Day01.final_distance("R2, L3")
   5
@@ -68,41 +67,46 @@ defmodule Y2016.Day01 do
   end
 
   defp make_move({turn, length}, position, facing) do
-    facing = make_turn(facing, turn)
+    facing = turn(facing, turn)
     position = move(position, facing, length)
     {position, facing}
   end
 
   @doc """
-  iex> Day01.make_turn(:north, "L")
+  iex> Day01.turn(:north, "L")
   :east
 
-  iex> Day01.make_turn(:north, "R")
+  iex> Day01.turn(:north, "R")
   :west
 
-  iex> Day01.make_turn(:west, "L")
+  iex> Day01.turn(:west, "L")
   :north
 
-  iex> Day01.make_turn(:west, "R")
+  iex> Day01.turn(:west, "R")
   :south
   """
-  def make_turn(facing, turn) do
-    do_make_turn(@directions, facing, turn)
-  end
-
-  defp do_make_turn(_, facing, "S"), do: facing
-  defp do_make_turn([], _facing, "R"), do: List.first(@directions)
-  defp do_make_turn([], _facing, "L"), do: List.last(@directions)
-  defp do_make_turn([facing, new | _directions], facing, "R"), do: new
-  defp do_make_turn([new, facing | _directions], facing, "L"), do: new
-  defp do_make_turn([_ | directions], facing, turn), do: do_make_turn(directions, facing, turn)
+  def turn(:north, "L"), do: :east
+  def turn(:north, "R"), do: :west
+  def turn(:south, "L"), do: :west
+  def turn(:south, "R"), do: :east
+  def turn(:east, "L"), do: :south
+  def turn(:east, "R"), do: :north
+  def turn(:west, "L"), do: :north
+  def turn(:west, "R"), do: :south
+  def turn(dir, "S"), do: dir
 
   defp move({x, y}, :north, length), do: {x, y + length}
   defp move({x, y}, :south, length), do: {x, y - length}
   defp move({x, y}, :east, length), do: {x + length, y}
   defp move({x, y}, :west, length), do: {x - length, y}
 
-  defp parse_input(input) do
+  @doc """
+  Parse the input string into tuples of actions to take.
+
+  iex> Day01.parse_input("R5, L5, R5, R3")
+  [{"R", 5}, {"L", 5}, {"R", 5}, {"R", 3}]
+  """
+  def parse_input(input) do
     input
     |> String.split(", ")
     |> Enum.map(fn <<turn::binary-size(1), length::binary>> ->
