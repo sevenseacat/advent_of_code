@@ -25,16 +25,11 @@ defmodule Y2016.Day02 do
 
   defp calculate_bathroom_code(input, keypad) do
     input
-    |> Enum.map_reduce(@starting_position, fn move, position ->
-      position =
-        move
-        |> String.to_charlist()
-        |> calculate_digit(position, keypad)
-
-      {position, position}
+    |> Enum.scan(@starting_position, fn move, position ->
+      move
+      |> String.to_charlist()
+      |> calculate_digit(position, keypad)
     end)
-    # We don't care about the final accumulator value
-    |> elem(0)
     |> List.to_string()
   end
 
