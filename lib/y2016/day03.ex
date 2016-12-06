@@ -7,7 +7,7 @@ defmodule Y2016.Day03 do
   end
 
   @doc """
-  Returns a sorted list of triangle sides.
+  Returns a list of triangle sides.
 
   iex> Day03.parse_input("3 4 5 6 7 8 9 10 11", &Day03.horizontal_chunk/1)
   [[3,4,5], [6,7,8], [9,10,11]]
@@ -21,12 +21,11 @@ defmodule Y2016.Day03 do
     |> String.split()
     |> Enum.map(&String.to_integer(&1))
     |> fun.()
-    |> Enum.map(&Enum.sort(&1))
   end
 
   def horizontal_chunk(list) do
     list
-    |> Stream.chunk_every(3)
+    |> Enum.chunk_every(3)
   end
 
   def vertical_chunk(list) do
