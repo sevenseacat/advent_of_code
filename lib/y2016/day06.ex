@@ -8,7 +8,7 @@ defmodule Y2016.Day06 do
   "easter"
   """
   def unjammer(input) do
-    do_unjammer(input, &likely_sorter/1)
+    do_unjammer(input, &Enum.max_by/2)
   end
 
   @doc """
@@ -18,7 +18,7 @@ defmodule Y2016.Day06 do
   "advent"
   """
   def unlikely_unjammer(input) do
-    do_unjammer(input, &unlikely_sorter/1)
+    do_unjammer(input, &Enum.min_by/2)
   end
 
   def do_unjammer(input, sorter) do
@@ -29,20 +29,11 @@ defmodule Y2016.Day06 do
     |> Map.values()
     |> Enum.map(fn list ->
       list
-      |> sorter.()
-      |> List.first()
+      |> sorter.(fn {_key, val} -> val end)
       |> elem(0)
     end)
     |> to_string
   end
-
-  @doc """
-  How to sort the frequency tables for the two different types of unjammer.
-  """
-  def likely_sorter(list), do: Enum.sort(list, fn {_, first}, {_, second} -> first >= second end)
-
-  def unlikely_sorter(list),
-    do: Enum.sort(list, fn {_, first}, {_, second} -> first <= second end)
 
   def frequency_table([], acc), do: acc
 
