@@ -2,7 +2,7 @@
 
 My Elixir solutions for [Advent of Code 2016](https://adventofcode.com/2016).
 
-**Stars complete: 4/50 :star:**
+**Stars complete: 12/50 :star:**
 
 ## Benchmarks
 
@@ -14,14 +14,16 @@ You can check out the code yourself and run the benchmarks with `mix bench 2016`
 
 ```
 Name                     ips        average  deviation         median         99th %
-day 01, part 1      15204.67      0.0658 ms    ±56.58%      0.0630 ms       0.118 ms
-day 01, part 2       3462.76        0.29 ms    ±22.42%        0.28 ms        0.45 ms
-day 02, part 1        314.06        3.18 ms     ±3.36%        3.17 ms        3.37 ms
-day 02, part 2        183.69        5.44 ms     ±1.94%        5.42 ms        6.03 ms
-day 03, part 1        845.14        1.18 ms    ±10.73%        1.20 ms        1.54 ms
-day 03, part 2        784.33        1.27 ms     ±5.83%        1.28 ms        1.47 ms
-day 04, part 1         62.86       15.91 ms     ±1.56%       15.86 ms       16.85 ms
-day 04, part 2         69.35       14.42 ms     ±2.63%       14.34 ms       16.84 ms
-day 05, part 1        0.0341    29305.39 ms     ±0.00%    29305.39 ms    29305.39 ms
-day 05, part 2        0.0216    46301.30 ms     ±0.00%    46301.30 ms    46301.30 ms
+day 01, part 1      13899.05      0.0719 ms    ±30.01%      0.0630 ms       0.145 ms
+day 01, part 2       3453.81        0.29 ms    ±22.92%        0.28 ms        0.49 ms
+day 02, part 1        310.88        3.22 ms     ±2.08%        3.20 ms        3.51 ms
+day 02, part 2        183.03        5.46 ms     ±1.25%        5.45 ms        5.77 ms
+day 03, part 1        833.94        1.20 ms    ±19.56%        1.17 ms        2.14 ms
+day 03, part 2        799.03        1.25 ms     ±6.92%        1.25 ms        1.48 ms
+day 04, part 1         62.59       15.98 ms     ±5.53%       15.89 ms       19.85 ms
+day 04, part 2         55.90       17.89 ms    ±39.99%       14.54 ms       36.07 ms
+day 05, part 1        0.0365    27423.57 ms     ±0.00%    27423.57 ms    27423.57 ms
+day 05, part 2        0.0238    42014.12 ms     ±0.00%    42014.12 ms    42014.12 ms
+day 06, part 1        289.38        3.46 ms     ±4.40%        3.48 ms        3.83 ms
+day 06, part 2        288.70        3.46 ms     ±3.42%        3.49 ms        3.81 ms
 ```
