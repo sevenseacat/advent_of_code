@@ -1,8 +1,6 @@
 defmodule Y2016.Day07 do
   use Advent.Day, no: 7
 
-  import Integer, only: [is_odd: 1]
-
   def tls_addresses(input) do
     input
     |> Stream.reject(&(!tls_address?(&1)))
@@ -26,31 +24,21 @@ defmodule Y2016.Day07 do
   iex> Day07.tls_address?("ioxxoj[asdfgh]zxcvbn")
   true
 
-  This wasn't part of the examples, but some of the input has multiple [] blocks
-  which choked my first attempt at a solution.
+  Some more examples to flesh out edge cases that the original tests didn't cover.
   iex> Day07.tls_address?("ioxxoj[asdfgh]zxcvbn[asdfgh]zxcvbn")
   true
+
+  iex> Day07.tls_address?("ioxxoj[abcoxxoabc]zxcvbn[asdfgh]zxcvbn")
+  false
   """
   def tls_address?(address) do
-    address
-    |> String.split(["[", "]"])
-    |> check_tls_address(0, false)
-  end
+    abba = "(\\w)((?!\\1)\\w)\\2\\1"
 
-  def check_tls_address([], _position, truthy), do: truthy
-
-  def check_tls_address([head | tail], position, truthy) do
-    abba = ~r/(\w)((?!\1)\w)\2\1/
-
-    case String.match?(head, abba) do
-      true ->
-        case is_odd(position) do
-          true -> false
-          false -> check_tls_address(tail, position + 1, true)
-        end
-
-      false ->
-        check_tls_address(tail, position + 1, truthy)
+    case String.match?(address, ~r/\[\w*#{abba}\w*\]/) do
+      # If there is an ABBA in the hypernet [] parts, it's all over.
+      true -> false
+      # But if not, and there's an ABBA anywhere in the string, it's a win.
+      false -> String.match?(address, ~r/#{abba}/)
     end
   end
 
