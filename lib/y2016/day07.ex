@@ -30,7 +30,14 @@ defmodule Y2016.Day07 do
   iex> Day07.ssl_address?("zazbz[bzb]cdb")
   true
   """
-  def ssl_address?(address), do: check_ssl_address(String.graphemes(address), address)
+  def ssl_address?(address) do
+    address
+    # Strip out the hypernet sections so we can iterate over the string checking for aba's safely
+    # Otherwise we may run into aba's within the hypernets
+    |> String.replace(~r/\[\w+\]/, " ")
+    |> String.graphemes()
+    |> check_ssl_address(address)
+  end
 
   def check_ssl_address([], _string), do: false
 
@@ -40,14 +47,6 @@ defmodule Y2016.Day07 do
       true -> true
       false -> check_ssl_address([b, a | tail], string)
     end
-  end
-
-  # Have hit the start of a hypernet section - skip to the end of it to keep parsing
-  def check_ssl_address(["[" | tail], string) do
-    tail
-    |> Enum.split_while(&(&1 != "]"))
-    |> elem(1)
-    |> check_ssl_address(string)
   end
 
   def check_ssl_address([_head | tail], string), do: check_ssl_address(tail, string)
