@@ -45,23 +45,21 @@ defmodule Y2016.Day09 do
       [string] ->
         String.length(string)
 
-      [content, string] ->
-        String.length(content) + length_via_marker_duplication(string)
+      [prefix, string] ->
+        String.length(prefix) + length_via_nested_marker_expansion("(" <> string)
     end
   end
 
-  defp length_via_marker_duplication(string) do
-    case String.split(string, ")", parts: 2) do
-      [string] ->
+  defp length_via_nested_marker_expansion(string) do
+    case Regex.named_captures(~r/\((?P<length>\d+)x(?P<count>\d+)\)(?P<content>.*)/, string) do
+      nil ->
         String.length(string)
 
-      [marker, string] ->
-        [dup_length, dup_count] = decode_marker(marker)
+      %{"length" => length, "count" => count, "content" => content} ->
+        {content_to_dup, rest} = String.split_at(content, String.to_integer(length))
 
-        {content_to_dup, rest} = String.split_at(string, dup_length)
-
-        (String.duplicate(content_to_dup, dup_count) <> rest)
-        |> advanced_decompress_length
+        String.to_integer(count) * length_via_nested_marker_expansion(content_to_dup) +
+          advanced_decompress_length(rest)
     end
   end
 
@@ -81,4 +79,5 @@ defmodule Y2016.Day09 do
   defp decode_marker(marker), do: String.split(marker, "x") |> Enum.map(&String.to_integer/1)
 
   def part1_verify, do: input() |> decompress() |> String.length()
+  def part2_verify, do: input() |> advanced_decompress_length()
 end
