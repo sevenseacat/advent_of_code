@@ -1,7 +1,7 @@
 defmodule Y2016.Day10 do
   use Advent.Day, no: 10
 
-  alias Y2016.Day10.Bot
+  alias Y2016.Day10.{Bot, Output}
 
   @doc """
   iex> Day10.process_input(["value 5 goes to bot 2",
@@ -83,4 +83,9 @@ defmodule Y2016.Day10 do
   end
 
   def part1_verify, do: run_scenario()
+
+  def part2_verify do
+    parse_input() |> process_input(MapSet.new()) |> process_rules()
+    Output.output_product([0, 1, 2])
+  end
 end
