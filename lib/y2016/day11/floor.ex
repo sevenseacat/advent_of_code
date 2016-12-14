@@ -16,15 +16,34 @@ defmodule Y2016.Day11.Floor do
   end
 
   @doc """
-  iex> Floor.item_combinations(%Floor{chips: [:t, :u], generators: [:v, :w]}) |> Enum.sort
-  [[:t], [:t, :u], [:t, :v], [:t, :w], [:u], [:u, :v], [:u, :w], [:v], [:v, :w], [:w]]
+  There's got to be a quicker way to do this. But for now, it works.
+  Generates a list of all the options available for moving from a given floor.
+
+  iex> Floor.item_combinations(%Floor{chips: [:t, :u], generators: [:v, :w]})
+  [
+    %{chips: [:t, :u], generators: []},
+    %{chips: [:t], generators: [:v]},
+    %{chips: [:t], generators: [:w]},
+    %{chips: [:u], generators: [:v]},
+    %{chips: [:u], generators: [:w]},
+    %{chips: [], generators: [:v, :w]},
+    %{chips: [:t], generators: []},
+    %{chips: [:u], generators: []},
+    %{chips: [], generators: [:v]},
+    %{chips: [], generators: [:w]}
+  ]
   """
   def item_combinations(floor) do
     floor
     |> object_permutations(2)
-    |> Enum.map(&Enum.sort/1)
-    |> Enum.map(fn list -> Enum.group_by(list, fn {type, value} -> type end) end)
-    |> Enum.uniq()
+    |> Stream.map(&Enum.sort/1)
+    |> Stream.map(&Enum.reverse/1)
+    |> Stream.uniq()
+    |> Enum.map(fn list ->
+      Enum.reduce(list, %{chips: [], generators: []}, fn {type, value}, acc ->
+        Map.update!(acc, type, &[value | &1])
+      end)
+    end)
   end
 
   defp object_permutations(_, 0), do: []
@@ -39,7 +58,7 @@ defmodule Y2016.Day11.Floor do
   generate permutations, we need to differentiate them somehow - do so by turning each
   name into a tuple of type and name
   """
-  defp combine_objects(%Floor{chips: chips, generators: generators}) do
+  def combine_objects(%Floor{chips: chips, generators: generators}) do
     Enum.map(chips, &{:chips, &1}) ++ Enum.map(generators, &{:generators, &1})
   end
 end
