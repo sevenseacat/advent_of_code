@@ -45,4 +45,48 @@ defmodule Y2016.Day11.State do
   def winning?(%State{floors: floors}) do
     Enum.all?(floors, &Floor.winning?/1)
   end
+
+  @doc """
+  TODO: The old floor/new floor stuff is a bit icky.
+
+  iex> State.apply_move(%State{elevator: 2, floors: [
+  ...>  %Floor{number: 1, chips: [:a], generators: []},
+  ...>  %Floor{number: 2, chips: [:b, :c], generators: [:c, :d]},
+  ...>  %Floor{number: 3, chips: [:e], generators: [:e]}
+  ...> ]}, %{chips: [:c], generators: [:d]}, 3)
+  %State{elevator: 3, floors: [
+    %Floor{number: 1, chips: [:a], generators: []},
+    %Floor{number: 2, chips: [:b], generators: [:c]},
+    %Floor{number: 3, chips: [:c, :e], generators: [:d, :e]}
+  ]}
+  """
+  def apply_move(
+        %State{elevator: old_elevator, floors: floors} = state,
+        %{chips: chips, generators: generators},
+        new_elevator
+      ) do
+    old_floor =
+      floors
+      |> Enum.at(floor_index(state, old_elevator))
+      |> Map.update!(:chips, &(&1 -- chips))
+      |> Map.update!(:generators, &(&1 -- generators))
+
+    floors = List.replace_at(floors, floor_index(state, old_elevator), old_floor)
+
+    new_floor =
+      floors
+      |> Enum.at(floor_index(state, new_elevator))
+      |> Map.update!(:chips, &(chips ++ &1))
+      |> Map.update!(:generators, &(generators ++ &1))
+
+    floors = List.replace_at(floors, floor_index(state, new_elevator), new_floor)
+
+    state
+    |> Map.put(:elevator, new_elevator)
+    |> Map.put(:floors, floors)
+  end
+
+  defp floor_index(%State{floors: floors}, floor_no) do
+    Enum.find_index(floors, fn floor -> floor.number == floor_no end)
+  end
 end
