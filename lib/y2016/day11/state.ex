@@ -10,6 +10,10 @@ defmodule Y2016.Day11.State do
     Code.eval_file("lib/y2016/input/day11.txt") |> elem(0)
   end
 
+  def part2_initial do
+    Code.eval_file("lib/y2016/input/day11_part2.txt") |> elem(0)
+  end
+
   @doc """
   iex> State.legal?(%State{floors: [%Floor{number: 1, chips: [:s], generators: [:s]}]})
   true
