@@ -13,35 +13,45 @@ defmodule Y2016.Day11 do
   This is the actual breadth-first search part. ie. the point of the puzzle.
   """
   def get_optimal_path(state) do
-    do_search([{[], State.legal_moves(state)}], [])
+    do_search([{[], State.legal_moves(state)}], [], [])
   end
 
-  def do_search([], next_level_states) do
+  # Reached the end of a level. Start going through allll the states on the next level.
+  defp do_search([], next_level_states, all_seen_states) do
     IO.puts(
-      "* Going to level #{next_level_states |> hd |> elem(0) |> length}: #{length(next_level_states)} states to check in this level."
+      "* Level #{next_level_states |> hd |> elem(0) |> length}: #{length(next_level_states)} states to check."
     )
 
-    do_search(next_level_states, [])
+    do_search(next_level_states, [], all_seen_states)
   end
 
-  def do_search([{_path, []} | alt_paths], next_level_states),
-    do: do_search(alt_paths, next_level_states)
+  # We've exhausted one state's possible next states - move onto the next state to expand.
+  defp do_search([{_path, []} | alt_paths], next_level_states, all_seen_states) do
+    do_search(alt_paths, next_level_states, all_seen_states)
+  end
 
-  def do_search([{path, [state | states]} | alt_paths], next_level_states) do
+  # The main function head - checking all legal moves associated with a given state.
+  # If the state doesn't win, expand out it's legal moves, shove them on a stack, and keep looking.
+  defp do_search([{path, [state | states]} | alt_paths], next_level_states, all_seen_states) do
     case State.winning?(state) do
+      # Jackpot!
       true ->
         Enum.reverse([state | path])
 
       false ->
-        # Avoid cycles by only using this computed state if it is not already in the path.
-        case state in path do
+        # Avoid cycles by only using this computed state if it is not already in the path taken to get to this state.
+        # Also drastically cut down on the number of states in memory, by recording *all* states
+        # we've seen - if we see a state twice, the earlier one was clearly more optimal so disregard future references to it.
+        case state in path || state in all_seen_states do
           true ->
-            do_search([{path, states} | alt_paths], next_level_states)
+            do_search([{path, states} | alt_paths], next_level_states, all_seen_states)
 
           false ->
-            do_search([{path, states} | alt_paths], [
-              {[state | path], State.legal_moves(state)} | next_level_states
-            ])
+            do_search(
+              [{path, states} | alt_paths],
+              [{[state | path], State.legal_moves(state)} | next_level_states],
+              [state | all_seen_states]
+            )
         end
     end
   end
