@@ -1,5 +1,5 @@
 defmodule Y2016.Day11.State do
-  alias Y2016.Day11.{State, Floor}
+  alias Y2016.Day11.{State, Floor, Elevator}
   defstruct floors: [], elevator: 1
 
   @winning_floor 4
@@ -47,6 +47,19 @@ defmodule Y2016.Day11.State do
   end
 
   @doc """
+  See the test file for a test of this - too big for a doctest.
+  """
+  def legal_moves(%State{elevator: elevator} = state) do
+    Enum.map(Elevator.valid_moves(state), fn new_elevator_pos ->
+      get_floor(state, elevator)
+      |> Floor.item_combinations()
+      |> Stream.map(fn move -> State.apply_move(state, move, new_elevator_pos) end)
+      |> Enum.reject(fn state -> !State.legal?(state) end)
+    end)
+    |> List.flatten()
+  end
+
+  @doc """
   TODO: The old floor/new floor stuff is a bit icky.
 
   iex> State.apply_move(%State{elevator: 2, floors: [
@@ -66,24 +79,26 @@ defmodule Y2016.Day11.State do
         new_elevator
       ) do
     old_floor =
-      floors
-      |> Enum.at(floor_index(state, old_elevator))
+      get_floor(state, old_elevator)
       |> Map.update!(:chips, &(&1 -- chips))
       |> Map.update!(:generators, &(&1 -- generators))
 
     floors = List.replace_at(floors, floor_index(state, old_elevator), old_floor)
 
     new_floor =
-      floors
-      |> Enum.at(floor_index(state, new_elevator))
-      |> Map.update!(:chips, &(chips ++ &1))
-      |> Map.update!(:generators, &(generators ++ &1))
+      get_floor(state, new_elevator)
+      |> Map.update!(:chips, &((chips ++ &1) |> Enum.sort()))
+      |> Map.update!(:generators, &((generators ++ &1) |> Enum.sort()))
 
     floors = List.replace_at(floors, floor_index(state, new_elevator), new_floor)
 
     state
     |> Map.put(:elevator, new_elevator)
     |> Map.put(:floors, floors)
+  end
+
+  defp get_floor(%State{floors: floors} = state, floor_no) do
+    Enum.at(floors, floor_index(state, floor_no))
   end
 
   defp floor_index(%State{floors: floors}, floor_no) do
