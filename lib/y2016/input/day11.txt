@@ -1,0 +1,9 @@
+{
+  [
+    f4: [chips: [], generators: []],
+    f3: [chips: [:thulium], generators: []],
+    f2: [chips: [:ruthenium, :curium], generators: [:thulium, :ruthenium, :curium]],
+    f1: [chips: [:strontium, :plutonium], generators: [:strontium, :plutonium]]
+  ],
+  :f1
+}
