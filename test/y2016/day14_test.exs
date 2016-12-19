@@ -1,7 +1,13 @@
 defmodule Y2016.Day14Test do
   use ExUnit.Case, async: true
   alias Y2016.Day14
+  alias Y2016.Day14.Cache
   doctest Day14
+
+  setup do
+    Cache.start_link()
+    :ok
+  end
 
   test "verification, part 1", do: assert(Day14.part1_verify() == 16106)
 
