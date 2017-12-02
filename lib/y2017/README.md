@@ -14,6 +14,8 @@ You can check out the code yourself and run the benchmarks with `mix bench 2017`
 
 ```
 Name                     ips        average  deviation         median         99th %
-day 01, part 1        9.20 K      108.74 μs    ±59.74%       97.99 μs      292.99 μs
-day 01, part 2        7.09 K      141.08 μs    ±97.48%      122.99 μs      428.33 μs
+day 01, part 1        9.32 K      107.27 μs    ±19.58%         106 μs      164.17 μs
+day 01, part 2        8.14 K      122.81 μs    ±44.68%         121 μs         176 μs
+day 02, part 1        7.00 K      142.88 μs    ±14.89%         140 μs         169 μs
+day 02, part 2        5.33 K      187.70 μs    ±24.56%         185 μs         228 μs
 ```
