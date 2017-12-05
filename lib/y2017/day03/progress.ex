@@ -18,19 +18,26 @@ defmodule Y2017.Day03.Progress do
   # run 6: 3 moves up ... see where this is going?
   # So a progress state is { run number, direction, # of moves in run, current move # in run }
   def new do
-    {1, {1, 0}, 1, 1}
+    {1, {1, 0}, 1, 0}
   end
 
-  def increment(progress, coordinates, num) do
+  def increment(progress, coordinates, fun) do
     new_progress = make_move(progress)
-    {x, y} = move(progress, coordinates)
-    {new_progress, %Coordinate{x: x, y: y, value: num}}
+    {x, y} = move(new_progress, coordinates)
+    {new_progress, %Coordinate{x: x, y: y, value: fun.({x, y}, coordinates)}}
   end
 
   defp make_move({run_no, direction, move_count, move_no}) do
-    case move_count == move_no do
-      true -> {run_no + 1, rotate(direction), div(run_no, move_count), 1}
-      false -> {run_no, direction, move_count, move_no + 1}
+    if move_count == move_no do
+      new_move_count =
+        case rem(run_no, 2) do
+          0 -> move_count + 1
+          1 -> move_count
+        end
+
+      {run_no + 1, rotate(direction), new_move_count, 1}
+    else
+      {run_no, direction, move_count, move_no + 1}
     end
   end
 
