@@ -18,14 +18,23 @@ defmodule Y2017.Day11 do
     input
     |> String.trim()
     |> String.split(",")
-    |> reduce_by_hex({0, 0})
+    |> reduce_by_hex({0, 0}, 0)
+    |> elem(0)
     |> calculate_distance
   end
 
-  # To reduce 3 dimensions to 2 dimensions, a N move can be represented as a combined NE+NW move.
-  defp reduce_by_hex([], position), do: position
+  def part2(input) do
+    input
+    |> String.trim()
+    |> String.split(",")
+    |> reduce_by_hex({0, 0}, 0)
+    |> elem(1)
+  end
 
-  defp reduce_by_hex([move | moves], {nw, ne}) do
+  # To reduce 3 dimensions to 2 dimensions, a N move can be represented as a combined NE+NW move.
+  defp reduce_by_hex([], position, max), do: {position, max}
+
+  defp reduce_by_hex([move | moves], {nw, ne}, max) do
     new_position =
       case move do
         "nw" -> {nw + 1, ne}
@@ -36,10 +45,12 @@ defmodule Y2017.Day11 do
         "sw" -> {nw, ne - 1}
       end
 
-    reduce_by_hex(moves, new_position)
+    new_max = Enum.max([abs(nw), abs(ne), max])
+    reduce_by_hex(moves, new_position, new_max)
   end
 
   def calculate_distance({nw, ne}), do: Enum.max([abs(nw), abs(ne)])
 
   def part1_verify, do: input() |> part1()
+  def part2_verify, do: input() |> part2()
 end
