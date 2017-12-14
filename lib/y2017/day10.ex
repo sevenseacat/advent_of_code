@@ -1,6 +1,8 @@
 defmodule Y2017.Day10 do
   use Advent.Day, no: 10
 
+  use Bitwise
+
   @doc """
   Run in a console like:
   ```
@@ -13,13 +15,60 @@ defmodule Y2017.Day10 do
   """
   def part1(input, lengths) do
     {input, 0, 0, lengths}
-    |> do_part1
+    |> do_parts
+    |> elem(0)
     |> Enum.take(2)
     |> Enum.reduce(1, &(&1 * &2))
   end
 
-  defp do_part1({list, _, _, []}), do: list
-  defp do_part1(data), do: data |> knot |> do_part1
+  @doc """
+  iex> Day10.part2("")
+  "a2582a3a0e66e6e86e3812dcb672a272"
+
+  iex> Day10.part2("AoC 2017")
+  "33efeb34ea91902bb2f59c9920caa6cd"
+
+  iex> Day10.part2("1,2,3")
+  "3efbe78a8d82f29979031a4aa0b16a9d"
+
+  iex> Day10.part2("1,2,4")
+  "63960835bcdc130f0b66d7ff4f6a5a8e"
+  """
+  def part2(input) do
+    input = parse_part2_input(input)
+
+    {Enum.to_list(0..255), 0, 0, input}
+    |> do_part2(input, 64)
+    |> elem(0)
+    |> Stream.chunk_every(16)
+    |> Enum.map(&xor_everything!/1)
+    |> Enum.join()
+    |> String.downcase()
+  end
+
+  defp do_part2(data, _, 0), do: data
+
+  defp do_part2(data, input, times) do
+    data
+    |> do_parts
+    |> put_elem(3, input)
+    |> do_part2(input, times - 1)
+  end
+
+  defp xor_everything!([head | rest]), do: xor(rest, head)
+  defp xor([], result), do: result |> Integer.to_string(16) |> String.pad_leading(2, "0")
+  defp xor([head | rest], result), do: xor(rest, bxor(head, result))
+
+  defp do_parts({_, _, _, []} = data), do: data
+  defp do_parts(data), do: data |> knot |> do_parts
+
+  @doc """
+  iex> Day10.parse_part2_input("1,2,3")
+  [49, 44, 50, 44, 51, 17, 31, 73, 47, 23]
+  """
+  def parse_part2_input(input) do
+    String.to_charlist(input) ++ [17, 31, 73, 47, 23]
+  end
 
   @doc """
   List, position, skip size, lengths.
@@ -70,4 +119,5 @@ defmodule Y2017.Day10 do
   end
 
   def part1_verify, do: part1(Enum.to_list(0..255), input() |> parse_input())
+  def part2_verify, do: input() |> part2()
 end
