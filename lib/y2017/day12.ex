@@ -7,6 +7,21 @@ defmodule Y2017.Day12 do
     |> Enum.sort()
   end
 
+  def part2(input) do
+    Enum.reduce(Map.keys(input), {Map.keys(input), []}, fn subject, {to_see, groups} ->
+      case subject in to_see do
+        false ->
+          {to_see, groups}
+
+        true ->
+          new_group = part1(input, subject)
+          {to_see -- new_group, [new_group | groups]}
+      end
+    end)
+    |> elem(1)
+    |> Enum.reverse()
+  end
+
   defp find_all_connected(subject, data, seen) do
     subject
     |> find_immediately_connected(data)
@@ -43,4 +58,5 @@ defmodule Y2017.Day12 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1(0) |> length
+  def part2_verify, do: input() |> parse_input() |> part2() |> length
 end
