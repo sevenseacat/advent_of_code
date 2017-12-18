@@ -12,7 +12,7 @@ defmodule Y2017.Day13 do
     layer_count = Map.keys(input) |> Enum.max()
 
     input
-    |> run_gauntlet(layer_count)
+    |> move(0, 0, layer_count)
     |> Enum.filter(fn {_, v} -> v.caught end)
     |> Enum.reduce(0, fn {k, v}, acc -> acc + k * v.range end)
   end
@@ -23,32 +23,27 @@ defmodule Y2017.Day13 do
   10
   """
   def part2(input) do
-    layer_count = Map.keys(input) |> Enum.max()
-
-    Enum.reduce_while(0..5_000_000, input, fn i, input ->
-      if input |> run_gauntlet(layer_count) |> Enum.all?(fn {_, v} -> v.caught == false end) do
-        {:halt, i}
-      else
-        if rem(i, 1000) == 0 do
-          IO.inspect(i)
-        end
-
-        {:cont, move_sentries(input)}
-      end
-    end)
+    do_part2(input, 0, Map.keys(input) |> Enum.max())
   end
 
-  defp run_gauntlet(input, layer_count) do
-    move(input, 0, layer_count)
+  def do_part2(input, offset, layer_count) do
+    if offset > 0 && rem(offset, 1000) == 0, do: IO.puts(offset)
+    new_input = move(input, offset, 0, layer_count)
+
+    if Enum.any?(new_input, fn {_, v} -> v.caught end) do
+      do_part2(input, offset + 1, layer_count)
+    else
+      offset
+    end
   end
 
-  def move(input, current, last) when current > last, do: input
+  def move(input, _, current, last) when current > last, do: input
 
-  def move(input, current, last) do
+  def move(input, offset, current, last) do
     input
+    |> move_sentries(current + offset)
     |> mark_caught!(current)
-    |> move_sentries
-    |> move(current + 1, last)
+    |> move(offset, current + 1, last)
   end
 
   defp mark_caught!(input, current) do
@@ -58,9 +53,9 @@ defmodule Y2017.Day13 do
     end
   end
 
-  defp move_sentries(input) do
+  defp move_sentries(input, offset) do
     input
-    |> Enum.map(fn {k, v} -> {k, Layer.move_sentry(v)} end)
+    |> Enum.map(fn {k, v} -> {k, Layer.set_position(v, offset)} end)
     |> Enum.into(%{})
   end
 
