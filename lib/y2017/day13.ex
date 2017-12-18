@@ -11,9 +11,35 @@ defmodule Y2017.Day13 do
   def part1(input) do
     layer_count = Map.keys(input) |> Enum.max()
 
-    move(input, 0, layer_count)
+    input
+    |> run_gauntlet(layer_count)
     |> Enum.filter(fn {_, v} -> v.caught end)
     |> Enum.reduce(0, fn {k, v}, acc -> acc + k * v.range end)
+  end
+
+  @doc """
+  iex> Day13.part2(%{0 => %Layer{range: 3}, 1 => %Layer{range: 2}, 4 => %Layer{range: 4},
+  ...> 6 => %Layer{range: 4}})
+  10
+  """
+  def part2(input) do
+    layer_count = Map.keys(input) |> Enum.max()
+
+    Enum.reduce_while(0..5_000_000, input, fn i, input ->
+      if input |> run_gauntlet(layer_count) |> Enum.all?(fn {_, v} -> v.caught == false end) do
+        {:halt, i}
+      else
+        if rem(i, 1000) == 0 do
+          IO.inspect(i)
+        end
+
+        {:cont, move_sentries(input)}
+      end
+    end)
+  end
+
+  defp run_gauntlet(input, layer_count) do
+    move(input, 0, layer_count)
   end
 
   def move(input, current, last) when current > last, do: input
@@ -57,4 +83,5 @@ defmodule Y2017.Day13 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end

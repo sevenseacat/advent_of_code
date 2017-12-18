@@ -5,4 +5,7 @@ defmodule Y2017.Day13Test do
   doctest Day13
 
   test "verification, part 1", do: assert(Day13.part1_verify() == 1580)
+
+  @tag timeout: :infinity
+  test "verification, part 2", do: assert(Day13.part2_verify() == 3_943_252)
 end
