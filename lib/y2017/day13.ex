@@ -4,33 +4,33 @@ defmodule Y2017.Day13 do
   alias Y2017.Day13.Layer
 
   @doc """
-  iex> Day13.part1(%{0 => %Layer{range: 3}, 1 => %Layer{range: 2}, 4 => %Layer{range: 4},
-  ...> 6 => %Layer{range: 4}})
+  iex> Day13.part1([%Layer{depth: 0, range: 3}, %Layer{depth: 1, range: 2},
+  ...> %Layer{depth: 4, range: 4}, %Layer{depth: 6, range: 4}])
   24
   """
   def part1(input) do
-    layer_count = Map.keys(input) |> Enum.max()
+    layer_count = input |> List.last() |> Map.fetch!(:depth)
 
     input
     |> move(0, 0, layer_count)
-    |> Enum.filter(fn {_, v} -> v.caught end)
-    |> Enum.reduce(0, fn {k, v}, acc -> acc + k * v.range end)
+    |> Enum.filter(& &1.caught)
+    |> Enum.reduce(0, fn layer, acc -> acc + layer.depth * layer.range end)
   end
 
   @doc """
-  iex> Day13.part2(%{0 => %Layer{range: 3}, 1 => %Layer{range: 2}, 4 => %Layer{range: 4},
-  ...> 6 => %Layer{range: 4}})
+  iex> Day13.part2([%Layer{depth: 0, range: 3}, %Layer{depth: 1, range: 2},
+  ...> %Layer{depth: 4, range: 4}, %Layer{depth: 6, range: 4}])
   10
   """
   def part2(input) do
-    do_part2(input, 0, Map.keys(input) |> Enum.max())
+    do_part2(input, 0, input |> List.last() |> Map.fetch!(:depth))
   end
 
   def do_part2(input, offset, layer_count) do
     if offset > 0 && rem(offset, 1000) == 0, do: IO.puts(offset)
     new_input = move(input, offset, 0, layer_count)
 
-    if Enum.any?(new_input, fn {_, v} -> v.caught end) do
+    if Enum.any?(new_input, & &1.caught) do
       do_part2(input, offset + 1, layer_count)
     else
       offset
@@ -47,16 +47,18 @@ defmodule Y2017.Day13 do
   end
 
   defp mark_caught!(input, current) do
-    case Map.has_key?(input, current) do
-      true -> Map.update!(input, current, &%{&1 | caught: &1.position == 0})
-      false -> input
-    end
+    input
+    |> Enum.map(fn layer ->
+      if layer.depth == current do
+        %{layer | caught: layer.position == 0}
+      else
+        layer
+      end
+    end)
   end
 
   defp move_sentries(input, offset) do
-    input
-    |> Enum.map(fn {k, v} -> {k, Layer.set_position(v, offset)} end)
-    |> Enum.into(%{})
+    Enum.map(input, &Layer.set_position(&1, offset))
   end
 
   @doc """
@@ -64,17 +66,15 @@ defmodule Y2017.Day13 do
   ...>1: 2
   ...>4: 4
   ...>6: 4")
-  %{0 => %Layer{range: 3}, 1 => %Layer{range: 2}, 4 => %Layer{range: 4}, 6 => %Layer{range: 4}}
+  [%Layer{depth: 0, range: 3}, %Layer{depth: 1, range: 2}, %Layer{depth: 4, range: 4},
+  %Layer{depth: 6, range: 4}]
   """
   def parse_input(input) do
     input
     |> String.trim()
     |> String.split("\n")
     |> Enum.map(&String.split(&1, ": "))
-    |> Enum.reduce(%{}, fn row, acc ->
-      {depth, layer} = Layer.new(row)
-      Map.put(acc, depth, layer)
-    end)
+    |> Enum.map(&Layer.new/1)
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()

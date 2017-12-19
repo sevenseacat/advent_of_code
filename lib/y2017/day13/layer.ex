@@ -1,10 +1,10 @@
 defmodule Y2017.Day13.Layer do
   alias __MODULE__
 
-  defstruct range: nil, position: 0, caught: false
+  defstruct depth: 0, range: nil, position: 0, caught: false
 
   def new([depth, range]) do
-    {String.to_integer(depth), %Layer{range: String.to_integer(range)}}
+    %Layer{depth: String.to_integer(depth), range: String.to_integer(range)}
   end
 
   def set_position(%Layer{range: range} = layer, offset) do
