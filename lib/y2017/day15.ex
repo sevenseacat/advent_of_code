@@ -1,7 +1,8 @@
 defmodule Y2017.Day15 do
   use Advent.Day, no: 15
 
-  @pair_count 40_000_000
+  @part_1_pair_count 40_000_000
+  @part_2_pair_count 5_000_000
   @a_factor 16807
   @b_factor 48271
 
@@ -15,12 +16,26 @@ defmodule Y2017.Day15 do
   588
   """
   def part1(a_initial \\ @a_initial, b_initial \\ @b_initial) do
-    IO.puts("Calculating A hashes...")
-    a_values = Generator.new(a_initial, @a_factor) |> Enum.take(@pair_count)
-    IO.puts("Calculating B hashes...")
-    b_values = Generator.new(b_initial, @b_factor) |> Enum.take(@pair_count)
+    # IO.puts("Calculating A hashes...")
+    a_values = Generator.new(a_initial, @a_factor) |> Enum.take(@part_1_pair_count)
+    # IO.puts("Calculating B hashes...")
+    b_values = Generator.new(b_initial, @b_factor) |> Enum.take(@part_1_pair_count)
 
-    IO.puts("Comparing hashes...")
+    # IO.puts("Comparing hashes...")
+    count_matches(tl(a_values), tl(b_values), 0)
+  end
+
+  @doc """
+  iex> Day15.part2(65, 8921)
+  309
+  """
+  def part2(a_initial \\ @a_initial, b_initial \\ @b_initial) do
+    # IO.puts("Calculating A hashes...")
+    a_values = Generator.new(a_initial, @a_factor, 4) |> Enum.take(@part_2_pair_count)
+    # IO.puts("Calculating B hashes...")
+    b_values = Generator.new(b_initial, @b_factor, 8) |> Enum.take(@part_2_pair_count)
+
+    # IO.puts("Comparing hashes...")
     count_matches(tl(a_values), tl(b_values), 0)
   end
 
@@ -35,4 +50,5 @@ defmodule Y2017.Day15 do
   end
 
   def part1_verify, do: part1()
+  def part2_verify, do: part2()
 end
