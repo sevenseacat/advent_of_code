@@ -89,10 +89,10 @@ defmodule Y2017.Day18 do
     |> Enum.map(&parse_line/1)
   end
 
-  def parse_line(["snd", one]), do: {:sound, String.to_atom(one)}
-  def parse_line(["rcv", one]), do: {:recover, String.to_atom(one)}
+  defp parse_line(["snd", one]), do: {:sound, String.to_atom(one)}
+  defp parse_line(["rcv", one]), do: {:recover, String.to_atom(one)}
 
-  def parse_line([cmd, one, two]) do
+  defp parse_line([cmd, one, two]) do
     one = String.to_atom(one)
 
     two =
