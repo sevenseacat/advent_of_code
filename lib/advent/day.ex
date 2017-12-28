@@ -12,7 +12,7 @@ defmodule Advent.Day do
 
         "#{input_folder}/input/#{filename}.txt"
         |> File.read!()
-        |> String.trim()
+        |> String.trim_trailing()
       end
 
       def bench do
