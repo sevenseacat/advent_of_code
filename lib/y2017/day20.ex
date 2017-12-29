@@ -14,6 +14,31 @@ defmodule Y2017.Day20 do
     |> Map.get(:id)
   end
 
+  def part2(input, run_count \\ 1000), do: do_part2(input, run_count)
+
+  defp do_part2(input, 0), do: length(input)
+  defp do_part2(input, run_count), do: do_part2(tick(input), run_count - 1)
+
+  def tick(input) do
+    input
+    |> Enum.map(&Particle.move/1)
+    |> remove_collisions
+  end
+
+  def remove_collisions(input) do
+    # Find all particles at the same position as any other particle by grouping them by position
+    collided =
+      input
+      |> Enum.group_by(& &1.position)
+      |> Stream.filter(fn {_, particles} -> length(particles) > 1 end)
+      |> Enum.map(fn {_, particles} -> particles end)
+      |> List.flatten()
+      |> Enum.map(& &1.id)
+
+    # And nuke those particles.
+    Enum.reject(input, &Enum.member?(collided, &1.id))
+  end
+
   @doc """
   iex> Day20.parse_input("p=<3,0,0>, v=<2,0,0>, a=<-1,0,0>
   ...>p=<4,0,0>, v=<0,0,0>, a=<-2,0,0>")
@@ -48,4 +73,5 @@ defmodule Y2017.Day20 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
