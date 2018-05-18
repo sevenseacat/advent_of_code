@@ -4,12 +4,20 @@ defmodule Y2017.Day22Test do
   doctest Day22
 
   test "verification, part 1", do: assert(Day22.part1_verify() == 5196)
+  test "verification, part 2", do: assert(Day22.part2_verify() == 2_511_633)
 
   describe "part1/2" do
     test "it works for the sample data" do
       assert Day22.part1("..#\n#..\n...", 7) == 5
       assert Day22.part1("..#\n#..\n...", 70) == 41
       assert Day22.part1("..#\n#..\n...", 10000) == 5587
+    end
+  end
+
+  describe "part2/2" do
+    test "it works for the sample data" do
+      assert Day22.part2("..#\n#..\n...", 100) == 26
+      assert Day22.part2("..#\n#..\n...", 10_000_000) == 2_511_944
     end
   end
 
