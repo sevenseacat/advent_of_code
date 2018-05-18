@@ -4,20 +4,21 @@ defmodule Y2017.Day22 do
   def part1(data, iterations) do
     data
     |> parse_input()
-    |> do_part1(%{
+    |> do_parts(%{
       position: {0, 0},
       facing: :up,
       infection_count: 0,
       iteration_no: 0,
-      max_iterations: iterations
+      max_iterations: iterations,
+      level: :naive
     })
   end
 
-  defp do_part1(_, %{infection_count: count, iteration_no: iteration, max_iterations: iteration}) do
+  defp do_parts(_, %{infection_count: count, iteration_no: iteration, max_iterations: iteration}) do
     count
   end
 
-  defp do_part1(data, %{position: position, facing: facing} = state) do
+  defp do_parts(data, %{position: position, facing: facing, level: level} = state) do
     infected = infection_status(data, position)
     new_facing = turn(facing, infected)
 
@@ -29,8 +30,8 @@ defmodule Y2017.Day22 do
       |> Map.update!(:position, fn pos -> move(pos, new_facing) end)
 
     data
-    |> Map.update(position, true, &(!&1))
-    |> do_part1(state)
+    |> Map.update(position, :infected, &infect(&1, level))
+    |> do_parts(state)
   end
 
   def parse_input(data) do
@@ -41,32 +42,38 @@ defmodule Y2017.Day22 do
       chars = row |> String.codepoints() |> Enum.with_index()
 
       Enum.reduce(chars, acc, fn {col, x}, acc2 ->
-        Map.put(acc2, {x - centre, centre - y}, col == "#")
+        Map.put(acc2, {x - centre, centre - y}, input_char_to_status(col))
       end)
     end)
   end
 
-  defp infection_status(data, position), do: Map.get(data, position, false)
+  defp input_char_to_status("#"), do: :infected
+  defp input_char_to_status("."), do: :clean
 
-  defp turn(:up, true), do: :right
-  defp turn(:up, false), do: :left
+  defp infection_status(data, position), do: Map.get(data, position, :clean)
 
-  defp turn(:left, true), do: :up
-  defp turn(:left, false), do: :down
+  defp turn(:up, :infected), do: :right
+  defp turn(:up, :clean), do: :left
 
-  defp turn(:down, true), do: :left
-  defp turn(:down, false), do: :right
+  defp turn(:left, :infected), do: :up
+  defp turn(:left, :clean), do: :down
 
-  defp turn(:right, true), do: :down
-  defp turn(:right, false), do: :up
+  defp turn(:down, :infected), do: :left
+  defp turn(:down, :clean), do: :right
+
+  defp turn(:right, :infected), do: :down
+  defp turn(:right, :clean), do: :up
 
   defp move({x, y}, :up), do: {x, y + 1}
   defp move({x, y}, :down), do: {x, y - 1}
   defp move({x, y}, :left), do: {x - 1, y}
   defp move({x, y}, :right), do: {x + 1, y}
 
-  defp update_infection_count(count, false), do: count + 1
-  defp update_infection_count(count, true), do: count
+  defp infect(:clean, :naive), do: :infected
+  defp infect(:infected, :naive), do: :clean
+
+  defp update_infection_count(count, :clean), do: count + 1
+  defp update_infection_count(count, :infected), do: count
 
   defp display_grid(data, pos) do
     for i <- -4..4,
