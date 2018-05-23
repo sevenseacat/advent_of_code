@@ -14,9 +14,10 @@ defmodule Y2017.Day10 do
   12
   """
   def part1(input, lengths) do
-    {input, 0, 0, lengths}
+    {:array.from_list(input), 0, 0, lengths}
     |> do_parts
     |> elem(0)
+    |> :array.to_list()
     |> Enum.take(2)
     |> Enum.reduce(1, &(&1 * &2))
   end
@@ -37,9 +38,10 @@ defmodule Y2017.Day10 do
   def part2(input) do
     input = parse_part2_input(input)
 
-    {Enum.to_list(0..255), 0, 0, input}
+    {:array.from_list(Enum.to_list(0..255)), 0, 0, input}
     |> do_part2(input, 64)
     |> elem(0)
+    |> :array.to_list()
     |> Stream.chunk_every(16)
     |> Enum.map(&xor_everything!/1)
     |> Enum.join()
@@ -73,46 +75,56 @@ defmodule Y2017.Day10 do
   @doc """
   List, position, skip size, lengths.
 
-  iex> Day10.knot({[0, 1, 2, 3, 4], 0, 0, [3, 4, 1, 5]})
-  {[2, 1, 0, 3, 4], 3, 1, [4, 1, 5]}
+  iex> Day10.knot({:array.from_list([0, 1, 2, 3, 4]), 0, 0, [3, 4, 1, 5]})
+  {:array.from_list([2, 1, 0, 3, 4]), 3, 1, [4, 1, 5]}
 
-  iex> Day10.knot({[2, 1, 0, 3, 4], 3, 1, [4, 1, 5]})
-  {[4, 3, 0, 1, 2], 3, 2, [1, 5]}
+  iex> Day10.knot({:array.from_list([2, 1, 0, 3, 4]), 3, 1, [4, 1, 5]})
+  {:array.from_list([4, 3, 0, 1, 2]), 3, 2, [1, 5]}
 
-  iex> Day10.knot({[4, 3, 0, 1, 2], 3, 2, [1, 5]})
-  {[4, 3, 0, 1, 2], 1, 3, [5]}
+  iex> Day10.knot({:array.from_list([4, 3, 0, 1, 2]), 3, 2, [1, 5]})
+  {:array.from_list([4, 3, 0, 1, 2]), 1, 3, [5]}
 
-  iex> Day10.knot({[4, 3, 0, 1, 2], 1, 3, [5]})
-  {[3, 4, 2, 1, 0], 4, 4, []}
+  iex> Day10.knot({:array.from_list([4, 3, 0, 1, 2]), 1, 3, [5]})
+  {:array.from_list([3, 4, 2, 1, 0]), 4, 4, []}
 
   The ignore case
-  iex> Day10.knot({[4, 3, 0, 1, 2], 1, 3, [6]})
-  {[4, 3, 0, 1, 2], 1, 3, []}
+  iex> Day10.knot({:array.from_list([4, 3, 0, 1, 2]), 1, 3, [6]})
+  {:array.from_list([4, 3, 0, 1, 2]), 1, 3, []}
   """
-  def knot({list, position, skip_size, [length | lengths]}) when length > length(list) do
-    {list, position, skip_size, lengths}
-  end
-
   def knot({list, position, skip_size, [length | lengths]}) do
-    {new_list, new_position} = reverse(list, list, position, length, length)
-    {new_list, rem(new_position + skip_size, length(list)), skip_size + 1, lengths}
+    list_length = :array.size(list)
+
+    if length > list_length do
+      {list, position, skip_size, lengths}
+    else
+      {new_list, new_position} = reverse(list, list, list_length, position, length - 1, 0)
+
+      {new_list, rem(new_position + skip_size, list_length), skip_size + 1, lengths}
+    end
   end
 
   @doc """
   Reverses a section of a list by iterating over the elements to be replaced, replacing them with
   their "opposites" from the original list.
-  There has to be a simpler way to calculate the opposite value...
+  The elements to be reversed are <length> from the element at <position>, wrapping around to the
+  start of the list.
   """
-  def reverse(list, _, position, 0, _), do: {list, position}
+  def reverse(list, _, _, position, -1, _), do: {list, position}
 
-  def reverse(list, orig_list, position, length, orig_length) do
-    list
-    |> List.replace_at(
-      position,
-      Enum.at(orig_list, rem(position + length - (orig_length - length) - 1, length(list)))
-    )
-    |> reverse(orig_list, rem(position + 1, length(list)), length - 1, orig_length)
+  def reverse(list, orig_list, list_length, position, length, acc) do
+    opposite_position = clamp(position + length - acc, list_length)
+    opposite_val = :array.get(opposite_position, orig_list)
+
+    :array.set(position, opposite_val, list)
+    |> reverse(orig_list, list_length, rem(position + 1, list_length), length - 1, acc + 1)
   end
+
+  # This handles the wrapping around the list.
+  # Fhen wanting the opposite of something near the end of the list, you may need to wrap around to
+  # the start, and vice versa
+  def clamp(val, max) when val >= max, do: val - max
+  def clamp(val, max) when val < 0, do: val + max
+  def clamp(val, _), do: val
 
   def parse_input(input) do
     input |> String.split(",", trim: true) |> Enum.map(&String.to_integer/1)
