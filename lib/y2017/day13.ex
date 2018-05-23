@@ -17,24 +17,25 @@ defmodule Y2017.Day13 do
     |> Enum.reduce(0, fn layer, acc -> acc + layer.depth * layer.range end)
   end
 
-  @doc """
-  iex> Day13.part2([%Layer{depth: 0, range: 3}, %Layer{depth: 1, range: 2},
-  ...> %Layer{depth: 4, range: 4}, %Layer{depth: 6, range: 4}])
-  10
-  """
-  def part2(input) do
-    do_part2(input, 0, input |> List.last() |> Map.fetch!(:depth))
+  def part2(input, offset \\ 1) do
+    if clear_path?(input, offset) do
+      offset
+    else
+      part2(input, offset + 1)
+    end
   end
 
-  def do_part2(input, offset, layer_count) do
-    if offset > 0 && rem(offset, 1000) == 0, do: IO.puts(offset)
-    new_input = move(input, offset, 0, layer_count)
-
-    if Enum.any?(new_input, & &1.caught) do
-      do_part2(input, offset + 1, layer_count)
-    else
-      offset
-    end
+  # A clear path is one where no sentries are at the top while a packet is travelling through.
+  # This means at layer 0, time offset, layer 1, time offset+1, etc.
+  # A sentry is at the top if it has moved a multiple of (range * 2 - 2) times, eg.
+  # range 2 -> 1, 0 = 2 movements
+  # range 3 -> 1, 2, 1, 0 = 4 movements
+  # range 4 -> 1, 2, 3, 2, 1, 0 = 6 movements
+  # When factoring in the path the packet takes (layer depth)...
+  defp clear_path?(input, offset) do
+    Enum.all?(input, fn layer ->
+      rem(offset + layer.depth, layer.range * 2 - 2) != 0
+    end)
   end
 
   def move(input, _, current, last) when current > last, do: input
