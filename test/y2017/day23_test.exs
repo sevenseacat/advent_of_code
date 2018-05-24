@@ -4,4 +4,5 @@ defmodule Y2017.Day23Test do
   doctest Day23
 
   test "verification, part 1", do: assert(Day23.part1_verify() == 3969)
+  test "verification, part 2", do: assert(Day23.part2_verify() == 917)
 end

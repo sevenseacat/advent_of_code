@@ -54,6 +54,37 @@ defmodule Y2017.Day23 do
     end
   end
 
+  def part2 do
+    # There are a lot of loops in the puzzle input, and the start of the first one gets hit when:
+    # a = 1, b = 106500, c = 123500
+    # Running the code from part 1 naively will take forever, because there are three loops nested
+    # within each other that do a lot of work.
+    # After some manual introspection of the puzzle input, and running parts of the algorithm to see
+    # if there was a pattern of register changes that I could extrapolate, I discovered that the
+    # outer loop would run 1000 times ((123500 - 106500) / 17), incrementing b (106500) by 17 each
+    # time and finally breaking when it reached 123500.
+    # When substituting smaller numbers for 123500 and 106500 to see how the final result compared,
+    # I noticed that h was being incremented once on every outer loop, unless b was prime.
+    # So the answer is 1001 (initial run, plus number of loops), minus the number of prime numbers
+    # from b to c that are divisible by 17.
+    primes =
+      106_500..123_500
+      |> Enum.filter(fn num -> rem(num - 106_500, 17) == 0 && is_prime?(num) end)
+      |> length
+
+    1001 - primes
+  end
+
+  # https://gist.github.com/aditya7iyengar/2487b9ed7f70ed39aa4afec86c730665#file-n_primes_fermat_algorithm-ex
+  def is_prime?(n) do
+    floored_sqrt =
+      :math.sqrt(n)
+      |> Float.floor()
+      |> round
+
+    !Enum.any?(2..floored_sqrt, &(rem(n, &1) == 0))
+  end
+
   @doc """
   iex> Day23.parse_input("set a 1")
   [{:assign, :a, 1}]
@@ -108,4 +139,5 @@ defmodule Y2017.Day23 do
   end
 
   def part1_verify, do: input() |> part1() |> Map.get(:multiple_count)
+  def part2_verify, do: part2()
 end
