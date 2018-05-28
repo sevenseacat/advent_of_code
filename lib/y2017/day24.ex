@@ -12,6 +12,18 @@ defmodule Y2017.Day24 do
     |> find_strongest
   end
 
+  @doc """
+  iex> Day24.part2([{0,2}, {2,2}, {0,1}, {10,1}, {2,3}, {3,4}, {3,5}, {9,10}])
+  {[{0,2}, {2,2}, {2,3}, {3,5}], 19}
+  """
+  def part2(pipes) do
+    pipes
+    |> find_next_nodes(0)
+    |> generate_bridges(pipes)
+    |> find_longest
+    |> find_strongest
+  end
+
   defp find_next_nodes(pipes, val) do
     Enum.filter(pipes, fn {a, b} -> a == val or b == val end)
   end
@@ -44,6 +56,12 @@ defmodule Y2017.Day24 do
   def open_end([], open), do: open
   def open_end([{open, other} | t], open), do: open_end(t, other)
   def open_end([{other, open} | t], open), do: open_end(t, other)
+
+  def find_longest(bridges) do
+    longest = Enum.map(bridges, &length/1) |> Enum.max()
+
+    Enum.filter(bridges, &(length(&1) == longest))
+  end
 
   def find_strongest(bridges) do
     bridges
@@ -92,4 +110,5 @@ defmodule Y2017.Day24 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1() |> elem(1)
+  def part2_verify, do: input() |> parse_input() |> part2() |> elem(1)
 end
