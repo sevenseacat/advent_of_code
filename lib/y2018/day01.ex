@@ -33,17 +33,17 @@ defmodule Y2018.Day01 do
   """
   def part2(data) do
     list = String.split(data)
-    do_part2(list, 0, list, [])
+    do_part2(list, 0, list, MapSet.new())
   end
 
   def do_part2([], current, original, seen), do: do_part2(original, current, original, seen)
 
   def do_part2([<<sign::binary-1, val::binary>> | rest], current, original, seen) do
-    if current in seen do
+    if MapSet.member?(seen, current) do
       current
     else
       new = apply(Kernel, String.to_atom(sign), [current, String.to_integer(val)])
-      do_part2(rest, new, original, [current | seen])
+      do_part2(rest, new, original, MapSet.put(seen, current))
     end
   end
 
