@@ -13,26 +13,23 @@ defmodule Y2018.Day02 do
     do_part1(
       rest,
       {
-        add_if_true(doubles, has_letter_count?(string, 2)),
-        add_if_true(triples, has_letter_count?(string, 3))
+        inc_if_true(doubles, has_letter_count?(string, 2)),
+        inc_if_true(triples, has_letter_count?(string, 3))
       }
     )
   end
 
-  def add_if_true(val, false), do: val
-  def add_if_true(val, true), do: val + 1
+  def inc_if_true(val, false), do: val
+  def inc_if_true(val, true), do: val + 1
 
   @doc """
   iex> Day02.part2(["abcde", "fghij", "klmno", "pqrst", "fguij", "axcye", "wvxyz"])
   "fgij"
   """
   def part2([head | tail]) do
-    found = check_against_rest(head, tail)
-
-    if found do
-      found
-    else
-      part2(tail)
+    case check_against_rest(head, tail) do
+      nil -> part2(tail)
+      value -> value
     end
   end
 
@@ -59,10 +56,10 @@ defmodule Y2018.Day02 do
   end
 
   defp do_hamming([h1 | t1], [h2 | t2], acc) do
-    do_hamming(t1, t2, add_if_true(acc, h1 != h2))
+    do_hamming(t1, t2, inc_if_true(acc, h1 != h2))
   end
 
-  defp do_hamming(_, _, acc), do: acc
+  defp do_hamming([], [], acc), do: acc
 
   def remove_different_letters(str1, str2) do
     do_removal(String.graphemes(str1), String.graphemes(str2), [])
