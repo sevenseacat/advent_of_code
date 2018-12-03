@@ -15,6 +15,27 @@ defmodule Y2018.Day03 do
   end
 
   @doc """
+  iex> Day03.part2("#1 @ 1,3: 4x4\\n#2 @ 3,1: 4x4\\n#3 @ 5,5: 2x2")
+  [3]
+  """
+  def part2(input) do
+    claims = parse_input(input)
+    claimed_fabric = Enum.reduce(claims, Map.new(), &add_claim_to_fabric/2)
+
+    claim_ids(claims) -- shared_coord_claims(claimed_fabric)
+  end
+
+  defp claim_ids(claims), do: Enum.map(claims, & &1[:id])
+
+  defp shared_coord_claims(claims) do
+    claims
+    |> Enum.filter(fn {_, v} -> length(v) > 1 end)
+    |> Enum.reduce([], fn {_, v}, acc -> [v | acc] end)
+    |> List.flatten()
+    |> Enum.uniq()
+  end
+
+  @doc """
   iex> Day03.add_claim_to_fabric(%{id: 3, x: 5, y: 5, width: 2, height: 2}, %{})
   %{{5, 5} => [3], {5, 6} => [3], {6, 5} => [3], {6, 6} => [3]}
   """
@@ -43,4 +64,5 @@ defmodule Y2018.Day03 do
   end
 
   def part1_verify, do: input() |> part1()
+  def part2_verify, do: input() |> part2() |> hd()
 end
