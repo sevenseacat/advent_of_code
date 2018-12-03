@@ -10,8 +10,8 @@ defmodule Y2018.Day03 do
   def part1(input) do
     input
     |> parse_input
-    |> Enum.reduce(Map.new(), &add_claim_to_fabric/2)
-    |> Enum.count(fn {_, v} -> length(v) > 1 end)
+    |> claimed_fabric
+    |> Enum.count(&has_multiple_claims?/1)
   end
 
   @doc """
@@ -20,20 +20,24 @@ defmodule Y2018.Day03 do
   """
   def part2(input) do
     claims = parse_input(input)
-    claimed_fabric = Enum.reduce(claims, Map.new(), &add_claim_to_fabric/2)
+    claim_ids(claims) -- shared_coord_claims(claimed_fabric(claims))
+  end
 
-    claim_ids(claims) -- shared_coord_claims(claimed_fabric)
+  defp claimed_fabric(claims) do
+    Enum.reduce(claims, Map.new(), &add_claim_to_fabric/2)
   end
 
   defp claim_ids(claims), do: Enum.map(claims, & &1[:id])
 
-  defp shared_coord_claims(claims) do
-    claims
-    |> Enum.filter(fn {_, v} -> length(v) > 1 end)
+  defp shared_coord_claims(fabric) do
+    fabric
+    |> Enum.filter(&has_multiple_claims?/1)
     |> Enum.reduce([], fn {_, v}, acc -> [v | acc] end)
     |> List.flatten()
     |> Enum.uniq()
   end
+
+  def has_multiple_claims?({_, ids}), do: length(ids) > 1
 
   @doc """
   iex> Day03.add_claim_to_fabric(%{id: 3, x: 5, y: 5, width: 2, height: 2}, %{})
