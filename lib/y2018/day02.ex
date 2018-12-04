@@ -36,8 +36,7 @@ defmodule Y2018.Day02 do
   def check_against_rest(_, []), do: nil
 
   def check_against_rest(subject, [possible | rest]) do
-    # Calculate hamming distance between subject and possible - if 1, then these strings are the ones we want.
-    if hamming(subject, possible) == 1 do
+    if different_by_one?(subject, possible) do
       remove_different_letters(subject, possible)
     else
       check_against_rest(subject, rest)
@@ -45,38 +44,31 @@ defmodule Y2018.Day02 do
   end
 
   @doc """
-  iex> Day02.hamming("abcde", "axcye")
-  2
+  iex> Day02.different_by_one?("abcde", "axcye")
+  false
 
-  iex> Day02.hamming("fghij", "fguij")
-  1
+  iex> Day02.different_by_one?("fghij", "fguij")
+  true
   """
-  def hamming(str1, str2) do
-    do_hamming(String.to_charlist(str1), String.to_charlist(str2), 0)
+  def different_by_one?(str1, str2) do
+    check_char_by_char(String.to_charlist(str1), String.to_charlist(str2), false)
   end
 
-  # Early break - we only care about hamming distances of 1, so if it's going to
-  # be more than 1, stop caring and break
-  defp do_hamming([h1 | _], [h2 | _], acc) when h1 != h2 and acc >= 1, do: 2
+  defp check_char_by_char([], [], val), do: val
 
-  defp do_hamming([h1 | t1], [h2 | t2], acc) do
-    do_hamming(t1, t2, inc_if_true(acc, h1 != h2))
+  # Early break - if we find a second character difference, no need to check any further
+  defp check_char_by_char([h1 | _], [h2 | _], true) when h1 != h2, do: false
+
+  defp check_char_by_char([h1 | t1], [h2 | t2], val) do
+    check_char_by_char(t1, t2, val || h1 != h2)
   end
-
-  defp do_hamming([], [], acc), do: acc
 
   def remove_different_letters(str1, str2) do
-    do_removal(String.to_charlist(str1), String.to_charlist(str2), [])
-  end
-
-  def do_removal([], [], val) do
-    val
-    |> Enum.reverse()
+    Enum.zip(String.to_charlist(str1), String.to_charlist(str2))
+    |> Enum.filter(fn {a, b} -> a == b end)
+    |> Enum.map(fn {a, a} -> a end)
     |> List.to_string()
   end
-
-  def do_removal([a | as], [a | bs], val), do: do_removal(as, bs, [a | val])
-  def do_removal([_ | as], [_ | bs], val), do: do_removal(as, bs, val)
 
   @doc """
   iex> Day02.has_letter_count?("abcdef", 2)

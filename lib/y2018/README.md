@@ -16,8 +16,8 @@ You can check out the code yourself and run the benchmarks with `mix bench 2018`
 Name                     ips        average  deviation         median         99th %
 day 01, part 1      10712.78      0.0933 ms    ±29.91%      0.0876 ms        0.20 ms
 day 01, part 2         19.75       50.62 ms     ±4.33%       50.56 ms       60.86 ms
-day 02, part 1       1351.05        0.74 ms     ±3.37%        0.73 ms        0.80 ms
-day 02, part 2        489.11        2.04 ms     ±2.82%        2.04 ms        2.21 ms
+day 02, part 1       1347.38        0.74 ms     ±5.59%        0.74 ms        0.81 ms
+day 02, part 2        531.83        1.88 ms     ±5.01%        1.87 ms        2.03 ms
 day 03, part 1          3.69      270.95 ms     ±4.79%      267.19 ms      309.48 ms
 day 03, part 2          3.59      278.25 ms     ±4.11%      274.33 ms      306.43 ms
 day 04, part 1        238.85        4.19 ms     ±2.18%        4.19 ms        4.46 ms
