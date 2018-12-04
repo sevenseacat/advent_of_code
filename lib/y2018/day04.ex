@@ -20,6 +20,12 @@ defmodule Y2018.Day04 do
     |> find_most_likely_guard
   end
 
+  def part2(input) do
+    input
+    |> Enum.reduce(%{}, &sleeping_minutes_per_guard/2)
+    |> find_guard_by_most_common_sleeping_minute
+  end
+
   @doc """
   iex> Day04.sleeping_minutes_per_guard({~D[1518-11-01], %{
   ...>   guard_no: 10,
@@ -47,6 +53,21 @@ defmodule Y2018.Day04 do
       total_minutes: length(minutes),
       minute: frequencies(minutes) |> Enum.max_by(fn {_k, v} -> v end) |> elem(0)
     }
+  end
+
+  def find_guard_by_most_common_sleeping_minute(guards) do
+    guards
+    |> Enum.reject(fn {_guard_no, minutes} -> minutes == [] end)
+    |> Enum.map(fn {guard_no, minutes} ->
+      most_common_minute = frequencies(minutes) |> Enum.max_by(fn {_k, v} -> v end)
+
+      %{
+        guard_no: guard_no,
+        minute: elem(most_common_minute, 0),
+        times: elem(most_common_minute, 1)
+      }
+    end)
+    |> Enum.max_by(fn %{times: times} -> times end)
   end
 
   @doc """
@@ -119,6 +140,11 @@ defmodule Y2018.Day04 do
 
   def part1_verify do
     %{guard_no: guard_no, minute: minute} = input() |> parse_input() |> part1()
+    guard_no * minute
+  end
+
+  def part2_verify do
+    %{guard_no: guard_no, minute: minute} = input() |> parse_input() |> part2()
     guard_no * minute
   end
 end
