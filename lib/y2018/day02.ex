@@ -52,8 +52,12 @@ defmodule Y2018.Day02 do
   1
   """
   def hamming(str1, str2) do
-    do_hamming(String.graphemes(str1), String.graphemes(str2), 0)
+    do_hamming(String.to_charlist(str1), String.to_charlist(str2), 0)
   end
+
+  # Early break - we only care about hamming distances of 1, so if it's going to
+  # be more than 1, stop caring and break
+  defp do_hamming([h1 | _], [h2 | _], acc) when h1 != h2 and acc >= 1, do: 2
 
   defp do_hamming([h1 | t1], [h2 | t2], acc) do
     do_hamming(t1, t2, inc_if_true(acc, h1 != h2))
@@ -62,7 +66,7 @@ defmodule Y2018.Day02 do
   defp do_hamming([], [], acc), do: acc
 
   def remove_different_letters(str1, str2) do
-    do_removal(String.graphemes(str1), String.graphemes(str2), [])
+    do_removal(String.to_charlist(str1), String.to_charlist(str2), [])
   end
 
   def do_removal([], [], val) do
@@ -100,13 +104,10 @@ defmodule Y2018.Day02 do
   true
   """
   def has_letter_count?(string, count) do
-    letter =
-      string
-      |> String.graphemes()
-      |> frequencies
-      |> Enum.find(fn {_, v} -> v == count end)
-
-    letter != nil
+    string
+    |> String.to_charlist()
+    |> frequencies
+    |> Enum.any?(fn {_, v} -> v == count end)
   end
 
   # https://www.rosettacode.org/wiki/Letter_frequency#Elixir
