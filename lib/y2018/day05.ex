@@ -28,12 +28,48 @@ defmodule Y2018.Day05 do
     |> List.to_string()
   end
 
-  def dedup([], _), do: []
-  def dedup([x], _), do: [x]
+  @doc """
+  iex> Day05.part2("dabAcCaCBAcCcaDA")
+  {"c", 4}
+  """
+  def part2(input) do
+    input = String.trim(input)
+    input_list = String.graphemes(input)
 
-  def dedup(list, index) when index == length(list), do: list
+    input
+    |> String.downcase()
+    |> String.graphemes()
+    |> Enum.uniq()
+    |> Enum.map(fn char ->
+      {char, remove_letter_and_dedup(input_list, char) |> length}
+    end)
+    |> Enum.min_by(fn {_, result} -> result end)
+  end
 
-  def dedup(list, index) do
+  @doc """
+  iex> Day05.remove_letter_and_dedup(String.graphemes("dabAcCaCBAcCcaDA"), "a") |> List.to_string
+  "dbCBcD"
+
+  iex> Day05.remove_letter_and_dedup(String.graphemes("dabAcCaCBAcCcaDA"), "b") |> List.to_string
+  "daCAcaDA"
+
+  iex> Day05.remove_letter_and_dedup(String.graphemes("dabAcCaCBAcCcaDA"), "c") |> List.to_string
+  "daDA"
+
+  iex> Day05.remove_letter_and_dedup(String.graphemes("dabAcCaCBAcCcaDA"), "d") |> List.to_string
+  "abCBAc"
+  """
+  def remove_letter_and_dedup(list, char) do
+    list
+    |> Enum.reject(&(&1 == char || &1 == String.upcase(char)))
+    |> dedup(1)
+  end
+
+  defp dedup([], _), do: []
+  defp dedup([x], _), do: [x]
+  defp dedup(list, index) when index == length(list), do: list
+
+  defp dedup(list, index) do
     a = Enum.at(list, index - 1)
     b = Enum.at(list, index)
 
@@ -45,11 +81,12 @@ defmodule Y2018.Day05 do
     end
   end
 
-  def delete_at(list, index) do
+  defp delete_at(list, index) do
     list
     |> List.delete_at(index)
     |> List.delete_at(index)
   end
 
   def part1_verify, do: input() |> part1() |> String.length()
+  def part2_verify, do: input() |> part2() |> elem(1)
 end
