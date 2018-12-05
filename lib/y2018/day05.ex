@@ -24,7 +24,7 @@ defmodule Y2018.Day05 do
     input
     |> String.trim()
     |> String.graphemes()
-    |> dedup(1)
+    |> dedup([])
     |> List.to_string()
   end
 
@@ -62,29 +62,26 @@ defmodule Y2018.Day05 do
   def remove_letter_and_dedup(list, char) do
     list
     |> Enum.reject(&(&1 == char || &1 == String.upcase(char)))
-    |> dedup(1)
+    |> dedup([])
   end
 
-  defp dedup([], _), do: []
-  defp dedup([x], _), do: [x]
-  defp dedup(list, index) when index == length(list), do: list
+  defp dedup([], seen), do: Enum.reverse(seen)
+  defp dedup([x], seen), do: dedup([], [x | seen])
 
-  defp dedup(list, index) do
-    a = Enum.at(list, index - 1)
-    b = Enum.at(list, index)
-
+  defp dedup([a, b | rest], seen) do
     if a != b && String.downcase(a) == String.downcase(b) do
-      new_list = delete_at(list, index - 1)
-      dedup(new_list, index - 1)
-    else
-      dedup(list, index + 1)
-    end
-  end
+      # Edge case for when we're at the start of the list, we don't need to look backwards.
+      {new_list, seen} =
+        if seen == [] do
+          {rest, seen}
+        else
+          {[hd(seen) | rest], tl(seen)}
+        end
 
-  defp delete_at(list, index) do
-    list
-    |> List.delete_at(index)
-    |> List.delete_at(index)
+      dedup(new_list, seen)
+    else
+      dedup([b | rest], [a | seen])
+    end
   end
 
   def part1_verify, do: input() |> part1() |> String.length()
