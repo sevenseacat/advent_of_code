@@ -11,20 +11,15 @@ defmodule Y2018.Day06 do
     points = parse_input(input)
 
     {mins, maxes} = bounds_of_grid(points)
-    manhattan_grid = manhattan_grid(points, mins, maxes)
+    grid = manhattan_grid(points, mins, maxes)
 
     {point, count} =
       points
-      |> Enum.reject(fn point ->
-        infinite_area?(manhattan_grid, point, mins, maxes)
-      end)
-      |> Enum.map(fn point ->
-        {point, Enum.count(manhattan_grid, fn {_, closest} -> closest == point end)}
-      end)
-      |> Enum.sort_by(fn {_, count} -> -count end)
-      |> hd
+      |> Stream.reject(fn point -> infinite_area?(grid, point, mins, maxes) end)
+      |> Stream.map(fn point -> {point, Map.get(grid, point) |> length} end)
+      |> Enum.max_by(fn {_, count} -> count end)
 
-    # display_grid(manhattan_grid, points, mins, maxes, point)
+    # display_grid(grid, points, mins, maxes, point)
 
     {point, count}
   end
@@ -62,28 +57,25 @@ defmodule Y2018.Day06 do
 
   defp manhattan_grid(points, mins, maxes) do
     all_coordinates(mins, maxes)
-    |> Enum.reduce(%{}, fn coord, acc ->
+    |> Enum.reduce(Map.new(), fn coord, acc ->
       owner =
         coord
         |> all_manhattan_distances(points)
         |> Enum.sort_by(fn {_, distance} -> distance end)
         |> get_owning_coord
 
-      Map.put(acc, coord, owner)
+      Map.update(acc, owner, [coord], &[coord | &1])
     end)
   end
 
   defp infinite_area?(grid, point, {min_x, min_y}, {max_x, max_y}) do
-    Enum.any?(grid, fn {{x, y}, owner} ->
-      owner == point && (x == min_x || x == max_x || y == min_y || y == max_y)
-    end)
+    grid
+    |> Map.get(point)
+    |> Enum.any?(fn {x, y} -> x == min_x || x == max_x || y == min_y || y == max_y end)
   end
 
   defp all_manhattan_distances(coord, points) do
-    points
-    |> Enum.reduce([], fn point, acc ->
-      [{point, manhattan_distance(coord, point)} | acc]
-    end)
+    Enum.map(points, fn point -> {point, manhattan_distance(coord, point)} end)
   end
 
   defp manhattan_distance({x1, y1}, {x2, y2}), do: abs(x1 - x2) + abs(y1 - y2)
@@ -127,7 +119,12 @@ defmodule Y2018.Day06 do
       if x == highlight_x and y == highlight_y do
         "█"
       else
-        Map.get(markers, Map.get(map, {x, y}), ".")
+        owner =
+          map
+          |> Enum.find(fn {_k, vs} -> Enum.member?(vs, {x, y}) end)
+          |> elem(0)
+
+        Map.get(markers, owner, ".")
       end
     end
     |> Enum.chunk_every(x2 - x1 + 1)
