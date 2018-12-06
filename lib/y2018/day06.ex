@@ -12,9 +12,7 @@ defmodule Y2018.Day06 do
       parse_input(input)
       |> Enum.zip(@ids)
 
-    {{{min_x, _}, _}, {{max_x, _}, _}} = Enum.min_max_by(points, fn {{x, _}, _} -> x end)
-    {{{_, min_y}, _}, {{_, max_y}, _}} = Enum.min_max_by(points, fn {{_, y}, _} -> y end)
-
+    {{min_x, min_y}, {max_x, max_y}} = bounds_of_grid(points)
     manhattan_grid = manhattan_grid(points, {min_x, min_y}, {max_x, max_y})
 
     {{x, y}, count} =
@@ -31,6 +29,39 @@ defmodule Y2018.Day06 do
     # display_grid(manhattan_grid, {min_x, min_y}, {max_x, max_y}, {x, y})
 
     {{x, y}, count}
+  end
+
+  @doc """
+  iex> Day06.part2("1, 1\\n1, 6\\n8, 3\\n3, 4\\n5, 5\\n8, 9", 32)
+  16
+  """
+  def part2(input, score_limit) do
+    points =
+      parse_input(input)
+      |> Enum.zip(@ids)
+
+    {mins, maxes} = bounds_of_grid(points)
+
+    all_coordinates(mins, maxes)
+    |> Enum.count(fn coord -> safety_score(coord, points) < score_limit end)
+  end
+
+  defp bounds_of_grid(points) do
+    {{{min_x, _}, _}, {{max_x, _}, _}} = Enum.min_max_by(points, fn {{x, _}, _} -> x end)
+    {{{_, min_y}, _}, {{_, max_y}, _}} = Enum.min_max_by(points, fn {{_, y}, _} -> y end)
+
+    {{min_x, min_y}, {max_x, max_y}}
+  end
+
+  @doc """
+  iex> points = [{{1, 1}, nil}, {{1, 6}, nil}, {{8, 3}, nil}, {{3, 4}, nil}, {{5, 5}, nil}, {{8, 9}, nil}]
+  iex> Day06.safety_score({4, 3}, points)
+  30
+  """
+  def safety_score(coord, points) do
+    points
+    |> Enum.map(fn {point, _} -> manhattan_distance(point, coord) end)
+    |> Enum.sum()
   end
 
   defp manhattan_grid(points, mins, maxes) do
@@ -52,14 +83,14 @@ defmodule Y2018.Day06 do
     end)
   end
 
-  defp all_manhattan_distances({x, y}, points) do
-    # IO.inspect({x, y})
-
+  defp all_manhattan_distances(coord, points) do
     points
-    |> Enum.reduce([], fn {{point_x, point_y}, letter}, acc ->
-      [{letter, abs(point_x - x) + abs(point_y - y)} | acc]
+    |> Enum.reduce([], fn {point, letter}, acc ->
+      [{letter, manhattan_distance(coord, point)} | acc]
     end)
   end
+
+  defp manhattan_distance({x1, y1}, {x2, y2}), do: abs(x1 - x2) + abs(y1 - y2)
 
   defp get_winning_letter([{letter, x}, {_, y} | _]) do
     case x == y do
@@ -103,4 +134,5 @@ defmodule Y2018.Day06 do
   end
 
   def part1_verify, do: input() |> part1() |> elem(1)
+  def part2_verify, do: input() |> part2(10000)
 end
