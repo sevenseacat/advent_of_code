@@ -2,38 +2,83 @@ defmodule Y2015.Day06 do
   use Advent.Day, no: 6
 
   def part1(input) do
-    do_parts(input, part1_cmds())
-    |> Enum.count(fn {_, val} -> val end)
+    lights = do_parts(input, part1_cmds())
+
+    :ets.match_object(lights, {:_, true})
+    |> Enum.count()
   end
 
+  @doc """
+  iex> Day06.part2("turn on 0,0 through 0,0")
+  1
+
+  iex> Day06.part2("toggle 0,0 through 999,999")
+  2000000
+  """
   def part2(input) do
-    do_parts(input,
-      on: fn coord, lights -> Map.update(lights, coord, 1, &(&1 + 1)) end,
-      off: fn coord, lights -> Map.update(lights, coord, 0, &max(&1 - 1, 0)) end,
-      toggle: fn coord, lights -> Map.update(lights, coord, 2, &(&1 + 2)) end
-    )
+    lights = do_parts(input, part2_cmds())
+
+    :ets.match_object(lights, {:_, :_})
     |> Enum.map(fn {_, val} -> val end)
     |> Enum.sum()
   end
 
   def part1_cmds do
     [
-      on: fn coord, lights -> Map.put(lights, coord, true) end,
-      off: fn coord, lights -> Map.put(lights, coord, false) end,
-      toggle: fn coord, lights -> Map.update(lights, coord, true, &(!&1)) end
+      on: fn coord, lights ->
+        :ets.insert(lights, {coord, true})
+        lights
+      end,
+      off: fn coord, lights ->
+        :ets.insert(lights, {coord, false})
+        lights
+      end,
+      toggle: fn coord, lights ->
+        case :ets.lookup(lights, coord) do
+          [] -> :ets.insert(lights, {coord, true})
+          [{coord, val}] -> :ets.insert(lights, {coord, !val})
+        end
+
+        lights
+      end
+    ]
+  end
+
+  def part2_cmds do
+    [
+      on: fn coord, lights ->
+        case :ets.lookup(lights, coord) do
+          [] -> :ets.insert(lights, {coord, 1})
+          [{coord, val}] -> :ets.insert(lights, {coord, val + 1})
+        end
+
+        lights
+      end,
+      off: fn coord, lights ->
+        case :ets.lookup(lights, coord) do
+          [] -> :ets.insert(lights, {coord, 0})
+          [{coord, val}] -> :ets.insert(lights, {coord, max(val - 1, 0)})
+        end
+
+        lights
+      end,
+      toggle: fn coord, lights ->
+        case :ets.lookup(lights, coord) do
+          [] -> :ets.insert(lights, {coord, 2})
+          [{coord, val}] -> :ets.insert(lights, {coord, val + 2})
+        end
+
+        lights
+      end
     ]
   end
 
   defp do_parts(input, cmds) do
     input
     |> parse_input
-    |> run_commands(%{}, cmds)
+    |> run_commands(:ets.new(:day6, [:set]), cmds)
   end
 
-  @doc """
-  iex> Day06.run_commands([{:off, [{499,499}, {500,500}]}], %{{499, 499} => true}, Day06.part1_cmds())
-  %{{499,499} => false, {499,500} => false, {500,499} => false, {500,500} => false}
-  """
   def run_commands([], lights, _), do: lights
 
   def run_commands([{cmd, [min, max]} | rest], lights, cmds) do
