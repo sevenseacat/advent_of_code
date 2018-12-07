@@ -23,9 +23,18 @@ defmodule Advent.Day do
 
       def benchmarks do
         %{
-          "day #{unquote(formatted_day_no)}, part 1" => &part1_verify/0,
-          "day #{unquote(formatted_day_no)}, part 2" => &part2_verify/0
+          "day #{unquote(formatted_day_no)}, part 1" => maybe_run(:part1_verify),
+          "day #{unquote(formatted_day_no)}, part 2" => maybe_run(:part2_verify)
         }
+        |> Enum.filter(fn {name, fun} -> fun end)
+      end
+
+      # Only run a benchmark if it is defined.
+      # It will only be defined if the puzzle has been solved!
+      def maybe_run(func_name) do
+        if Kernel.function_exported?(__MODULE__, func_name, 0) do
+          fn -> Kernel.apply(__MODULE__, func_name, []) end
+        end
       end
 
       defdelegate benchee_config(), to: unquote(__MODULE__)
