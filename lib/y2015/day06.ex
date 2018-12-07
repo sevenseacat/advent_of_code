@@ -4,8 +4,9 @@ defmodule Y2015.Day06 do
   def part1(input) do
     lights = do_parts(input, part1_cmds())
 
-    :ets.match_object(lights, {:_, true})
-    |> Enum.count()
+    :ets.match_object(lights, {:_, :_})
+    |> Enum.map(fn {_, val} -> val end)
+    |> Enum.sum()
   end
 
   @doc """
@@ -26,19 +27,15 @@ defmodule Y2015.Day06 do
   def part1_cmds do
     [
       on: fn coord, lights ->
-        :ets.insert(lights, {coord, true})
+        :ets.insert(lights, {coord, 1})
         lights
       end,
       off: fn coord, lights ->
-        :ets.insert(lights, {coord, false})
+        :ets.insert(lights, {coord, 0})
         lights
       end,
       toggle: fn coord, lights ->
-        case :ets.lookup(lights, coord) do
-          [] -> :ets.insert(lights, {coord, true})
-          [{coord, val}] -> :ets.insert(lights, {coord, !val})
-        end
-
+        :ets.update_counter(lights, coord, {2, 1, 1, 0}, {coord, 0})
         lights
       end
     ]
@@ -47,27 +44,17 @@ defmodule Y2015.Day06 do
   def part2_cmds do
     [
       on: fn coord, lights ->
-        case :ets.lookup(lights, coord) do
-          [] -> :ets.insert(lights, {coord, 1})
-          [{coord, val}] -> :ets.insert(lights, {coord, val + 1})
-        end
-
+        :ets.update_counter(lights, coord, 1, {coord, 0})
         lights
       end,
       off: fn coord, lights ->
-        case :ets.lookup(lights, coord) do
-          [] -> :ets.insert(lights, {coord, 0})
-          [{coord, val}] -> :ets.insert(lights, {coord, max(val - 1, 0)})
-        end
-
+        # Second position in the tuple of {coord, val}, with a min of 0.
+        # Defaults the inserted value to {coord, 0} *before* counting.
+        :ets.update_counter(lights, coord, {2, -1, 0, 0}, {coord, 0})
         lights
       end,
       toggle: fn coord, lights ->
-        case :ets.lookup(lights, coord) do
-          [] -> :ets.insert(lights, {coord, 2})
-          [{coord, val}] -> :ets.insert(lights, {coord, val + 2})
-        end
-
+        :ets.update_counter(lights, coord, 2, {coord, 0})
         lights
       end
     ]
