@@ -17,6 +17,10 @@ defmodule Y2015.Day07 do
     |> do_part1(%{})
   end
 
+  def part2(input) do
+    input |> parse_input |> do_part1(%{"b" => 46065})
+  end
+
   def do_part1(cmds, acc) do
     new_acc = Enum.reduce(cmds, acc, &run_cmd/2)
 
@@ -33,37 +37,37 @@ defmodule Y2015.Day07 do
   def run_cmd({:assign, x, key}, map) do
     x = v(x, map)
 
-    if x == nil, do: map, else: Map.put(map, key, x)
+    if x == nil, do: map, else: Map.put_new(map, key, x)
   end
 
   def run_cmd({:and, [x, y], key}, map) do
     [x, y] = [v(x, map), v(y, map)]
 
-    if x == nil || y == nil, do: map, else: Map.put(map, key, Bitwise.band(x, y))
+    if x == nil || y == nil, do: map, else: Map.put_new(map, key, Bitwise.band(x, y))
   end
 
   def run_cmd({:or, [x, y], key}, map) do
     [x, y] = [v(x, map), v(y, map)]
 
-    if x == nil || y == nil, do: map, else: Map.put(map, key, Bitwise.bor(x, y))
+    if x == nil || y == nil, do: map, else: Map.put_new(map, key, Bitwise.bor(x, y))
   end
 
   def run_cmd({:lshift, [x, y], key}, map) do
     [x, y] = [v(x, map), v(y, map)]
 
-    if x == nil || y == nil, do: map, else: Map.put(map, key, Bitwise.bsl(x, y))
+    if x == nil || y == nil, do: map, else: Map.put_new(map, key, Bitwise.bsl(x, y))
   end
 
   def run_cmd({:rshift, [x, y], key}, map) do
     [x, y] = [v(x, map), v(y, map)]
 
-    if x == nil || y == nil, do: map, else: Map.put(map, key, Bitwise.bsr(x, y))
+    if x == nil || y == nil, do: map, else: Map.put_new(map, key, Bitwise.bsr(x, y))
   end
 
   def run_cmd({:not, x, key}, map) do
     x = v(x, map)
 
-    if x == nil, do: map, else: Map.put(map, key, 65535 - x)
+    if x == nil, do: map, else: Map.put_new(map, key, 65535 - x)
   end
 
   defp v(key, _) when is_integer(key), do: key
@@ -106,5 +110,6 @@ defmodule Y2015.Day07 do
 
   defp maybe_int(val), do: if(Regex.match?(~r/\d+/, val), do: String.to_integer(val), else: val)
 
-  def part1_verify, do: input() |> part1()
+  def part1_verify, do: input() |> part1() |> Map.get("a")
+  def part2_verify, do: input() |> part2() |> Map.get("a")
 end
