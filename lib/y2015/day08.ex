@@ -8,6 +8,13 @@ defmodule Y2015.Day08 do
     |> Enum.sum()
   end
 
+  def part2(filename) do
+    filename
+    |> parse_input
+    |> Enum.map(&cooked_length/1)
+    |> Enum.sum()
+  end
+
   def parse_input(filename) do
     Stream.resource(
       fn -> File.open!(filename, [:binary]) end,
@@ -28,5 +35,16 @@ defmodule Y2015.Day08 do
     String.length(raw) - String.length(cooked)
   end
 
+  def cooked_length(raw) do
+    cooked =
+      raw
+      |> String.replace("\\", "\\\\")
+      |> String.replace("\"", "\\\"")
+
+    # 2 - extra quotes needed after the old ones were escaped
+    String.length(cooked) - String.length(raw) + 2
+  end
+
   def part1_verify, do: part1("lib/y2015/input/day08.txt")
+  def part2_verify, do: part2("lib/y2015/input/day08.txt")
 end
