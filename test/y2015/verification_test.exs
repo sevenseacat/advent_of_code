@@ -17,5 +17,6 @@ defmodule Y2015.Test do
     test "day 6, part 2", do: assert(Y2015.Day06.part2_verify() == 15_343_601)
     test "day 7, part 1", do: assert(Y2015.Day07.part1_verify() == 46065)
     test "day 7, part 2", do: assert(Y2015.Day07.part2_verify() == 14134)
+    test "day 8, part 1", do: assert(Y2015.Day08.part1_verify() == 1333)
   end
 end
