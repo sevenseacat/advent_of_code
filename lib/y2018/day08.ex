@@ -14,10 +14,16 @@ defmodule Y2018.Day08 do
   def part1(input) do
     input
     |> parse_input
-    |> read_nodes([])
-    |> Enum.at(1)
-    |> Enum.map(&sum_metadata/1)
-    |> Enum.sum()
+    |> sum_metadata
+  end
+
+  @doc """
+  iex> Day08.part2("2 3 0 3 10 11 12 1 1 0 1 99 2 1 1 2")
+  66
+  """
+  def part2(input) do
+    input
+    |> parse_input
   end
 
   defp sum_metadata(%{metadata: metadata, children: children}) do
@@ -29,6 +35,9 @@ defmodule Y2018.Day08 do
     |> String.trim()
     |> String.split(" ")
     |> Enum.map(&String.to_integer/1)
+    |> read_nodes([])
+    |> Enum.at(1)
+    |> hd
   end
 
   defp read_nodes([], acc), do: acc
