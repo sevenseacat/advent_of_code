@@ -1,6 +1,10 @@
 defmodule Y2015.Day08 do
   use Advent.Day, no: 8
 
+  @doc """
+  iex> Day08.part1("test/y2015/input/day08.txt")
+  12
+  """
   def part1(filename) do
     filename
     |> parse_input
