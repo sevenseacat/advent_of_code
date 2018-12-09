@@ -39,30 +39,31 @@ defmodule Y2018.Day09 do
 
   defp run_game(%{current: marble, max: max} = game) when marble > max, do: game
 
-  defp run_game(
-         %{
-           players: players,
-           turn: turn,
-           current: curr,
-           last: last,
-           field: field
-         } = game
-       ) do
+  defp run_game(%{
+         players: players,
+         turn: turn,
+         current: curr,
+         last: last,
+         field: field,
+         scores: scores,
+         max: max
+       }) do
     {score, new_pos, field} = place_marble(field, curr, last)
 
-    game =
-      game
-      |> Map.put(:last, new_pos)
-      |> Map.put(:field, field)
-      |> Map.update!(:scores, fn old_score ->
-        Map.update(old_score, turn, score, &(&1 + score))
-      end)
+    # Progress meter...
+    # if rem(curr, div(max, 100)) == 0 do
+    #  IO.inspect(curr, label: "#{div(curr, div(max, 100))}%")
+    # end
 
-    # IO.inspect(game)
-
-    Map.put(game, :current, curr + 1)
-    |> Map.put(:turn, rem(turn + 1, players))
-    |> run_game
+    run_game(%{
+      players: players,
+      turn: rem(turn + 1, players),
+      current: curr + 1,
+      last: new_pos,
+      field: field,
+      scores: Map.update(scores, turn, score, &(&1 + score)),
+      max: max
+    })
   end
 
   @doc """
@@ -80,12 +81,19 @@ defmodule Y2018.Day09 do
   {32, 6, [0, 16, 8, 17, 4, 18, 19, 2, 20, 10, 21, 5, 22, 11, 1, 12, 6, 13, 3, 14, 7, 15]}
   """
   def place_marble(field, points, last) do
+    turn =
+      if rem(points, 23) == 0 do
+        points - 2 * (div(points, 23) - 1)
+      else
+        points - 2 * div(points, 23)
+      end
+
     if rem(points, 23) == 0 do
-      new_index = new_special_position(length(field), last)
+      new_index = new_special_position(turn, last)
       {replaced, list} = List.pop_at(field, new_index)
       {points + replaced, new_index, list}
     else
-      new_index = new_normal_position(length(field), last)
+      new_index = new_normal_position(turn, last)
       {0, new_index, List.insert_at(field, new_index, points)}
     end
   end
