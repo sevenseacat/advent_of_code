@@ -23,33 +23,13 @@ defmodule Y2018.Day09 do
   def part1(input) do
     {players, points} = parse_input(input)
 
-    field = :digraph.new()
-    :digraph.add_vertex(field, 0)
-    :digraph.add_vertex(field, 1)
-    :digraph.add_vertex(field, 2)
-    :digraph.add_vertex(field, 3)
-    :digraph.add_vertex(field, 4)
-    :digraph.add_vertex(field, 5)
-    :digraph.add_vertex(field, 6)
-    :digraph.add_vertex(field, 7)
-
-    :digraph.add_edge(field, 0, 4)
-    :digraph.add_edge(field, 4, 2)
-    :digraph.add_edge(field, 2, 5)
-    :digraph.add_edge(field, 5, 1)
-    :digraph.add_edge(field, 1, 6)
-    :digraph.add_edge(field, 6, 3)
-    :digraph.add_edge(field, 3, 7)
-    :digraph.add_edge(field, 7, 0)
-
     run_game(%{
       scores: %{},
       players: players,
-      turn: 7,
-      current: 8,
-      last: 7,
+      turn: 1,
+      current: 1,
       max: points,
-      field: field
+      field: {[0], []}
     })
     |> Map.get(:scores)
     |> Enum.max_by(fn {_player, score} -> score end)
@@ -62,60 +42,41 @@ defmodule Y2018.Day09 do
          players: players,
          turn: turn,
          current: curr,
-         last: last,
          field: field,
          scores: scores,
          max: max
        }) do
-    {score, new_pos, field} = place_marble(field, curr, last)
-
-    # Progress meter...
-    # if rem(curr, div(max, 100)) == 0 do
-    #  IO.inspect(curr, label: "#{div(curr, div(max, 100))}%")
-    # end
+    {score, field} = place_marble(field, curr)
 
     run_game(%{
       players: players,
       turn: rem(turn + 1, players),
       current: curr + 1,
-      last: new_pos,
       field: field,
       scores: Map.update(scores, turn, score, &(&1 + score)),
       max: max
     })
   end
 
-  defp place_marble(graph, new, last) do
+  defp place_marble(state, new) do
     if rem(new, 23) == 0 do
-      first = :digraph.in_neighbours(graph, last) |> hd
-      second = :digraph.in_neighbours(graph, first) |> hd
-      third = :digraph.in_neighbours(graph, second) |> hd
-      fourth = :digraph.in_neighbours(graph, third) |> hd
-      fifth = :digraph.in_neighbours(graph, fourth) |> hd
-      sixth = :digraph.in_neighbours(graph, fifth) |> hd
-      seventh = :digraph.in_neighbours(graph, sixth) |> hd
-      eighth = :digraph.in_neighbours(graph, seventh) |> hd
+      {fwd, bwd} =
+        Enum.reduce(1..7, state, fn _, state ->
+          move_marble_back(state)
+        end)
 
-      :digraph.del_path(graph, eighth, seventh)
-      :digraph.del_path(graph, seventh, sixth)
-      :digraph.del_vertex(graph, seventh)
-      :digraph.add_edge(graph, eighth, sixth)
-
-      {new + seventh, sixth, graph}
+      {new + hd(bwd), {tl(fwd), [hd(fwd) | tl(bwd)]}}
     else
-      :digraph.add_vertex(graph, new)
-      first = :digraph.out_neighbours(graph, last) |> hd
-      second = :digraph.out_neighbours(graph, first) |> hd
-      :digraph.del_path(graph, first, second)
-      :digraph.add_edge(graph, first, new)
-      :digraph.add_edge(graph, new, second)
-      {0, new, graph}
+      {fwd, bwd} = move_marble_forward(state)
+      {0, {fwd, [new | bwd]}}
     end
   end
 
-  def new_special_position(size, pos) do
-    if pos - 7 >= 0, do: pos - 7, else: pos - 7 + size
-  end
+  defp move_marble_back({fwd, []}), do: move_marble_back({[], Enum.reverse(fwd)})
+  defp move_marble_back({fwd, [hd | bwd]}), do: {[hd | fwd], bwd}
+
+  defp move_marble_forward({[], bwd}), do: move_marble_forward({Enum.reverse(bwd), []})
+  defp move_marble_forward({[hd | fwd], bwd}), do: {fwd, [hd | bwd]}
 
   defp parse_input(input) do
     ~r/(\d+) players; last marble is worth (\d+) points/
