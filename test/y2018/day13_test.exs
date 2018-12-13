@@ -4,6 +4,7 @@ defmodule Y2018.Day13Test do
   doctest Day13
 
   test "verification, part 1", do: assert(Day13.part1_verify() == {129, 50})
+  test "verification, part 2", do: assert(Day13.part2_verify() == {69, 73})
 
   describe "parse_input/1" do
     test "it parses simple loops" do
@@ -112,7 +113,7 @@ defmodule Y2018.Day13Test do
 
       # One spot has two carts - the crash site.
       occupied = Enum.filter(output, fn {_coord, {_track, carts}} -> carts != nil end)
-      assert occupied == [{{7, 3}, {"|", [{:up, :left} | {:down, :right}]}}]
+      assert occupied == [{{7, 3}, {"|", [{:up, :left}, {:down, :right}]}}]
     end
   end
 
@@ -122,7 +123,25 @@ defmodule Y2018.Day13Test do
       {coord, {_track, carts}} = Day13.run_until_crash(input, 0)
 
       assert coord == {7, 3}
-      assert carts == [{:up, :left} | {:down, :right}]
+      assert carts == [{:up, :left}, {:down, :right}]
+    end
+  end
+
+  describe "run_removing_crashes" do
+    test "works with sample data" do
+      input = test_data("removing_crashes") |> Day13.parse_input()
+      {coord, {_track, carts}} = Day13.run_removing_crashes(input, 0)
+
+      assert coord == {6, 4}
+      assert carts == {:up, :left}
+    end
+
+    test "works when carts cross during a tick but do not end up on the same point" do
+      input = test_data("removing_crashes_overlapping") |> Day13.parse_input()
+      {coord, {_track, carts}} = Day13.run_removing_crashes(input, 0)
+
+      assert coord == {2, 4}
+      assert carts == {:left, :straight}
     end
   end
 
