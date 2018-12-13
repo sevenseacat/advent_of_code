@@ -3,6 +3,8 @@ defmodule Y2018.Day13Test do
   alias Y2018.Day13
   doctest Day13
 
+  test "verification, part 1", do: assert(Day13.part1_verify() == {129, 50})
+
   describe "parse_input/1" do
     test "it parses simple loops" do
       input = test_data("simple_loop")
@@ -110,7 +112,17 @@ defmodule Y2018.Day13Test do
 
       # One spot has two carts - the crash site.
       occupied = Enum.filter(output, fn {_coord, {_track, carts}} -> carts != nil end)
-      assert occupied == {{7, 3}, [{:up, :left}, {:down, :right}]}
+      assert occupied == [{{7, 3}, {"|", [{:up, :left} | {:down, :right}]}}]
+    end
+  end
+
+  describe "run_until_crash" do
+    test "works with the test input" do
+      input = test_data("crash") |> Day13.parse_input()
+      {coord, {_track, carts}} = Day13.run_until_crash(input, 0)
+
+      assert coord == {7, 3}
+      assert carts == [{:up, :left} | {:down, :right}]
     end
   end
 
