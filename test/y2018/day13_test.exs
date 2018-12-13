@@ -5,7 +5,7 @@ defmodule Y2018.Day13Test do
 
   describe "parse_input/1" do
     test "it parses simple loops" do
-      {:ok, input} = test_data("simple_loop")
+      input = test_data("simple_loop")
 
       expected_output = %{
         {0, 0} => {"/", nil},
@@ -26,13 +26,13 @@ defmodule Y2018.Day13Test do
     end
 
     test "it can parse intersections and carts" do
-      {:ok, input} = test_data("intersecting_carts")
+      input = test_data("intersecting_carts")
 
       expected_output = %{
         {0, 0} => {"/", nil},
         {1, 0} => {"-", nil},
         {2, 0} => {"-", nil},
-        {3, 0} => {"-", :right},
+        {3, 0} => {"-", {:right, :left}},
         {4, 0} => {"-", nil},
         {5, 0} => {"-", nil},
         {6, 0} => {"\\", nil},
@@ -47,7 +47,7 @@ defmodule Y2018.Day13Test do
         {8, 2} => {"-", nil},
         {9, 2} => {"\\", nil},
         {0, 3} => {"|", nil},
-        {3, 3} => {"|", :up},
+        {3, 3} => {"|", {:up, :left}},
         {6, 3} => {"|", nil},
         {9, 3} => {"|", nil},
         {0, 4} => {"\\", nil},
@@ -73,5 +73,46 @@ defmodule Y2018.Day13Test do
     end
   end
 
-  def test_data(name), do: File.read("test/y2018/input/day13/#{name}.txt")
+  describe "tick" do
+    test "can moves carts once" do
+      input = test_data("crash") |> Day13.parse_input()
+      output = Day13.tick(input)
+
+      # Cart 1 has moved right
+      assert Map.get(output, {2, 0}) == {"-", nil}
+      assert Map.get(output, {3, 0}) == {"-", {:right, :left}}
+
+      # Cart 2 has moved down, turned left, and faces right (next turn straight)
+      assert Map.get(output, {9, 3}) == {"|", nil}
+      assert Map.get(output, {9, 4}) == {"+", {:right, :straight}}
+    end
+
+    test "can moves carts twice" do
+      input = test_data("crash") |> Day13.parse_input()
+      output = input |> Day13.tick() |> Day13.tick()
+
+      # Cart 1 has moved right, followed the corner, faces down
+      assert Map.get(output, {2, 0}) == {"-", nil}
+      assert Map.get(output, {3, 0}) == {"-", nil}
+      assert Map.get(output, {4, 0}) == {"\\", {:down, :left}}
+
+      # Cart 2 has moved right
+      assert Map.get(output, {9, 3}) == {"|", nil}
+      assert Map.get(output, {9, 4}) == {"+", nil}
+      assert Map.get(output, {10, 4}) == {"-", {:right, :straight}}
+    end
+
+    test "goes all the way to a crash" do
+      input = test_data("crash") |> Day13.parse_input()
+
+      # The sample input crashes after 14 ticks.
+      output = Enum.reduce(1..14, input, fn _, input -> Day13.tick(input) end)
+
+      # One spot has two carts - the crash site.
+      occupied = Enum.filter(output, fn {_coord, {_track, carts}} -> carts != nil end)
+      assert occupied == {{7, 3}, [{:up, :left}, {:down, :right}]}
+    end
+  end
+
+  def test_data(name), do: File.read!("test/y2018/input/day13/#{name}.txt")
 end

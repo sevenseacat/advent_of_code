@@ -1,4 +1,27 @@
 defmodule Y2018.Day13 do
+  def part1(input) do
+    input
+    |> parse_input
+    |> run_until_crash(0)
+  end
+
+  def run_until_crash(input, tick) do
+    tick(input)
+
+    case crashed?(input) do
+      false -> run_until_crash(input, tick + 1)
+      result -> result
+    end
+  end
+
+  def tick(input) do
+    input
+  end
+
+  def crashed?(input) do
+    true
+  end
+
   def parse_input(input) do
     input
     |> String.split("\n", trim: true)
@@ -19,10 +42,10 @@ defmodule Y2018.Day13 do
     val =
       case char do
         " " -> nil
-        "^" -> {"|", :up}
-        "v" -> {"|", :down}
-        "<" -> {"-", :left}
-        ">" -> {"-", :right}
+        "^" -> {"|", {:up, :left}}
+        "v" -> {"|", {:down, :left}}
+        "<" -> {"-", {:left, :left}}
+        ">" -> {"-", {:right, :left}}
         c -> {c, nil}
       end
 
