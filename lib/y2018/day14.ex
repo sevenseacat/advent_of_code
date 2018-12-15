@@ -105,11 +105,9 @@ defmodule Y2018.Day14 do
       elf = :array.get(e1, recipes)
       [elf, elf]
     else
-      [i1, i2] = Enum.sort([e1, e2])
-      elf1 = :array.get(i1, recipes)
-      elf2 = :array.get(i2, recipes)
-
-      if i1 == e1, do: [elf1, elf2], else: [elf2, elf1]
+      elf1 = :array.get(e1, recipes)
+      elf2 = :array.get(e2, recipes)
+      [elf1, elf2]
     end
   end
 
