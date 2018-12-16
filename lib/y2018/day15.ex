@@ -3,15 +3,17 @@ defmodule Y2018.Day15 do
 
   alias Y2018.Day15.Unit
 
-  @unit_types %{"G" => :goblin, "E" => :elf}
-
   def part1(input) do
-    input
-    |> parse_input
-    |> do_part1(0)
+    {units, graph} = parse_input(input)
+
+    do_part1({units, graph}, count_elves(units), 0)
   end
 
-  defp do_part1({units, graph}, round_no) do
+  def part2(input) do
+    do_part2(input, %{"E" => 4, "G" => 3})
+  end
+
+  defp do_part1({units, graph}, elf_count, round_no) do
     {new_units, round_no} =
       try do
         {do_round({units, graph}), round_no + 1}
@@ -22,10 +24,32 @@ defmodule Y2018.Day15 do
 
     if winner = battle_over?(new_units) do
       hp_left = Enum.map(new_units, fn unit -> unit.hp end) |> Enum.sum()
-      %{winner: winner, hp_left: hp_left, rounds: round_no, score: round_no * hp_left}
+
+      %{
+        winner: winner,
+        hp_left: hp_left,
+        rounds: round_no,
+        score: round_no * hp_left,
+        elves_dead: elf_count - count_elves(new_units)
+      }
     else
-      do_part1({new_units, graph}, round_no)
+      do_part1({new_units, graph}, elf_count, round_no)
     end
+  end
+
+  defp do_part2(input, power) do
+    {units, graph} = parse_input(input, power)
+    result = do_part1({units, graph}, count_elves(units), 0)
+
+    if result.elves_dead == 0 do
+      Map.put(result, :power, power["E"])
+    else
+      do_part2(input, %{power | "E" => power["E"] + 1})
+    end
+  end
+
+  defp count_elves(units) do
+    Enum.count(units, fn unit -> unit.type == "E" end)
   end
 
   def do_round({units, graph}) do
@@ -46,7 +70,7 @@ defmodule Y2018.Day15 do
       enemy = enemy_adjacent(unit, units)
 
       if enemy do
-        attack_enemy(enemy, units)
+        attack_enemy(unit, enemy, units)
       else
         units
       end
@@ -80,10 +104,10 @@ defmodule Y2018.Day15 do
     end
   end
 
-  defp attack_enemy(target, units) do
+  defp attack_enemy(attacker, target, units) do
     Enum.map(units, fn unit ->
       if unit == target do
-        %{unit | hp: unit.hp - 3, alive: unit.hp > 3}
+        %{unit | hp: unit.hp - attacker.power, alive: unit.hp > attacker.power}
       else
         unit
       end
@@ -183,21 +207,21 @@ defmodule Y2018.Day15 do
     Enum.filter(units, fn other -> other.alive && other.type != unit.type end)
   end
 
-  def parse_input(input) do
+  def parse_input(input, power \\ %{"G" => 3, "E" => 3}) do
     {units, coords, _row} =
       input
       |> String.split("\n", trim: true)
-      |> Enum.reduce({[], Graph.new(), 1}, &parse_row/2)
+      |> Enum.reduce({[], Graph.new(), 1}, fn row, acc -> parse_row(row, acc, power) end)
 
     {sort_units(units), coords}
   end
 
-  defp parse_row(row, {units, graph, row_num}) do
+  defp parse_row(row, {units, graph, row_num}, power) do
     {units, coords, _col_num} =
       row
       |> String.graphemes()
       |> Enum.reduce({units, graph, 1}, fn char, {units, graph, col_num} ->
-        units = parse_unit(char, units, row_num, col_num)
+        units = parse_unit(char, units, power, row_num, col_num)
         graph = parse_coord(char, graph, row_num, col_num)
         {units, graph, col_num + 1}
       end)
@@ -209,11 +233,20 @@ defmodule Y2018.Day15 do
     Enum.sort_by(units, fn unit -> unit.position end)
   end
 
-  defp parse_unit("#", units, _, _), do: units
-  defp parse_unit(".", units, _, _), do: units
+  defp parse_unit("#", units, _, _, _), do: units
+  defp parse_unit(".", units, _, _, _), do: units
 
-  defp parse_unit(unit, units, row, col) do
-    [%Unit{type: @unit_types[unit], hp: 200, position: {row, col}, alive: true} | units]
+  defp parse_unit(unit, units, power, row, col) do
+    [
+      %Unit{
+        type: unit,
+        hp: 200,
+        position: {row, col},
+        alive: true,
+        power: power[unit]
+      }
+      | units
+    ]
   end
 
   defp parse_coord("#", graph, _, _), do: graph
@@ -236,7 +269,7 @@ defmodule Y2018.Day15 do
   def display_grid({units, graph}) do
     for row <- 1..35, col <- 1..35 do
       if unit = Enum.find(units, fn unit -> unit.position == {row, col} end) do
-        if unit.type == :goblin, do: "G", else: "E"
+        unit.type
       else
         if Graph.has_vertex?(graph, {row, col}), do: ".", else: "#"
       end
@@ -252,4 +285,5 @@ defmodule Y2018.Day15 do
   end
 
   def part1_verify, do: input() |> part1() |> Map.get(:score)
+  def part2_verify, do: input() |> part2() |> Map.get(:score)
 end

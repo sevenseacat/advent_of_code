@@ -6,35 +6,95 @@ defmodule Y2018.Day15Test do
   @tag timeout: :infinity
   test "verification, part 1", do: assert(Day15.part1_verify() == 245_280)
 
+  @tag timeout: :infinity
+  test "verification, part 2", do: assert(Day15.part2_verify() == 74984)
+
   describe "part1" do
     test "it works for sample input 0" do
       input = test_data("turn_by_turn")
-      assert Day15.part1(input) == %{winner: :goblin, rounds: 47, hp_left: 590, score: 27730}
+
+      assert Day15.part1(input) == %{
+               winner: "G",
+               rounds: 47,
+               hp_left: 590,
+               score: 27730,
+               elves_dead: 2
+             }
     end
 
     test "it works for sample input 1" do
       input = test_data("full_match_1")
-      assert Day15.part1(input) == %{winner: :elf, rounds: 37, hp_left: 982, score: 36334}
+
+      assert Day15.part1(input) == %{
+               winner: "E",
+               rounds: 37,
+               hp_left: 982,
+               score: 36334,
+               elves_dead: 1
+             }
     end
 
     test "it works for sample input 2" do
       input = test_data("full_match_2")
-      assert Day15.part1(input) == %{winner: :elf, rounds: 46, hp_left: 859, score: 39514}
+
+      assert Day15.part1(input) == %{
+               winner: "E",
+               rounds: 46,
+               hp_left: 859,
+               score: 39514,
+               elves_dead: 1
+             }
     end
 
     test "it works for sample input 3" do
       input = test_data("full_match_3")
-      assert Day15.part1(input) == %{winner: :goblin, rounds: 35, hp_left: 793, score: 27755}
+
+      assert Day15.part1(input) == %{
+               winner: "G",
+               rounds: 35,
+               hp_left: 793,
+               score: 27755,
+               elves_dead: 2
+             }
     end
 
     test "it works for sample input 4" do
       input = test_data("full_match_4")
-      assert Day15.part1(input) == %{winner: :goblin, rounds: 54, hp_left: 536, score: 28944}
+
+      assert Day15.part1(input) == %{
+               winner: "G",
+               rounds: 54,
+               hp_left: 536,
+               score: 28944,
+               elves_dead: 2
+             }
     end
 
     test "it works for sample input 5" do
       input = test_data("full_match_5")
-      assert Day15.part1(input) == %{winner: :goblin, rounds: 20, hp_left: 937, score: 18740}
+
+      assert Day15.part1(input) == %{
+               winner: "G",
+               rounds: 20,
+               hp_left: 937,
+               score: 18740,
+               elves_dead: 1
+             }
+    end
+  end
+
+  describe "part2" do
+    test "sample input 1" do
+      input = test_data("part_2_first")
+
+      assert Day15.part2(input) == %{
+               winner: "E",
+               rounds: 29,
+               hp_left: 172,
+               score: 4988,
+               elves_dead: 0,
+               power: 15
+             }
     end
   end
 
@@ -43,13 +103,13 @@ defmodule Y2018.Day15Test do
       input = test_data("parse_input")
 
       expected_units = [
-        %Unit{type: :goblin, hp: 200, position: {2, 3}, alive: true},
-        %Unit{type: :elf, hp: 200, position: {2, 5}, alive: true},
-        %Unit{type: :elf, hp: 200, position: {3, 2}, alive: true},
-        %Unit{type: :goblin, hp: 200, position: {3, 4}, alive: true},
-        %Unit{type: :elf, hp: 200, position: {3, 6}, alive: true},
-        %Unit{type: :goblin, hp: 200, position: {4, 3}, alive: true},
-        %Unit{type: :elf, hp: 200, position: {4, 5}, alive: true}
+        %Unit{type: "G", hp: 200, position: {2, 3}, alive: true, power: 3},
+        %Unit{type: "E", hp: 200, position: {2, 5}, alive: true, power: 3},
+        %Unit{type: "E", hp: 200, position: {3, 2}, alive: true, power: 3},
+        %Unit{type: "G", hp: 200, position: {3, 4}, alive: true, power: 3},
+        %Unit{type: "E", hp: 200, position: {3, 6}, alive: true, power: 3},
+        %Unit{type: "G", hp: 200, position: {4, 3}, alive: true, power: 3},
+        %Unit{type: "E", hp: 200, position: {4, 5}, alive: true, power: 3}
       ]
 
       expected_vertices = [
@@ -82,12 +142,12 @@ defmodule Y2018.Day15Test do
 
       # Coords don't change, we only care about units.
       expected_units = [
-        %Unit{type: :goblin, hp: 200, position: {2, 4}, alive: true},
-        %Unit{type: :elf, hp: 197, position: {3, 5}, alive: true},
-        %Unit{type: :goblin, hp: 197, position: {3, 6}, alive: true},
-        %Unit{type: :goblin, hp: 200, position: {4, 4}, alive: true},
-        %Unit{type: :goblin, hp: 197, position: {4, 6}, alive: true},
-        %Unit{type: :elf, hp: 197, position: {5, 6}, alive: true}
+        %Unit{type: "G", hp: 200, position: {2, 4}, alive: true, power: 3},
+        %Unit{type: "E", hp: 197, position: {3, 5}, alive: true, power: 3},
+        %Unit{type: "G", hp: 197, position: {3, 6}, alive: true, power: 3},
+        %Unit{type: "G", hp: 200, position: {4, 4}, alive: true, power: 3},
+        %Unit{type: "G", hp: 197, position: {4, 6}, alive: true, power: 3},
+        %Unit{type: "E", hp: 197, position: {5, 6}, alive: true, power: 3}
       ]
 
       assert Day15.do_round(state) == expected_units
@@ -98,12 +158,12 @@ defmodule Y2018.Day15Test do
 
       # Coords don't change, we only care about units.
       expected_units = [
-        %Unit{type: :goblin, hp: 200, position: {2, 5}, alive: true},
-        %Unit{type: :goblin, hp: 200, position: {3, 4}, alive: true},
-        %Unit{type: :elf, hp: 188, position: {3, 5}, alive: true},
-        %Unit{type: :goblin, hp: 194, position: {3, 6}, alive: true},
-        %Unit{type: :goblin, hp: 194, position: {4, 6}, alive: true},
-        %Unit{type: :elf, hp: 194, position: {5, 6}, alive: true}
+        %Unit{type: "G", hp: 200, position: {2, 5}, alive: true, power: 3},
+        %Unit{type: "G", hp: 200, position: {3, 4}, alive: true, power: 3},
+        %Unit{type: "E", hp: 188, position: {3, 5}, alive: true, power: 3},
+        %Unit{type: "G", hp: 194, position: {3, 6}, alive: true, power: 3},
+        %Unit{type: "G", hp: 194, position: {4, 6}, alive: true, power: 3},
+        %Unit{type: "E", hp: 194, position: {5, 6}, alive: true, power: 3}
       ]
 
       units = Day15.do_round({units, graph})
@@ -115,11 +175,11 @@ defmodule Y2018.Day15Test do
 
       # Coords don't change, we only care about units.
       expected_units = [
-        %Unit{type: :goblin, hp: 200, position: {2, 5}, alive: true},
-        %Unit{type: :goblin, hp: 200, position: {3, 4}, alive: true},
-        %Unit{type: :goblin, hp: 131, position: {3, 6}, alive: true},
-        %Unit{type: :goblin, hp: 131, position: {4, 6}, alive: true},
-        %Unit{type: :elf, hp: 131, position: {5, 6}, alive: true}
+        %Unit{type: "G", hp: 200, position: {2, 5}, alive: true, power: 3},
+        %Unit{type: "G", hp: 200, position: {3, 4}, alive: true, power: 3},
+        %Unit{type: "G", hp: 131, position: {3, 6}, alive: true, power: 3},
+        %Unit{type: "G", hp: 131, position: {4, 6}, alive: true, power: 3},
+        %Unit{type: "E", hp: 131, position: {5, 6}, alive: true, power: 3}
       ]
 
       units =
@@ -147,7 +207,7 @@ defmodule Y2018.Day15Test do
       input = test_data("movement")
       input = Day15.parse_input(input)
 
-      assert Day15.new_position(%Unit{type: :elf, hp: 200, position: {2, 3}}, input) == {2, 4}
+      assert Day15.new_position(%Unit{type: "E", hp: 200, position: {2, 3}}, input) == {2, 4}
     end
 
     test "more movement" do
