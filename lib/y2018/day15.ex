@@ -12,9 +12,13 @@ defmodule Y2018.Day15 do
   end
 
   defp do_part1({units, graph}, round_no) do
-    IO.inspect(round_no, label: "round no")
-    new_units = do_round({units, graph}) |> IO.inspect()
-    round_no = round_no + 1
+    {new_units, round_no} =
+      try do
+        {do_round({units, graph}), round_no + 1}
+      catch
+        new_units ->
+          {new_units |> Enum.filter(fn unit -> unit.alive end), round_no}
+      end
 
     if winner = battle_over?(new_units) do
       hp_left = Enum.map(new_units, fn unit -> unit.hp end) |> Enum.sum()
@@ -38,7 +42,6 @@ defmodule Y2018.Day15 do
 
     if unit.alive do
       unit = %{unit | position: new_position(unit, {units, graph})}
-
       units = List.replace_at(units, index, unit)
       enemy = enemy_adjacent(unit, units)
 
@@ -63,8 +66,17 @@ defmodule Y2018.Day15 do
       end)
 
     case adjacent do
-      [] -> nil
-      units -> Enum.min_by(units, fn unit -> unit.hp end)
+      [] ->
+        nil
+
+      units ->
+        {_hp, weakest_units} =
+          units
+          |> Enum.group_by(fn unit -> unit.hp end)
+          |> Enum.sort_by(fn {hp, _} -> hp end)
+          |> hd()
+
+        Enum.min_by(weakest_units, fn unit -> unit.position end)
     end
   end
 
@@ -91,40 +103,91 @@ defmodule Y2018.Day15 do
   end
 
   def new_position(unit, {units, graph}) do
-    path =
+    if find_enemies(unit, units) == [], do: throw(units)
+
+    if enemy_adjacent(unit, units) do
+      # Don't move, stay and attack.
+      unit.position
+    else
+      # I like to move it move it
+      calculate_new_position(unit, {units, graph})
+    end
+  end
+
+  defp calculate_new_position(unit, {units, graph}) do
+    paths =
       unit
       |> find_enemies(units)
-      |> Enum.map(fn opp -> get_path(graph, units, unit, opp) || [] end)
-      |> Enum.min_by(fn path -> length(path) end)
+      |> Enum.flat_map(fn unit -> get_squares_in_range(unit, units, graph) end)
+      |> Enum.map(fn coord -> best_path_between(unit.position, coord, {units, graph}) end)
+      |> Enum.filter(fn path -> path != nil end)
+      |> Enum.group_by(fn path -> length(path) end)
 
-    case path do
-      [_, next, _ | _] -> next
-      _ -> unit.position
+    case map_size(paths) do
+      0 ->
+        unit.position
+
+      _yay ->
+        paths
+        |> Enum.sort_by(fn {length, _} -> length end)
+        |> hd
+        |> get_first_move_by_reading_order
     end
+  end
+
+  defp get_squares_in_range(%Unit{position: {row, col}}, units, graph) do
+    [{row - 1, col}, {row + 1, col}, {row, col - 1}, {row, col + 1}]
+    |> Enum.filter(fn {row, col} ->
+      Graph.has_vertex?(graph, {row, col}) &&
+        !Enum.any?(units, fn unit -> unit.alive && unit.position == {row, col} end)
+    end)
+  end
+
+  def best_path_between({from_row, from_col} = from, to, {units, graph}) do
+    other_unit_coords =
+      units
+      |> Enum.filter(fn unit -> unit.alive end)
+      |> Enum.map(fn unit -> unit.position end)
+
+    open_coords = [from | Graph.vertices(graph)] -- other_unit_coords
+
+    weights = %{
+      {from_row - 1, from_col} => 0,
+      {from_row, from_col - 1} => 1,
+      {from_row, from_col + 1} => 2,
+      {from_row + 1, from_col} => 3
+    }
+
+    graph
+    |> Graph.subgraph(open_coords)
+    |> Graph.a_star(from, to, fn {row, col} ->
+      # Prefer the coordinates in reading order, for the first step.
+      Map.get(weights, {row, col}, 0)
+    end)
+  end
+
+  defp get_first_move_by_reading_order({_, paths}) do
+    {_, paths} =
+      paths
+      |> Enum.group_by(fn path -> Enum.reverse(path) |> hd end)
+      |> Enum.sort_by(fn {coord, _} -> coord end)
+      |> hd
+
+    paths
+    |> Enum.map(&tl/1)
+    |> Enum.map(&hd/1)
+    |> Enum.min()
   end
 
   defp find_enemies(unit, units) do
     Enum.filter(units, fn other -> other.alive && other.type != unit.type end)
   end
 
-  defp get_path(graph, units, from, to) do
-    other_units_at =
-      units
-      |> Enum.filter(fn unit -> unit.alive && unit != from && unit != to end)
-      |> Enum.map(fn unit -> unit.position end)
-
-    new_vertices = :digraph.vertices(graph) -- other_units_at
-
-    graph
-    |> :digraph_utils.subgraph(new_vertices)
-    |> :digraph.get_short_path(from.position, to.position)
-  end
-
   def parse_input(input) do
     {units, coords, _row} =
       input
       |> String.split("\n", trim: true)
-      |> Enum.reduce({[], :digraph.new(), 1}, &parse_row/2)
+      |> Enum.reduce({[], Graph.new(), 1}, &parse_row/2)
 
     {sort_units(units), coords}
   end
@@ -156,16 +219,37 @@ defmodule Y2018.Day15 do
   defp parse_coord("#", graph, _, _), do: graph
 
   defp parse_coord(_, graph, row, col) do
-    :digraph.add_vertex(graph, {row, col})
+    graph = Graph.add_vertex(graph, {row, col})
 
     [{row - 1, col}, {row, col - 1}]
-    |> Enum.each(fn neighbour ->
-      if :digraph.vertex(graph, neighbour) do
-        :digraph.add_edge(graph, {row, col}, neighbour)
-        :digraph.add_edge(graph, neighbour, {row, col})
+    |> Enum.reduce(graph, fn neighbour, graph ->
+      if Graph.has_vertex?(graph, neighbour) do
+        graph
+        |> Graph.add_edge({row, col}, neighbour)
+        |> Graph.add_edge(neighbour, {row, col})
+      else
+        graph
       end
     end)
-
-    graph
   end
+
+  def display_grid({units, graph}) do
+    for row <- 1..35, col <- 1..35 do
+      if unit = Enum.find(units, fn unit -> unit.position == {row, col} end) do
+        if unit.type == :goblin, do: "G", else: "E"
+      else
+        if Graph.has_vertex?(graph, {row, col}), do: ".", else: "#"
+      end
+    end
+    |> Enum.chunk_every(35)
+    |> Enum.map(&List.to_string/1)
+    |> Enum.map(&IO.puts/1)
+
+    units
+    |> Enum.each(fn unit ->
+      IO.puts("#{unit.type}: HP #{unit.hp}")
+    end)
+  end
+
+  def part1_verify, do: input() |> part1() |> Map.get(:score)
 end

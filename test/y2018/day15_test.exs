@@ -3,6 +3,9 @@ defmodule Y2018.Day15Test do
   alias Y2018.{Day15, Day15.Unit}
   doctest Day15
 
+  @tag timeout: :infinity
+  test "verification, part 1", do: assert(Day15.part1_verify() == 245_280)
+
   describe "part1" do
     test "it works for sample input 0" do
       input = test_data("turn_by_turn")
@@ -40,13 +43,13 @@ defmodule Y2018.Day15Test do
       input = test_data("parse_input")
 
       expected_units = [
-        %Unit{type: :goblin, hp: 200, position: {2, 3}},
-        %Unit{type: :elf, hp: 200, position: {2, 5}},
-        %Unit{type: :elf, hp: 200, position: {3, 2}},
-        %Unit{type: :goblin, hp: 200, position: {3, 4}},
-        %Unit{type: :elf, hp: 200, position: {3, 6}},
-        %Unit{type: :goblin, hp: 200, position: {4, 3}},
-        %Unit{type: :elf, hp: 200, position: {4, 5}}
+        %Unit{type: :goblin, hp: 200, position: {2, 3}, alive: true},
+        %Unit{type: :elf, hp: 200, position: {2, 5}, alive: true},
+        %Unit{type: :elf, hp: 200, position: {3, 2}, alive: true},
+        %Unit{type: :goblin, hp: 200, position: {3, 4}, alive: true},
+        %Unit{type: :elf, hp: 200, position: {3, 6}, alive: true},
+        %Unit{type: :goblin, hp: 200, position: {4, 3}, alive: true},
+        %Unit{type: :elf, hp: 200, position: {4, 5}, alive: true}
       ]
 
       expected_vertices = [
@@ -69,7 +72,7 @@ defmodule Y2018.Day15Test do
       {units, graph} = Day15.parse_input(input)
 
       assert expected_units == units
-      assert expected_vertices == :digraph.vertices(graph) |> Enum.sort()
+      assert expected_vertices == Graph.vertices(graph) |> Enum.sort()
     end
   end
 
@@ -127,6 +130,16 @@ defmodule Y2018.Day15Test do
 
       assert units == expected_units
     end
+
+    test "all units movement" do
+      units =
+        test_data("all_units_movement")
+        |> Day15.parse_input()
+        |> Day15.do_round()
+
+      positions = Enum.map(units, fn u -> u.position end)
+      assert positions == [{2, 3}, {2, 7}, {3, 5}, {4, 5}, {4, 8}, {5, 3}, {7, 2}, {7, 5}, {7, 8}]
+    end
   end
 
   describe "new_position" do
@@ -135,6 +148,16 @@ defmodule Y2018.Day15Test do
       input = Day15.parse_input(input)
 
       assert Day15.new_position(%Unit{type: :elf, hp: 200, position: {2, 3}}, input) == {2, 4}
+    end
+
+    test "more movement" do
+      {units, graph} = test_data("more_movement") |> Day15.parse_input()
+      assert Day15.new_position(hd(units), {units, graph}) == {2, 3}
+    end
+
+    test "more movement 2" do
+      {units, graph} = test_data("more_movement_2") |> Day15.parse_input()
+      assert Day15.new_position(hd(units), {units, graph}) == {1, 1}
     end
   end
 
