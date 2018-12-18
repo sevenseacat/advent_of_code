@@ -1,60 +1,82 @@
 defmodule Y2018.Day17 do
   use Advent.Day, no: 17
 
+  alias Y2018.Day17.Ground
+
   @doc """
   iex> File.read!("test/y2018/input/day17/part1.txt") |> Day17.part1()
   57
   """
   def part1(input) do
-    input = parse_input(input)
-    {_max_x, max_y} = input |> Map.get(:clay) |> Enum.max_by(fn {_, y} -> y end)
+    state = parse_input(input)
+    {_max_x, max_y} = state |> Map.get(:clay) |> Enum.max_by(fn {_, y} -> y end)
 
-    field = run_water(input, {500, 0}, max_y)
-
-    MapSet.union(field.water, field.touched)
-    |> MapSet.size()
+    Ground.init(state)
+    run_water({500, 0}, max_y, 0)
+    Ground.show_state()
+    Ground.count_wet_squares()
   end
 
-  defp run_water(field, from, max_y) do
-    {field, settled} = drip(field, from, max_y)
-
-    if settled do
-      run_water(field, from, max_y)
-    else
-      field
+  defp run_water(from, max_y, count) do
+    if drip(from, max_y) do
+      IO.inspect(Ground.count_wet_squares())
+      run_water(from, max_y, count + 1)
     end
   end
 
-  @doc """
-  iex> File.read!("test/y2018/input/day17/part1.txt") |> Day17.parse_input() |> Day17.drip({500, 0}) |> Map.delete(:clay)
-  %{
-    touched: MapSet.new([{500, 0}, {500, 1}, {500, 2}, {500, 3}, {500, 4}, {500, 5}, {500, 6},
-    {499, 6}, {498, 6}, {497, 6}]),
-    water: MapSet.new([{496, 6}])
-  }
-  """
-  def drip(field, {_, max_y}, max_y), do: {field, false}
+  def drip({_, y}, max_y) when y > max_y do
+    false
+  end
 
-  def drip(field, {x, y}, max_y, direction \\ :down) do
-    field = Map.update!(field, :touched, fn touched -> MapSet.put(touched, {x, y}) end)
+  def drip({x, y}, max_y) do
+    # IO.inspect({x, y})
+    Ground.mark_wet({x, y})
 
-    if permeable?(field, {x, y + 1}) do
-      drip(field, {x, y + 1}, max_y)
+    if Ground.permeable?({x, y + 1}) do
+      drip({x, y + 1}, max_y)
     else
-      if Enum.member?([:down, :left], direction) && permeable?(field, {x - 1, y}) do
-        drip(field, {x - 1, y}, max_y, :left)
+      # Clay or water. We may fill another row of a clay bucket, or may run over the edge and fall.
+      {left_edge, left_state} = check_left({x, y})
+      {right_edge, right_state} = check_right({x, y})
+
+      if left_state == :clay && right_state == :clay do
+        Ground.fill_row(left_edge, right_edge)
+        true
       else
-        if permeable?(field, {x + 1, y}) do
-          drip(field, {x + 1, y}, max_y, :right)
-        else
-          {Map.update!(field, :water, fn water -> MapSet.put(water, {x, y}) end), true}
+        if left_state == :sand || right_state == :sand do
+          Ground.wet_row(left_edge, right_edge)
+          left = if left_state == :sand, do: drip(left_edge, max_y), else: false
+          right = if right_state == :sand, do: drip(right_edge, max_y), else: false
+
+          left || right
         end
       end
     end
   end
 
-  defp permeable?(field, coord) do
-    !MapSet.member?(field.clay, coord) && !MapSet.member?(field.water, coord)
+  def check_left({x, y}) do
+    if Ground.permeable?({x, y + 1}) do
+      {{x, y}, :sand}
+    else
+      if Ground.permeable?({x - 1, y}) do
+        check_left({x - 1, y})
+      else
+        {{x, y}, :clay}
+      end
+    end
+  end
+
+  def check_right({x, y}) do
+    if Ground.permeable?({x, y + 1}) do
+      # This is the edge.
+      {{x, y}, :sand}
+    else
+      if Ground.permeable?({x + 1, y}) do
+        check_right({x + 1, y})
+      else
+        {{x, y}, :clay}
+      end
+    end
   end
 
   @doc """
@@ -65,7 +87,7 @@ defmodule Y2018.Day17 do
     {501, 6}, {495, 7}, {496, 7}, {497, 7}, {498, 7}, {499, 7}, {500, 7},
     {501, 7}, {498, 10}, {504, 10}, {498, 11}, {504, 11}, {498, 12}, {504, 12},
     {498, 13}, {499, 13}, {500, 13}, {501, 13}, {502, 13}, {503, 13}, {504, 13}]),
-    touched: MapSet.new(),
+    wet: MapSet.new(),
     water: MapSet.new()
   }
   """
@@ -76,7 +98,7 @@ defmodule Y2018.Day17 do
       |> Enum.map(&parse_row/1)
       |> Enum.reduce(MapSet.new(), &to_clay_field/2)
 
-    %{clay: clay, touched: MapSet.new(), water: MapSet.new()}
+    %{clay: clay, wet: MapSet.new(), water: MapSet.new()}
   end
 
   defp parse_row(row) do
