@@ -18,6 +18,20 @@ defmodule Y2018.Day17 do
     Ground.count_wet_squares(ground)
   end
 
+  @doc """
+  iex> test_data("sample") |> Day17.parse_input |> Day17.part2()
+  29
+  """
+  def part2(state, {from_x, from_y} \\ {500, 0}) do
+    {_max_x, max_y} = state |> Map.get(:clay) |> Enum.max_by(fn {_, y} -> y end)
+    {:ok, ground} = Ground.init(state)
+
+    run_water(ground, [from_x], {from_y, max_y + 1})
+
+    # This is the only line different from part 1.
+    Ground.count_water_squares(ground)
+  end
+
   defp run_water(_ground, x, {max_y, max_y}), do: x
 
   defp run_water(ground, streams, {y, max_y}) do
@@ -188,4 +202,5 @@ defmodule Y2018.Day17 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end

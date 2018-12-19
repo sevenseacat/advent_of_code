@@ -45,6 +45,12 @@ defmodule Y2018.Day17.Ground do
     end)
   end
 
+  def count_water_squares(pid) do
+    Agent.get(pid, fn {_, field} ->
+      MapSet.size(Map.get(field, :water))
+    end)
+  end
+
   def sand?(pid, coord), do: at(pid, coord) == :sand
   def water?(pid, coord), do: at(pid, coord) == :water
   def clay?(pid, coord), do: at(pid, coord) == :clay
