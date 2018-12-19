@@ -20,15 +20,15 @@ defmodule Y2018.Day19Test do
 
       output = %{
         ip: 0,
-        commands: [
-          {:seti, 5, 0, 1},
-          {:seti, 6, 0, 2},
-          {:addi, 0, 1, 0},
-          {:addr, 1, 2, 3},
-          {:setr, 1, 0, 0},
-          {:seti, 8, 0, 4},
-          {:seti, 9, 0, 5}
-        ]
+        commands: %{
+          0 => {:seti, 5, 0, 1},
+          1 => {:seti, 6, 0, 2},
+          2 => {:addi, 0, 1, 0},
+          3 => {:addr, 1, 2, 3},
+          4 => {:setr, 1, 0, 0},
+          5 => {:seti, 8, 0, 4},
+          6 => {:seti, 9, 0, 5}
+        }
       }
 
       assert Day19.parse_input(input) == output
