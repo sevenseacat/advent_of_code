@@ -4,61 +4,85 @@ defmodule Y2018.Day17 do
   alias Y2018.Day17.Ground
 
   @doc """
-  iex> File.read!("test/y2018/input/day17/part1.txt") |> Day17.part1()
+  iex> test_data("sample") |> Day17.parse_input |> Day17.part1()
+  57
+  iex> {from, state} = test_data("sample_picture") |> Day17.parse_picture_input()
+  iex> Day17.part1(state, from)
   57
   """
-  def part1(input) do
-    state = parse_input(input)
+  def part1(state, {from_x, from_y} \\ {500, 0}) do
     {_max_x, max_y} = state |> Map.get(:clay) |> Enum.max_by(fn {_, y} -> y end)
-
     Ground.init(state)
-    run_water({500, 0}, max_y, 0)
-    Ground.show_state()
+
+    run_water([from_x], {from_y, max_y + 1})
     Ground.count_wet_squares()
   end
 
-  defp run_water(from, max_y, count) do
-    if drip(from, max_y) do
-      IO.inspect(Ground.count_wet_squares())
-      run_water(from, max_y, count + 1)
+  defp run_water(x, {max_y, max_y}), do: x
+
+  defp run_water(streams, {y, max_y}) do
+    new_streams =
+      Enum.map(streams, fn stream -> drip(stream, {y, max_y}) end)
+      |> List.flatten()
+      |> Enum.uniq()
+      |> Enum.reject(fn stream -> stream == nil end)
+
+    run_water(new_streams, {y + 1, max_y})
+  end
+
+  def drip(x, {max_y, max_y}), do: x
+
+  def drip(x, {y, _}) do
+    {x, y} |> Ground.mark_wet()
+
+    if Ground.sand?({x, y + 1}) do
+      # Stream continues down
+      x
+    else
+      # Clay or water. We may fill a clay bucket, or may run over the edge and fall.
+      fill_bucket({x, y}, y + 1)
     end
   end
 
-  def drip({_, y}, max_y) when y > max_y do
-    false
-  end
+  defp fill_bucket({x, y}, max_y) do
+    {left_edge, left_state} = check_left({x, y})
+    {right_edge, right_state} = check_right({x, y})
 
-  def drip({x, y}, max_y) do
-    # IO.inspect({x, y})
-    Ground.mark_wet({x, y})
-
-    if Ground.permeable?({x, y + 1}) do
-      drip({x, y + 1}, max_y)
+    if left_state == :clay && right_state == :clay do
+      Ground.fill_row(left_edge, right_edge)
+      fill_bucket({x, y - 1}, max_y)
     else
-      # Clay or water. We may fill another row of a clay bucket, or may run over the edge and fall.
-      {left_edge, left_state} = check_left({x, y})
-      {right_edge, right_state} = check_right({x, y})
+      if left_state == :sand || right_state == :sand do
+        Ground.wet_row(left_edge, right_edge)
 
-      if left_state == :clay && right_state == :clay do
-        Ground.fill_row(left_edge, right_edge)
-        true
-      else
-        if left_state == :sand || right_state == :sand do
-          Ground.wet_row(left_edge, right_edge)
-          left = if left_state == :sand, do: drip(left_edge, max_y), else: false
-          right = if right_state == :sand, do: drip(right_edge, max_y), else: false
+        acc = []
 
-          left || right
-        end
+        acc =
+          if left_state == :sand do
+            {left_x, left_y} = left_edge
+            [run_water([left_x], {left_y, max_y}) | acc]
+          else
+            acc
+          end
+
+        acc =
+          if right_state == :sand do
+            {right_x, right_y} = right_edge
+            [run_water([right_x], {right_y, max_y}) | acc]
+          else
+            acc
+          end
+
+        acc
       end
     end
   end
 
-  def check_left({x, y}) do
-    if Ground.permeable?({x, y + 1}) do
+  defp check_left({x, y}) do
+    if Ground.sand?({x, y + 1}) do
       {{x, y}, :sand}
     else
-      if Ground.permeable?({x - 1, y}) do
+      if Ground.sand?({x - 1, y}) do
         check_left({x - 1, y})
       else
         {{x, y}, :clay}
@@ -66,12 +90,12 @@ defmodule Y2018.Day17 do
     end
   end
 
-  def check_right({x, y}) do
-    if Ground.permeable?({x, y + 1}) do
+  defp check_right({x, y}) do
+    if Ground.sand?({x, y + 1}) do
       # This is the edge.
       {{x, y}, :sand}
     else
-      if Ground.permeable?({x + 1, y}) do
+      if Ground.sand?({x + 1, y}) do
         check_right({x + 1, y})
       else
         {{x, y}, :clay}
@@ -80,7 +104,45 @@ defmodule Y2018.Day17 do
   end
 
   @doc """
-  iex> File.read!("test/y2018/input/day17/part1.txt") |> Day17.parse_input()
+  This is just like the normal day 17 sample input, except starting at 0,0 instead of
+  494,0.
+
+  iex> test_data("sample_picture") |> Day17.parse_picture_input()
+  {{6, 0}, %{
+    clay: MapSet.new([{7, 6}, {5, 7}, {10, 12}, {4, 13}, {4, 10}, {2, 7}, {8, 13},
+    {6, 13}, {5, 13}, {1, 3}, {7, 4}, {7, 5}, {9, 13}, {7, 7}, {4, 7}, {1, 5},
+    {12, 1}, {10, 13}, {3, 7}, {1, 2}, {1, 4}, {6, 7}, {4, 2}, {1, 6}, {4, 11},
+    {10, 11}, {4, 12}, {1, 7}, {4, 3}, {10, 10}, {7, 13}, {4, 4}, {12, 2}, {7, 3}]),
+    wet: MapSet.new(),
+    water: MapSet.new()
+  }}
+  """
+  def parse_picture_input(input) do
+    %{"#" => clay, "+" => [{x, y, _}]} =
+      input
+      |> String.split("\n", trim: true)
+      |> Enum.with_index()
+      |> Enum.map(&parse_picture_row/1)
+      |> List.flatten()
+      |> Enum.group_by(fn {_, _, char} -> char end)
+
+    {{x, y},
+     %{
+       clay: clay |> Enum.map(fn {x, y, _} -> {x, y} end) |> MapSet.new(),
+       wet: MapSet.new(),
+       water: MapSet.new()
+     }}
+  end
+
+  defp parse_picture_row({data, row_no}) do
+    data
+    |> String.graphemes()
+    |> Enum.with_index()
+    |> Enum.map(fn {char, col_no} -> {col_no, row_no, char} end)
+  end
+
+  @doc """
+  iex> test_data("sample") |> Day17.parse_input()
   %{
     clay: MapSet.new([{506, 1}, {495, 2}, {498, 2}, {506, 2}, {495, 3}, {498, 3},
     {501, 3}, {495, 4}, {498, 4}, {501, 4}, {495, 5}, {501, 5}, {495, 6},
@@ -124,4 +186,6 @@ defmodule Y2018.Day17 do
     |> MapSet.new()
     |> MapSet.union(field)
   end
+
+  def part1_verify, do: input() |> parse_input() |> part1()
 end
