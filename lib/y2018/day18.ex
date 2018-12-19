@@ -11,28 +11,38 @@ defmodule Y2018.Day18 do
   %{tree: 37, lumberyard: 31, open: 32}
   """
   def part1(input, iterations) do
-    result =
+    summary =
       input
       |> parse_input()
-      |> do_part1(iterations)
+      |> do_part1(0, iterations, %{})
       |> Enum.group_by(fn {_coord, type} -> type end)
 
     %{
-      tree: Map.get(result, :tree) |> length,
-      lumberyard: Map.get(result, :lumberyard) |> length,
-      open: Map.get(result, :open) |> length
+      tree: Map.get(summary, :tree) |> length,
+      lumberyard: Map.get(summary, :lumberyard) |> length,
+      open: Map.get(summary, :open) |> length
     }
   end
 
-  defp do_part1(input, 0), do: input
+  defp do_part1(input, max, max, _), do: input
 
-  defp do_part1(input, iterations) do
+  defp do_part1(input, iterations, max_iterations, previous) do
     new_input =
       input
       |> Enum.map(fn coord -> tick(coord, input) end)
       |> Enum.into(%{})
 
-    do_part1(new_input, iterations - 1)
+    # If we've seen this exact field layout before, we've hit a cycle in the input
+    # We can then skip a whole lot of iterations until we get close to the final number.
+    {previous, iterations} =
+      if seen_at = Map.get(previous, new_input) do
+        cycles_to_skip = div(max_iterations - iterations, iterations - seen_at)
+        {previous, iterations + cycles_to_skip * (iterations - seen_at)}
+      else
+        {Map.put(previous, new_input, iterations), iterations}
+      end
+
+    do_part1(new_input, iterations + 1, max_iterations, previous)
   end
 
   defp tick({coord, type}, map) do
@@ -93,6 +103,11 @@ defmodule Y2018.Day18 do
 
   def part1_verify do
     %{lumberyard: lumberyard, tree: tree} = input() |> part1(10)
+    lumberyard * tree
+  end
+
+  def part2_verify do
+    %{lumberyard: lumberyard, tree: tree} = input() |> part1(1_000_000_000)
     lumberyard * tree
   end
 end
