@@ -90,4 +90,6 @@ defmodule Y2018.Day20 do
   defp make_move("E", {x, y}), do: {x + 1, y}
   defp make_move("S", {x, y}), do: {x, y - 1}
   defp make_move("N", {x, y}), do: {x, y + 1}
+
+  def part1_verify, do: input() |> part1()
 end

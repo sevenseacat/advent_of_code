@@ -3,6 +3,8 @@ defmodule Y2018.Day20Test do
   alias Y2018.Day20
   doctest Day20
 
+  test "verification, part 1", do: assert(Day20.part1_verify() == 3725)
+
   describe "generate_all_paths" do
     test "no branching" do
       actual = Day20.generate_all_paths(String.graphemes("WNE$")) |> Enum.sort()
