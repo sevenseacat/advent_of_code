@@ -18,72 +18,42 @@ defmodule Y2018.Day20 do
   31
   """
   def part1(input) do
-    ["^" | code] = input |> String.trim() |> String.graphemes()
-
-    code
-    |> generate_all_paths
-    |> Enum.reduce(%{}, fn path, acc -> do_part1(path, acc, {0, 0}, 1) end)
+    input
+    |> generate_maze
     |> Enum.max_by(fn {_coord, moves} -> moves end)
     |> elem(1)
   end
 
-  def generate_all_paths(list, paths \\ [[]])
-
-  def generate_all_paths(["$"], paths) do
-    paths
-    |> Enum.uniq()
+  def part2(input) do
+    input
+    |> generate_maze
+    |> Enum.filter(fn {_coord, moves} -> moves >= 1000 end)
+    |> length
   end
 
-  def generate_all_paths([char | rest], paths) when char in ["|", ")"] do
-    generate_all_paths(rest, paths)
+  defp generate_maze(input) do
+    ["^" | code] = input |> String.trim() |> String.graphemes()
+    run_regex(code, %{}, {0, 0}, [], 1)
   end
 
-  def generate_all_paths(["(" | rest], paths) do
-    {new_paths, rest} = get_sub_paths(rest, paths, [])
-    generate_all_paths(rest, new_paths)
+  def run_regex(["$"], map, _coord, [], _count), do: map
+
+  def run_regex(["(" | moves], map, coord, stack, count) do
+    run_regex(moves, map, coord, [{coord, count} | stack], count)
   end
 
-  def generate_all_paths([char | rest], paths) do
-    # IO.inspect(char, label: "processing")
-    # This is a list of single-character binaries, eg. ["W", "N", "(", "E", "|", ")", "$"]
-    paths = Enum.map(paths, fn path -> path ++ [char] end)
-    generate_all_paths(rest, paths)
+  def run_regex(["|" | moves], map, _coord, [{back_to, count} | stack], _count) do
+    run_regex(moves, map, back_to, [{back_to, count} | stack], count)
   end
 
-  defp get_sub_paths(list, orig_paths, all_paths) do
-    # Branching! Read until a |
-    # IO.puts("---")
-    # IO.inspect(orig_paths, label: "paths to be suffixed")
-    # IO.inspect(all_paths)
-    # IO.inspect(list, label: "to be read")
-
-    case Enum.split_while(list, fn char -> !Enum.member?(["|", "(", ")"], char) end) do
-      {first, ["|", ")" | rest]} ->
-        # IO.puts("found an empty option!")
-        new_paths = Enum.map(orig_paths, fn path -> path ++ first end)
-        {orig_paths ++ new_paths ++ all_paths, rest}
-
-      {first, ["|" | rest]} ->
-        new_paths = Enum.map(orig_paths, fn path -> path ++ first end)
-        get_sub_paths(rest, orig_paths, new_paths ++ all_paths)
-
-      {first, ["(" | rest]} ->
-        new_paths = Enum.map(orig_paths, fn path -> path ++ first end)
-        {paths, rest} = get_sub_paths(rest, new_paths, new_paths ++ all_paths)
-        get_sub_paths(rest, orig_paths, paths)
-
-      {last, [")" | rest]} ->
-        new_paths = Enum.map(orig_paths, fn path -> path ++ last end)
-        {new_paths ++ all_paths, rest}
-    end
+  def run_regex([")" | moves], map, _coord, [{back_to, count} | stack], _count) do
+    run_regex(moves, map, back_to, stack, count)
   end
 
-  defp do_part1([], map, _coord, _count), do: map
-
-  defp do_part1([move | moves], map, coord, count) do
+  def run_regex([move | moves], map, coord, stack, count) do
     new_coord = make_move(move, coord)
     map = Map.update(map, new_coord, count, &min(count, &1))
-    do_part1(moves, map, new_coord, count + 1)
+    run_regex(moves, map, new_coord, stack, count + 1)
   end
 
   defp make_move("W", {x, y}), do: {x - 1, y}
@@ -92,4 +62,5 @@ defmodule Y2018.Day20 do
   defp make_move("N", {x, y}), do: {x, y + 1}
 
   def part1_verify, do: input() |> part1()
+  def part2_verify, do: input() |> part2()
 end
