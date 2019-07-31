@@ -5,6 +5,7 @@ defmodule Y2018.Day24Test do
   import Day24, only: [find: 2]
 
   test "verification, part 1", do: assert(Day24.part1_verify() == 25088)
+  test "verification, part 2", do: assert(Day24.part2_verify() == 2002)
 
   @armies [
     %{
@@ -79,7 +80,13 @@ defmodule Y2018.Day24Test do
 
   describe "part1" do
     test "can run through to the end" do
-      assert 5216 == Day24.part1(@armies)
+      assert {:infection, 5216} == Day24.part1(@armies)
+    end
+  end
+
+  describe "boost" do
+    test "can run through to the end" do
+      assert {:immune, 51} == Day24.part1_with_boost(@armies, 1570)
     end
   end
 end

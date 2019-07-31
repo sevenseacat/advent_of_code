@@ -227,18 +227,41 @@ defmodule Y2018.Day24 do
     }
   ]
 
-  def part1(groups \\ @real_groups) do
+  def part1(groups \\ @real_groups, loops \\ 0) do
     {immune, infection} = split_into_armies(groups)
 
     if immune == [] || infection == [] do
-      groups
-      |> Enum.map(fn group -> group.units end)
-      |> Enum.sum()
+      units_left =
+        groups
+        |> Enum.map(fn group -> group.units end)
+        |> Enum.sum()
+
+      {elem(hd(groups).id, 1), units_left}
     else
       groups
       |> select_targets
       |> attack
-      |> part1
+      |> part1(loops + 1)
+    end
+  end
+
+  def part1_with_boost(groups, boost) do
+    groups
+    |> Enum.map(fn %{id: {_, type}, attack: {atk_power, atk_type}} = group ->
+      case type do
+        :immune -> %{group | attack: {atk_power + boost, atk_type}}
+        :infection -> group
+      end
+    end)
+    |> part1
+  end
+
+  def part2(groups \\ @real_groups), do: do_part2(groups, 0)
+
+  defp do_part2(groups, boost) do
+    case part1_with_boost(groups, boost) do
+      {:infection, _} -> do_part2(groups, boost + 1)
+      result -> [result, boost]
     end
   end
 
@@ -248,19 +271,26 @@ defmodule Y2018.Day24 do
   end
 
   def attack(groups) do
-    groups
-    |> Enum.sort_by(fn group -> group.initiative end)
-    |> Enum.reverse()
-    |> Enum.reduce(groups, fn attacker, groups ->
-      attacker = find(groups, attacker.id)
+    after_attacking =
+      groups
+      |> Enum.sort_by(fn group -> group.initiative end)
+      |> Enum.reverse()
+      |> Enum.reduce(groups, fn attacker, groups ->
+        attacker = find(groups, attacker.id)
 
-      if attacker == nil || attacker.targeting == nil do
-        groups
-      else
-        attack_group(attacker, groups, [])
-      end
-    end)
-    |> Enum.map(fn group -> Map.put(group, :targeting, nil) end)
+        if attacker == nil || attacker.targeting == nil do
+          groups
+        else
+          attack_group(attacker, groups, [])
+        end
+      end)
+
+    if groups == after_attacking do
+      # Stalemate! Pretend it's an infection win.
+      [%{id: {99, :infection}, units: 0, hp: 0}]
+    else
+      Enum.map(after_attacking, fn group -> Map.put(group, :targeting, nil) end)
+    end
   end
 
   defp attack_group(attacker, [group | groups], seen) do
@@ -340,5 +370,6 @@ defmodule Y2018.Day24 do
     Enum.find(groups, fn group -> group.id == id end)
   end
 
-  def part1_verify, do: part1()
+  def part1_verify, do: part1() |> elem(1)
+  def part2_verify, do: part2() |> hd() |> elem(1)
 end
