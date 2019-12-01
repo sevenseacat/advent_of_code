@@ -7,6 +7,12 @@ defmodule Y2019.Day01 do
     |> Enum.sum()
   end
 
+  def part2(input) do
+    input
+    |> Enum.map(&fuel_mass_with_extra/1)
+    |> Enum.sum()
+  end
+
   def parse_input(data) do
     data
     |> String.trim()
@@ -29,5 +35,16 @@ defmodule Y2019.Day01 do
   """
   def fuel_mass(num), do: div(num, 3) - 2
 
+  @doc """
+  iex> Day01.fuel_mass_with_extra(100756)
+  50346
+  """
+  def fuel_mass_with_extra(num, sum \\ 0) do
+    needed = fuel_mass(num)
+
+    if needed >= 0, do: fuel_mass_with_extra(needed, sum + needed), else: sum
+  end
+
   def part1_verify, do: input() |> parse_input() |> part1()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
