@@ -3,8 +3,15 @@ defmodule Y2019.Day02 do
 
   def part1(input) do
     input
+    |> seed_program(12, 2)
     |> run_program
     |> hd
+  end
+
+  defp seed_program(list, noun, verb) do
+    list
+    |> List.replace_at(1, noun)
+    |> List.replace_at(2, verb)
   end
 
   @doc """
