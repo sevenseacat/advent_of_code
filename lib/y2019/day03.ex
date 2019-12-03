@@ -2,21 +2,37 @@ defmodule Y2019.Day03 do
   use Advent.Day, no: 3
 
   def part1(wires) do
-    [w1_coords, w2_coords] =
-      Enum.map(wires, fn wire ->
-        calculate_all_coords(wire, {0, 0}, MapSet.new())
-      end)
-
-    MapSet.intersection(w1_coords, w2_coords)
+    wires
+    |> all_coords
+    |> intersects
     |> Enum.map(fn coord -> {coord, manhattan_distance(coord)} end)
     |> Enum.min_by(fn {_x, dist} -> dist end)
     |> elem(1)
   end
 
-  def part2(_input) do
+  def part2(wires) do
+    [w1, w2] = all_coords(wires)
+
+    [w1, w2]
+    |> intersects
+    |> Enum.map(fn coord -> {coord, steps(w1, coord) + steps(w2, coord)} end)
+    |> Enum.min_by(fn {_x, dist} -> dist end)
+    |> elem(1)
   end
 
-  def calculate_all_coords([], _, seen), do: seen
+  defp all_coords(wires) do
+    Enum.map(wires, fn wire -> calculate_all_coords(wire, {0, 0}, []) end)
+  end
+
+  defp intersects([w1, w2]) do
+    MapSet.intersection(MapSet.new(w1), MapSet.new(w2))
+  end
+
+  # Indexes are zero indexed, but we don't include {0,0} in the wire list
+  # so add 1 get the actual number of steps.
+  defp steps(wire, coord), do: Enum.find_index(wire, &(&1 == coord)) + 1
+
+  def calculate_all_coords([], _, seen), do: Enum.reverse(seen)
 
   def calculate_all_coords([{direction, distance} | moves], current, seen) do
     {current, seen} = add_moves(direction, distance, current, seen)
@@ -26,7 +42,7 @@ defmodule Y2019.Day03 do
   defp add_moves(dir, distance, current, seen) do
     seen =
       Enum.reduce(1..distance, seen, fn d, acc ->
-        MapSet.put(acc, move(dir, d, current))
+        [move(dir, d, current) | acc]
       end)
 
     {move(dir, distance, current), seen}
@@ -58,4 +74,5 @@ defmodule Y2019.Day03 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
