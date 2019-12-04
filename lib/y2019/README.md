@@ -2,7 +2,7 @@
 
 My Elixir solutions for [Advent of Code 2019](https://adventofcode.com/2019).
 
-**Stars complete: 6/50 :star:**
+**Stars complete: 7/50 :star:**
 
 ## Benchmarks
 
@@ -14,10 +14,11 @@ You can check out the code yourself and run the benchmarks with `mix bench 2019`
 
 ```
 Name                     ips        average  deviation         median         99th %
-day 01, part 1       15.54 K      0.0644 ms   ±102.21%      0.0594 ms      0.0913 ms
-day 01, part 2       14.38 K      0.0696 ms    ±29.20%      0.0674 ms       0.100 ms
-day 02, part 1       14.98 K      0.0668 ms    ±28.23%      0.0614 ms       0.108 ms
-day 02, part 2      0.0233 K       42.94 ms     ±0.86%       42.89 ms       46.17 ms
-day 03, part 1      0.0157 K       63.83 ms     ±3.08%       64.21 ms       70.05 ms
-day 03, part 2     0.00835 K      119.75 ms     ±4.65%      118.43 ms      132.56 ms
+day 01, part 1      14707.30      0.0680 ms   ±112.03%      0.0605 ms       0.165 ms
+day 01, part 2      14261.44      0.0701 ms    ±64.21%      0.0675 ms       0.104 ms
+day 02, part 1      14957.81      0.0669 ms    ±34.68%      0.0612 ms       0.108 ms
+day 02, part 2         23.23       43.05 ms     ±1.56%       42.92 ms       48.69 ms
+day 03, part 1         15.69       63.75 ms     ±3.09%       64.20 ms       70.08 ms
+day 03, part 2          8.36      119.55 ms     ±4.53%      118.36 ms      133.46 ms
+day 04, part 1         13.14       76.12 ms     ±1.31%       75.96 ms       79.29 ms
 ```
