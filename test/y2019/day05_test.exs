@@ -3,7 +3,5 @@ defmodule Y2019.Day05Test do
   alias Y2019.Day05
   doctest Day05
 
-  import ExUnit.CaptureIO
-
-  test "verification, part 1", do: assert(capture_io(&Day05.part1_verify/0) == "6745903\n")
+  test "verification, part 1", do: assert(Day05.part1_verify() == 6_745_903)
 end
