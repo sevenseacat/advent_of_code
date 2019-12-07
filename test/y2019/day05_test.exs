@@ -28,7 +28,7 @@ defmodule Y2019.Day05Test do
     end
 
     test "an input that has an output" do
-      actual = Day05.run_program(:array.from_list([3, 0, 4, 0, 99]), 444)
+      actual = Day05.run_program(:array.from_list([3, 0, 4, 0, 99]), [444])
       assert {[444, 0, 4, 0, 99], [444]} == actual
     end
 
@@ -41,7 +41,7 @@ defmodule Y2019.Day05Test do
       actual =
         Day05.run_program(
           :array.from_list([3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9]),
-          0
+          [0]
         )
 
       assert elem(actual, 1) == [0]
@@ -51,7 +51,7 @@ defmodule Y2019.Day05Test do
       actual =
         Day05.run_program(
           :array.from_list([3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9]),
-          42
+          [42]
         )
 
       assert elem(actual, 1) == [1]
@@ -59,55 +59,57 @@ defmodule Y2019.Day05Test do
 
     test "jump test #1 - immediate mode" do
       actual =
-        Day05.run_program(:array.from_list([3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1]), 0)
+        Day05.run_program(:array.from_list([3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1]), [0])
 
       assert elem(actual, 1) == [0]
     end
 
     test "jump test #2 - immediate mode" do
       actual =
-        Day05.run_program(:array.from_list([3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1]), 42)
+        Day05.run_program(:array.from_list([3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1]), [
+          42
+        ])
 
       assert elem(actual, 1) == [1]
     end
 
     test "equal test #1 - is equal to 8" do
-      actual = Day05.run_program(:array.from_list([3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]), 8)
+      actual = Day05.run_program(:array.from_list([3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]), [8])
       assert elem(actual, 1) == [1]
     end
 
     test "equal test #1 - is not equal to 8" do
-      actual = Day05.run_program(:array.from_list([3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]), 33)
+      actual = Day05.run_program(:array.from_list([3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]), [33])
       assert elem(actual, 1) == [0]
     end
 
     test "less than test #1 - is less than 8" do
-      actual = Day05.run_program(:array.from_list([3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8]), 2)
+      actual = Day05.run_program(:array.from_list([3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8]), [2])
       assert elem(actual, 1) == [1]
     end
 
     test "less than test #1 - is not less than 8" do
-      actual = Day05.run_program(:array.from_list([3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8]), 8)
+      actual = Day05.run_program(:array.from_list([3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8]), [8])
       assert elem(actual, 1) == [0]
     end
 
     test "equal test #2 - is equal to 8" do
-      actual = Day05.run_program(:array.from_list([3, 3, 1108, -1, 8, 3, 4, 3, 99]), 8)
+      actual = Day05.run_program(:array.from_list([3, 3, 1108, -1, 8, 3, 4, 3, 99]), [8])
       assert elem(actual, 1) == [1]
     end
 
     test "equal test #2 - is not equal to 8" do
-      actual = Day05.run_program(:array.from_list([3, 3, 1108, -1, 8, 3, 4, 3, 99]), 1)
+      actual = Day05.run_program(:array.from_list([3, 3, 1108, -1, 8, 3, 4, 3, 99]), [1])
       assert elem(actual, 1) == [0]
     end
 
     test "less than test #2 - is less than 8" do
-      actual = Day05.run_program(:array.from_list([3, 3, 1107, -1, 8, 3, 4, 3, 99]), 2)
+      actual = Day05.run_program(:array.from_list([3, 3, 1107, -1, 8, 3, 4, 3, 99]), [2])
       assert elem(actual, 1) == [1]
     end
 
     test "less than test #2 - is not less than 8" do
-      actual = Day05.run_program(:array.from_list([3, 3, 1107, -1, 8, 3, 4, 3, 99], 8))
+      actual = Day05.run_program(:array.from_list([3, 3, 1107, -1, 8, 3, 4, 3, 99]), [8])
       assert elem(actual, 1) == [0]
     end
   end
