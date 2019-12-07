@@ -49,7 +49,19 @@ defmodule Y2019.Day07 do
 
     Amplifier.send_input("A", 0)
 
-    :timer.sleep(5000)
+    check_for_result("A")
+  end
+
+  defp check_for_result(amp) do
+    case Amplifier.check_for_result(amp) do
+      nil ->
+        :timer.sleep(1)
+        check_for_result(amp)
+
+      val ->
+        Enum.map(["A", "B", "C", "D", "E"], fn a -> Amplifier.stop(a) end)
+        val
+    end
   end
 
   # https://rosettacode.org/wiki/Permutations#Elixir
@@ -68,4 +80,5 @@ defmodule Y2019.Day07 do
   end
 
   def part1_verify, do: input() |> part1()
+  def part2_verify, do: input() |> part2()
 end

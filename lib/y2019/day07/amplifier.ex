@@ -10,16 +10,29 @@ defmodule Y2019.Day07.Amplifier do
     )
   end
 
+  def check_for_result(amp) do
+    GenServer.call({:global, amp}, :check_for_result)
+  end
+
   def send_input(amp, input) do
     GenServer.cast({:global, amp}, {:input, input})
   end
 
+  def stop(amp) do
+    GenServer.stop({:global, amp})
+  end
+
   def init(state), do: {:ok, state}
 
-  def handle_cast({:input, input}, :halted) do
+  def handle_call(:check_for_result, _, {:halted, val} = state) when val != nil do
+    {:reply, val, state}
+  end
+
+  def handle_call(:check_for_result, _, state), do: {:reply, nil, state}
+
+  def handle_cast({:input, input}, {:halted, nil}) do
     # This is what should go to the thruster!
-    IO.puts(input)
-    {:noreply, nil}
+    {:noreply, {:halted, input}}
   end
 
   def handle_cast({:input, input}, %{
@@ -32,7 +45,7 @@ defmodule Y2019.Day07.Amplifier do
     case Y2019.Day05.run_program(program, inputs ++ [input], position) do
       {:halt, {_program, outputs}} ->
         Enum.each(outputs, fn o -> Amplifier.send_input(target, o) end)
-        {:noreply, :halted}
+        {:noreply, {:halted, nil}}
 
       {:pause, {program, outputs, position}} ->
         Enum.each(outputs, fn o -> Amplifier.send_input(target, o) end)
