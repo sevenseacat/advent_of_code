@@ -20,6 +20,38 @@ defmodule Y2019.Day08 do
     Map.get(layer, "1") * Map.get(layer, "2")
   end
 
+  @doc """
+  iex> Day08.part2(["0","2","2","2","1","1","2","2","2","2","1","2","0","0","0","0"], 2, 2)
+  ["0","1","1","0"]
+  """
+  def part2(input, width \\ @width, height \\ @height) do
+    layer_size = width * height
+
+    input
+    |> Enum.chunk_every(layer_size)
+    |> Advent.transpose()
+    |> Enum.map(&find_colour/1)
+  end
+
+  def display_image(list, width \\ @width) do
+    list
+    |> Enum.chunk_every(width)
+    |> Enum.each(&to_image_line/1)
+  end
+
+  defp to_image_line(line) do
+    line
+    |> Enum.map(&to_pixel/1)
+    |> IO.puts()
+  end
+
+  defp to_pixel("1"), do: "."
+  defp to_pixel("0"), do: "X"
+
+  defp find_colour(list) do
+    Enum.find(list, &(&1 != "2"))
+  end
+
   def parse_input(data) do
     data
     |> String.trim()
@@ -32,4 +64,5 @@ defmodule Y2019.Day08 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
+  def part2_verify, do: input() |> parse_input() |> part2() |> display_image()
 end
