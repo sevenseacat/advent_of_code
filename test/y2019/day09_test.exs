@@ -4,4 +4,5 @@ defmodule Y2019.Day09Test do
   doctest Day09
 
   test "verification, part 1", do: assert(Day09.part1_verify() == 2_775_723_069)
+  test "verification, part 2", do: assert(Day09.part2_verify() == 49115)
 end
