@@ -3,5 +3,5 @@ defmodule Y2019.Day09 do
 
   alias Y2019.Day05
 
-  def part1_verify, do: input() |> Day05.parse_input() |> Day05.part1(1)
+  def part1_verify, do: input() |> Day05.parse_input() |> Day05.part1(1) |> hd()
 end

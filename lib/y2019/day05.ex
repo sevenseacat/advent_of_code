@@ -55,8 +55,13 @@ defmodule Y2019.Day05 do
         |> run_program(input, pos + 4, outputs, base)
 
       9 ->
-        val = calc_with_mode(array, pos, 1, modes, base)
-        run_program(array, input, pos + 2, outputs, base + val)
+        run_program(
+          array,
+          input,
+          pos + 2,
+          outputs,
+          base + calc_with_mode(array, pos, 1, modes, base)
+        )
 
       99 ->
         {:halt, {:array.to_list(array), Enum.reverse(outputs)}}
@@ -80,14 +85,14 @@ defmodule Y2019.Day05 do
 
     new_val = if op.(op1, op2), do: 1, else: 0
 
-    :array.set(:array.get(pos + 3, array), new_val, array)
+    :array.set(write_pos(array, pos, 3, modes, base), new_val, array)
   end
 
   defp calc(op, array, pos, modes, base) do
     op1 = calc_with_mode(array, pos, 1, modes, base)
     op2 = calc_with_mode(array, pos, 2, modes, base)
 
-    :array.set(:array.get(pos + 3, array), op.(op1, op2), array)
+    :array.set(write_pos(array, pos, 3, modes, base), op.(op1, op2), array)
   end
 
   defp calc_with_mode(array, pos, offset, modes, base) do
@@ -105,16 +110,17 @@ defmodule Y2019.Day05 do
   end
 
   def assign(array, pos, val, modes, base) do
-    pos =
-      case modes do
-        "0" ->
-          :array.get(pos + 1, array)
+    :array.set(write_pos(array, pos, 1, modes, base), val, array)
+  end
 
-        "2" ->
-          :array.get(pos + 1, array) + base
-      end
+  def write_pos(array, pos, offset, modes, base) do
+    case String.at(modes, offset - 1) do
+      "2" ->
+        :array.get(pos + offset, array) + base
 
-    :array.set(pos, val, array)
+      _ ->
+        :array.get(pos + offset, array)
+    end
   end
 
   def output(array, pos, modes, outputs, base) do
