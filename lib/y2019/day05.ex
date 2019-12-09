@@ -11,27 +11,23 @@ defmodule Y2019.Day05 do
     outputs
   end
 
-  def run_program(array, input \\ [], pos \\ 0, outputs \\ []) do
+  def run_program(array, input \\ [], pos \\ 0, outputs \\ [], base \\ 0) do
     raw_opcode = :array.get(pos, array)
 
-    modes =
-      div(raw_opcode, 100)
-      |> Integer.to_string()
-      |> String.reverse()
-
+    modes = div(raw_opcode, 100) |> Integer.to_string() |> String.reverse()
     opcode = rem(raw_opcode, 100)
 
     case opcode do
       1 ->
-        calc(&Kernel.+/2, array, pos, modes) |> run_program(input, pos + 4, outputs)
+        calc(&Kernel.+/2, array, pos, modes, base) |> run_program(input, pos + 4, outputs, base)
 
       2 ->
-        calc(&Kernel.*/2, array, pos, modes) |> run_program(input, pos + 4, outputs)
+        calc(&Kernel.*/2, array, pos, modes, base) |> run_program(input, pos + 4, outputs, base)
 
       3 ->
         case input do
           [h | t] ->
-            assign(array, pos, h) |> run_program(t, pos + 2, outputs)
+            assign(array, pos, h, modes, base) |> run_program(t, pos + 2, outputs, base)
 
           [] ->
             # Wait for more inputs. Stop running for now. (Day 7)
@@ -39,22 +35,28 @@ defmodule Y2019.Day05 do
         end
 
       4 ->
-        {array, outputs} = output(array, pos, modes, outputs)
-        run_program(array, input, pos + 2, outputs)
+        {array, outputs} = output(array, pos, modes, outputs, base)
+        run_program(array, input, pos + 2, outputs, base)
 
       5 ->
-        new_pos = jump_if(&Kernel.!=/2, array, pos, modes)
-        run_program(array, input, new_pos, outputs)
+        new_pos = jump_if(&Kernel.!=/2, array, pos, modes, base)
+        run_program(array, input, new_pos, outputs, base)
 
       6 ->
-        new_pos = jump_if(&Kernel.==/2, array, pos, modes)
-        run_program(array, input, new_pos, outputs)
+        new_pos = jump_if(&Kernel.==/2, array, pos, modes, base)
+        run_program(array, input, new_pos, outputs, base)
 
       7 ->
-        comparison(&Kernel.</2, array, pos, modes) |> run_program(input, pos + 4, outputs)
+        comparison(&Kernel.</2, array, pos, modes, base)
+        |> run_program(input, pos + 4, outputs, base)
 
       8 ->
-        comparison(&Kernel.==/2, array, pos, modes) |> run_program(input, pos + 4, outputs)
+        comparison(&Kernel.==/2, array, pos, modes, base)
+        |> run_program(input, pos + 4, outputs, base)
+
+      9 ->
+        val = calc_with_mode(array, pos, 1, modes, base)
+        run_program(array, input, pos + 2, outputs, base + val)
 
       99 ->
         {:halt, {:array.to_list(array), Enum.reverse(outputs)}}
@@ -64,34 +66,37 @@ defmodule Y2019.Day05 do
     end
   end
 
-  def jump_if(op, array, pos, modes) do
-    if op.(calc_with_mode(array, pos, 1, modes), 0) do
-      calc_with_mode(array, pos, 2, modes)
+  def jump_if(op, array, pos, modes, base) do
+    if op.(calc_with_mode(array, pos, 1, modes, base), 0) do
+      calc_with_mode(array, pos, 2, modes, base)
     else
       pos + 3
     end
   end
 
-  def comparison(op, array, pos, modes) do
-    op1 = calc_with_mode(array, pos, 1, modes)
-    op2 = calc_with_mode(array, pos, 2, modes)
+  def comparison(op, array, pos, modes, base) do
+    op1 = calc_with_mode(array, pos, 1, modes, base)
+    op2 = calc_with_mode(array, pos, 2, modes, base)
 
     new_val = if op.(op1, op2), do: 1, else: 0
 
     :array.set(:array.get(pos + 3, array), new_val, array)
   end
 
-  defp calc(op, array, pos, modes) do
-    op1 = calc_with_mode(array, pos, 1, modes)
-    op2 = calc_with_mode(array, pos, 2, modes)
+  defp calc(op, array, pos, modes, base) do
+    op1 = calc_with_mode(array, pos, 1, modes, base)
+    op2 = calc_with_mode(array, pos, 2, modes, base)
 
     :array.set(:array.get(pos + 3, array), op.(op1, op2), array)
   end
 
-  defp calc_with_mode(array, pos, offset, modes) do
+  defp calc_with_mode(array, pos, offset, modes, base) do
     case String.at(modes, offset - 1) do
       "1" ->
         :array.get(pos + offset, array)
+
+      "2" ->
+        :array.get(:array.get(pos + offset, array) + base, array)
 
       # Might be 0 or a trailing nil
       _ ->
@@ -99,12 +104,21 @@ defmodule Y2019.Day05 do
     end
   end
 
-  def assign(array, pos, val) do
-    :array.set(:array.get(pos + 1, array), val, array)
+  def assign(array, pos, val, modes, base) do
+    pos =
+      case modes do
+        "0" ->
+          :array.get(pos + 1, array)
+
+        "2" ->
+          :array.get(pos + 1, array) + base
+      end
+
+    :array.set(pos, val, array)
   end
 
-  def output(array, pos, modes, outputs) do
-    {array, [calc_with_mode(array, pos, 1, modes) | outputs]}
+  def output(array, pos, modes, outputs, base) do
+    {array, [calc_with_mode(array, pos, 1, modes, base) | outputs]}
   end
 
   def parse_input(data) do
@@ -112,7 +126,7 @@ defmodule Y2019.Day05 do
     |> String.trim()
     |> String.split(",")
     |> Enum.map(&String.to_integer/1)
-    |> :array.from_list()
+    |> :array.from_list(0)
   end
 
   def part1_verify, do: input() |> parse_input() |> part1(1) |> List.last()
