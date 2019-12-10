@@ -1,12 +1,14 @@
 defmodule Y2019.Day10 do
   use Advent.Day, no: 10
 
-  def part1(input) do
-    set = parse_input(input)
-
+  def part1(set) do
     set
     |> Enum.map(fn coord -> {coord, seen_count(set, coord)} end)
     |> Enum.max_by(fn {_, seen} -> seen end)
+  end
+
+  def part2(set) do
+    laser = part1(set) |> elem(0) |> IO.inspect()
   end
 
   # How many asteroids can be seen from a given asteroid position?
@@ -72,5 +74,5 @@ defmodule Y2019.Day10 do
     {set, row_no + 1}
   end
 
-  def part1_verify, do: input() |> part1() |> elem(1)
+  def part1_verify, do: input() |> parse_input() |> part1() |> elem(1)
 end
