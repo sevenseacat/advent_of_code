@@ -81,22 +81,48 @@ defmodule Y2019.Day10Test do
   end
 
   describe "part2/1" do
+    test "large sample from part 1" do
+      input = test_data("sample_5") |> Day10.parse_input()
+
+      assert 802 == Day10.part2(input)
+    end
+  end
+
+  describe "run_laser_simulation/1" do
     test "fire the lazorrrrrr" do
       input = test_data("sample_6") |> Day10.parse_input()
 
       order_of_destruction = [
-        [8, 1],
-        [9, 0],
-        [9, 1],
-        [10, 0],
-        [9, 2],
-        [11, 1],
-        [12, 1],
-        [11, 2],
-        [15, 1]
+        {8, 1},
+        {9, 0},
+        {9, 1},
+        {10, 0},
+        {9, 2},
+        {11, 1},
+        {12, 1},
+        {11, 2},
+        {15, 1}
       ]
 
-      assert order_of_destruction == Day10.part2(input) |> Enum.take(9)
+      assert order_of_destruction == Day10.run_laser_simulation(input) |> Enum.take(9)
+    end
+
+    test "large input from part 1" do
+      input = test_data("sample_5") |> Day10.parse_input()
+      order_of_destruction = Day10.run_laser_simulation(input)
+
+      # Remember zero-indexing
+      assert {11, 12} == Enum.at(order_of_destruction, 0)
+      assert {12, 1} == Enum.at(order_of_destruction, 1)
+      assert {12, 2} == Enum.at(order_of_destruction, 2)
+      assert {12, 8} == Enum.at(order_of_destruction, 9)
+      assert {16, 0} == Enum.at(order_of_destruction, 19)
+      assert {16, 9} == Enum.at(order_of_destruction, 49)
+      assert {10, 16} == Enum.at(order_of_destruction, 99)
+      assert {9, 6} == Enum.at(order_of_destruction, 198)
+      assert {8, 2} == Enum.at(order_of_destruction, 199)
+      assert {10, 9} == Enum.at(order_of_destruction, 200)
+      assert {11, 1} == Enum.at(order_of_destruction, 298)
     end
   end
 

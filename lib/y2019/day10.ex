@@ -8,12 +8,38 @@ defmodule Y2019.Day10 do
   end
 
   def part2(set) do
-    laser = part1(set) |> elem(0) |> IO.inspect()
+    {x, y} =
+      set
+      |> run_laser_simulation()
+      |> Enum.at(199)
+
+    x * 100 + y
+  end
+
+  def run_laser_simulation(set) do
+    laser = part1(set) |> elem(0)
+
+    Enum.reduce(1..MapSet.size(set), {set, 0, []}, fn _count, {set, angle, already_gone} ->
+      {new_set, new_angle, destroyed} = fire_laser(laser, angle, set)
+      {new_set, new_angle, [destroyed | already_gone]}
+    end)
+    |> elem(2)
+    |> Enum.reverse()
+  end
+
+  defp fire_laser({x, y} = position, angle, set) do
+    targets = seen_asteroids(set, position)
+
+    {set, angle, position}
   end
 
   # How many asteroids can be seen from a given asteroid position?
   def seen_count(set, coord) do
-    Enum.count(set, fn possible -> seen_from?(coord, possible, set) end) - 1
+    Enum.count(seen_asteroids(set, coord))
+  end
+
+  def seen_asteroids(set, coord) do
+    Enum.filter(set, fn possible -> seen_from?(coord, possible, set) end) -- [coord]
   end
 
   def seen_from?(coord, coord, _set), do: true
