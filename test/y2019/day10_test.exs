@@ -4,6 +4,7 @@ defmodule Y2019.Day10Test do
   doctest Day10
 
   test "verification, part 1", do: assert(Day10.part1_verify() == 340)
+  test "verification, part 2", do: assert(Day10.part2_verify() == 2628)
 
   @sample_input_1 ".#..#\n.....\n#####\n....#\n...##"
 
@@ -104,12 +105,12 @@ defmodule Y2019.Day10Test do
         {15, 1}
       ]
 
-      assert order_of_destruction == Day10.run_laser_simulation(input) |> Enum.take(9)
+      assert order_of_destruction == Day10.run_laser_simulation(input, 9)
     end
 
     test "large input from part 1" do
       input = test_data("sample_5") |> Day10.parse_input()
-      order_of_destruction = Day10.run_laser_simulation(input)
+      order_of_destruction = Day10.run_laser_simulation(input, 299)
 
       # Remember zero-indexing
       assert {11, 12} == Enum.at(order_of_destruction, 0)
