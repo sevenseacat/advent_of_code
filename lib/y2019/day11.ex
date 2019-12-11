@@ -4,13 +4,12 @@ defmodule Y2019.Day11 do
   alias Y2019.Day05
 
   def part1(array) do
-    do_paint(array, {Map.new(), {0, 0}}, 0, :up, 0)
-    # |> map_size()
-    |> visualize()
+    do_paint(array, {Map.new(), {0, 0}}, 0, :up, 0, 0)
+    |> map_size()
   end
 
   def part2(array) do
-    do_paint(array, {Map.new(), {0, 0}}, 1, :up, 0)
+    do_paint(array, {Map.new(), {0, 0}}, 1, :up, 0, 0)
     |> visualize()
   end
 
@@ -18,7 +17,7 @@ defmodule Y2019.Day11 do
     {{{min_x, _}, _}, {{max_x, _}, _}} = Enum.min_max_by(canvas, fn {{x, _}, _} -> x end)
     {{{_, min_y}, _}, {{_, max_y}, _}} = Enum.min_max_by(canvas, fn {{_, y}, _} -> y end)
 
-    for y <- max_y..min_y, x <- max_x..min_x do
+    for y <- max_y..min_y, x <- min_x..max_x do
       Map.get(canvas, {x, y}, 0)
     end
     |> Enum.chunk_every(max_x - min_x + 1)
@@ -34,14 +33,14 @@ defmodule Y2019.Day11 do
   defp to_pixel(1), do: "."
   defp to_pixel(0), do: "X"
 
-  defp do_paint(array, {canvas, position}, input, dir, intcode_pos) do
-    case Day05.run_program(array, [input], intcode_pos) do
-      {:pause, {array, [color, turn_dir], intcode_pos}} ->
+  defp do_paint(array, {canvas, position}, input, dir, intcode_pos, base) do
+    case Day05.run_program(array, [input], intcode_pos, [], base) do
+      {:pause, {array, [color, turn_dir], intcode_pos, base}} ->
         # Update canvas and get new input
         canvas = Map.put(canvas, position, color)
         {new_position, new_dir} = turn_and_move(position, dir, turn_dir)
         new_colour = Map.get(canvas, new_position, 0)
-        do_paint(array, {canvas, new_position}, new_colour, new_dir, intcode_pos)
+        do_paint(array, {canvas, new_position}, new_colour, new_dir, intcode_pos, base)
 
       {:halt, _} ->
         canvas
@@ -67,4 +66,5 @@ defmodule Y2019.Day11 do
   defp move(:right, {x, y}), do: {x + 1, y}
 
   def part1_verify, do: input() |> Day05.parse_input() |> part1()
+  def part2_verify, do: input() |> Day05.parse_input() |> part2()
 end

@@ -47,7 +47,7 @@ defmodule Y2019.Day07.Amplifier do
         Enum.each(outputs, fn o -> Amplifier.send_input(target, o) end)
         {:noreply, {:halted, nil}}
 
-      {:pause, {program, outputs, position}} ->
+      {:pause, {program, outputs, position, _base}} ->
         Enum.each(outputs, fn o -> Amplifier.send_input(target, o) end)
         {:noreply, %{id: id, inputs: [], program: program, target: target, position: position}}
     end
