@@ -2,7 +2,7 @@
 
 My Elixir solutions for [Advent of Code 2019](https://adventofcode.com/2019).
 
-**Stars complete: 20/50 :star:**
+**Stars complete: 21/50 :star:**
 
 ## Benchmarks
 
@@ -34,4 +34,5 @@ day 09, part 1       4686.27        0.21 ms    ±13.18%        0.21 ms        0.
 day 09, part 2          5.20      192.21 ms     ±0.45%      192.14 ms      194.00 ms
 day 10, part 1          6.63      150.84 ms     ±0.28%      150.69 ms      152.36 ms
 day 10, part 2          4.07      245.87 ms     ±0.60%      245.29 ms      250.45 ms
+day 11, part 1         19.81       50.47 ms     ±1.33%       50.57 ms       52.04 ms
 ```
