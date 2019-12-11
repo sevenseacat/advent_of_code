@@ -5,8 +5,34 @@ defmodule Y2019.Day11 do
 
   def part1(array) do
     do_paint(array, {Map.new(), {0, 0}}, 0, :up, 0)
-    |> map_size()
+    # |> map_size()
+    |> visualize()
   end
+
+  def part2(array) do
+    do_paint(array, {Map.new(), {0, 0}}, 1, :up, 0)
+    |> visualize()
+  end
+
+  defp visualize(canvas) do
+    {{{min_x, _}, _}, {{max_x, _}, _}} = Enum.min_max_by(canvas, fn {{x, _}, _} -> x end)
+    {{{_, min_y}, _}, {{_, max_y}, _}} = Enum.min_max_by(canvas, fn {{_, y}, _} -> y end)
+
+    for y <- max_y..min_y, x <- max_x..min_x do
+      Map.get(canvas, {x, y}, 0)
+    end
+    |> Enum.chunk_every(max_x - min_x + 1)
+    |> Enum.each(&display/1)
+  end
+
+  defp display(line) do
+    line
+    |> Enum.map(&to_pixel/1)
+    |> IO.puts()
+  end
+
+  defp to_pixel(1), do: "."
+  defp to_pixel(0), do: "X"
 
   defp do_paint(array, {canvas, position}, input, dir, intcode_pos) do
     case Day05.run_program(array, [input], intcode_pos) do
