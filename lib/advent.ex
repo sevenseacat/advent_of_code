@@ -22,4 +22,13 @@ defmodule Advent do
     |> List.zip()
     |> Enum.map(&Tuple.to_list/1)
   end
+
+  # https://stackoverflow.com/q/147515/560215
+  def lowest_common_multiple([one, two]) do
+    div(one * two, Integer.gcd(one, two))
+  end
+
+  def lowest_common_multiple([one | rest]) do
+    lowest_common_multiple([one, lowest_common_multiple(rest)])
+  end
 end

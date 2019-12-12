@@ -95,4 +95,5 @@ defmodule Y2019.Day12 do
   end
 
   def part1_verify, do: part1()
+  def part2_verify, do: part2() |> Tuple.to_list() |> Advent.lowest_common_multiple()
 end

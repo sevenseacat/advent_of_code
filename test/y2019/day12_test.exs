@@ -4,6 +4,7 @@ defmodule Y2019.Day12Test do
   doctest Day12
 
   test "verification, part 1", do: assert(Day12.part1_verify() == 10635)
+  test "verification, part 2", do: assert(Day12.part2_verify() == 583_523_031_727_256)
 
   describe "part1/2" do
     test "sample input 1" do
