@@ -12,14 +12,24 @@ defmodule Y2019.Day12 do
 
   def part2(moons \\ @moons) do
     # -1 to run infinitely until the looping is done
-    do_parts(moons, -1, {MapSet.new(), MapSet.new(), MapSet.new(), nil, nil, nil})
+    do_parts(
+      moons,
+      -1,
+      fn moons ->
+        {get_state(moons, 0), get_state(moons, 1), get_state(moons, 2), nil, nil, nil}
+      end
+    )
   end
 
-  def do_parts(moons, steps, status \\ nil) do
-    [:a, :b, :c, :d]
-    |> Enum.zip(Enum.map(moons, &Moon.new/1))
-    |> Enum.into(%{})
-    |> run_movements(0, steps, status)
+  def do_parts(moons, steps, func \\ nil) do
+    func = func || fn _ -> nil end
+
+    moons =
+      [:a, :b, :c, :d]
+      |> Enum.zip(Enum.map(moons, &Moon.new/1))
+      |> Enum.into(%{})
+
+    run_movements(moons, 0, steps, func.(moons))
   end
 
   defp calculate_energy(moons) do
@@ -72,19 +82,22 @@ defmodule Y2019.Day12 do
   end
 
   defp check_if_seen(moons, nil, seen, step, index) do
-    new_seen =
-      Enum.map(moons, fn {_id, moon} ->
-        {
-          moon |> Map.get(:position) |> elem(index),
-          moon |> Map.get(:velocity) |> elem(index)
-        }
-      end)
+    new_seen = get_state(moons, index)
 
-    if MapSet.member?(seen, new_seen) do
-      {nil, step}
+    if seen == new_seen do
+      {nil, step + 1}
     else
-      {MapSet.put(seen, new_seen), nil}
+      {seen, nil}
     end
+  end
+
+  defp get_state(moons, index) do
+    Enum.map(moons, fn {_id, moon} ->
+      {
+        moon |> Map.get(:position) |> elem(index),
+        moon |> Map.get(:velocity) |> elem(index)
+      }
+    end)
   end
 
   # Filter out duplicate comparisons, eg. no need to compare a and b and then b and a
