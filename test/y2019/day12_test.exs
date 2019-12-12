@@ -17,9 +17,23 @@ defmodule Y2019.Day12Test do
     end
   end
 
-  describe "do_part1/2" do
+  describe "part2/1" do
+    test "sample input 1" do
+      actual = Day12.part2([{-1, 0, 2}, {2, -10, -7}, {4, -8, 8}, {3, 5, -1}])
+      # LCM 2772
+      assert {18, 28, 44} == actual
+    end
+
+    test "sample input 2" do
+      actual = Day12.part2([{-8, -10, 0}, {5, 5, 10}, {2, -7, 3}, {9, -8, -3}])
+      # LCM 4,686,774,924
+      assert {2028, 5898, 4702} == actual
+    end
+  end
+
+  describe "do_parts/2" do
     test "sample input 1 - 1 loop" do
-      actual = Day12.do_part1([{-1, 0, 2}, {2, -10, -7}, {4, -8, 8}, {3, 5, -1}], 1)
+      actual = Day12.do_parts([{-1, 0, 2}, {2, -10, -7}, {4, -8, 8}, {3, 5, -1}], 1)
 
       expected = %{
         a: %Moon{position: {2, -1, 1}, velocity: {3, -1, -1}},
