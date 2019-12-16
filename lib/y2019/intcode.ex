@@ -181,7 +181,7 @@ defmodule Y2019.Intcode do
     |> increment_pointer(2)
   end
 
-  defp update_program(intcode, position, value) do
+  def update_program(intcode, position, value) do
     Map.update!(intcode, :program, fn p -> :array.set(position, value, p) end)
   end
 

@@ -13,7 +13,7 @@ defmodule Y2019.Day11 do
     |> visualize()
   end
 
-  defp visualize(canvas) do
+  def visualize(canvas, func \\ &to_pixel/1) do
     {{{min_x, _}, _}, {{max_x, _}, _}} = Enum.min_max_by(canvas, fn {{x, _}, _} -> x end)
     {{{_, min_y}, _}, {{_, max_y}, _}} = Enum.min_max_by(canvas, fn {{_, y}, _} -> y end)
 
@@ -21,12 +21,12 @@ defmodule Y2019.Day11 do
       Map.get(canvas, {x, y}, 0)
     end
     |> Enum.chunk_every(max_x - min_x + 1)
-    |> Enum.each(&display/1)
+    |> Enum.each(&display(&1, func))
   end
 
-  defp display(line) do
+  defp display(line, func) do
     line
-    |> Enum.map(&to_pixel/1)
+    |> Enum.map(&func.(&1))
     |> IO.puts()
   end
 
