@@ -3,8 +3,8 @@ defmodule Y2019.Day09 do
 
   use Advent.Day, no: 9
 
-  alias Y2019.Day05
+  alias Y2019.{Day05, Intcode}
 
-  def part1_verify, do: input() |> Day05.parse_input() |> Day05.part1(1) |> hd()
-  def part2_verify, do: input() |> Day05.parse_input() |> Day05.part1(2) |> hd()
+  def part1_verify, do: input() |> Intcode.from_string() |> Day05.parts(1) |> hd()
+  def part2_verify, do: input() |> Intcode.from_string() |> Day05.parts(2) |> hd()
 end
