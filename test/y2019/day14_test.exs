@@ -4,6 +4,7 @@ defmodule Y2019.Day14Test do
   doctest Day14
 
   test "verification, part 1", do: assert(Day14.part1_verify() == 2_556_890)
+  test "verification, part 2", do: assert(Day14.part2_verify() == 1_120_408)
 
   describe "parse_input/1" do
     test "can parse inputs and outputs" do
@@ -44,6 +45,23 @@ defmodule Y2019.Day14Test do
     test "sample input 5" do
       input = test_data("sample_5") |> Day14.parse_input()
       assert 2_210_736 == Day14.part1(input)
+    end
+  end
+
+  describe "part2/1" do
+    test "sample input 3" do
+      input = test_data("sample_3") |> Day14.parse_input()
+      assert 82_892_753 == Day14.part2(input)
+    end
+
+    test "sample input 4" do
+      input = test_data("sample_4") |> Day14.parse_input()
+      assert 5_586_022 == Day14.part2(input)
+    end
+
+    test "sample input 5" do
+      input = test_data("sample_5") |> Day14.parse_input()
+      assert 460_664 == Day14.part2(input)
     end
   end
 
