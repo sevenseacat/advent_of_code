@@ -19,9 +19,36 @@ defmodule Y2019.Day15 do
     length(Graph.dijkstra(graph, {0, 0}, win)) - 1
   end
 
-  def do_part1([], graph, state), do: {graph, state}
+  def part2(input) do
+    program =
+      input
+      |> Intcode.from_string()
+      |> Intcode.new()
 
-  def do_part1([{position, program} | rest], graph, state) do
+    {graph, map} = do_part1([{{0, 0}, program}], Graph.new(), %{{0, 0} => :start})
+    {win, _} = Enum.find(map, fn {_, key} -> key == :win end)
+
+    spread_oxygen(graph, [win], 0)
+  end
+
+  defp spread_oxygen(graph, sources, time) do
+    if Graph.info(graph).num_edges == 0 do
+      time
+    else
+      {graph, sources} =
+        Enum.reduce(sources, {graph, []}, fn source, {graph, new_sources} ->
+          new_sources = Graph.neighbors(graph, source) ++ new_sources
+          graph = Graph.delete_vertex(graph, source)
+          {graph, new_sources}
+        end)
+
+      spread_oxygen(graph, sources, time + 1)
+    end
+  end
+
+  defp do_part1([], graph, state), do: {graph, state}
+
+  defp do_part1([{position, program} | rest], graph, state) do
     {state, graph, rest} =
       Enum.reduce(@moves, {state, graph, rest}, fn {input, change}, {state, graph, rest} ->
         {[output], new_program} =
@@ -56,7 +83,7 @@ defmodule Y2019.Day15 do
             {
               Map.put(state, new_position, :win),
               Graph.add_edge(graph, position, new_position),
-              []
+              rest
             }
         end
       end)
@@ -87,4 +114,5 @@ defmodule Y2019.Day15 do
   defp to_tile(:win, _), do: "!"
 
   def part1_verify, do: input() |> part1()
+  def part2_verify, do: input() |> part2()
 end
