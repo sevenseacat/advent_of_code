@@ -27,7 +27,7 @@ defmodule Y2019.Day13 do
     case Intcode.status(intcode) do
       :paused ->
         # Move the paddle towards the ball so that it always hits the ball
-        {{{ball_x, _}, _}, {{paddle_x, _}, _}} = find_ball_and_paddle(intcode)
+        {ball_x, paddle_x} = find_ball_and_paddle(intcode)
         intcode = Intcode.add_input(intcode, compare(paddle_x, ball_x))
 
         if show do
@@ -44,12 +44,16 @@ defmodule Y2019.Day13 do
   end
 
   defp find_ball_and_paddle(intcode) do
-    visualization = visualize(intcode)
+    visualization =
+      intcode
+      |> Intcode.outputs()
+      |> Enum.chunk_every(3)
+      |> Enum.reverse()
 
-    ball = Enum.find(visualization, fn {_, tile} -> tile == 4 end)
-    paddle = Enum.find(visualization, fn {_, tile} -> tile == 3 end)
+    [ball_x, _, _] = Enum.find(visualization, fn [_, _, tile] -> tile == 4 end)
+    [paddle_x, _, _] = Enum.find(visualization, fn [_, _, tile] -> tile == 3 end)
 
-    {ball, paddle}
+    {ball_x, paddle_x}
   end
 
   def visualize(intcode) do
