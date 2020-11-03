@@ -1,7 +1,7 @@
 defmodule Y2019.Day16 do
   use Advent.Day, no: 16
 
-  @base_pattern [0, 1, 0, -1]
+  alias Y2019.Day16.PatternKeeper
 
   @doc """
   iex> Day16.part1("12345678", 1)
@@ -26,6 +26,8 @@ defmodule Y2019.Day16 do
   "52432133"
   """
   def part1(input, phase) do
+    PatternKeeper.start_link()
+
     input
     |> parse_input
     |> do_part1(0, phase)
@@ -44,8 +46,7 @@ defmodule Y2019.Day16 do
   defp do_digit(input, _, digit) when digit == length(input), do: []
 
   defp do_digit(input, phase, digit) do
-    [h | t] = @base_pattern |> Enum.map(fn i -> List.duplicate(i, digit + 1) end) |> Enum.concat()
-    pattern = t ++ [h]
+    pattern = PatternKeeper.get_pattern_for_digit(digit)
 
     val =
       input
