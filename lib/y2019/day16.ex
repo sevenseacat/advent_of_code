@@ -30,32 +30,27 @@ defmodule Y2019.Day16 do
 
     input
     |> parse_input
-    |> do_part1(0, phase)
+    |> do_parts(0, phase)
     |> Enum.take(8)
     |> to_output
   end
 
-  defp do_part1(input, phase, phase), do: input
+  defp do_parts(input, phase, phase), do: input
 
-  defp do_part1(input, phase, target_phase) do
-    input
-    |> do_digit(phase, 0)
-    |> do_part1(phase + 1, target_phase)
+  defp do_parts(input, phase, target_phase) do
+    1..length(input)
+    |> Advent.pmap(fn i -> calculate_digit(input, i - 1) end)
+    |> do_parts(phase + 1, target_phase)
   end
 
-  defp do_digit(input, _, digit) when digit == length(input), do: []
-
-  defp do_digit(input, phase, digit) do
+  defp calculate_digit(input, digit) do
     pattern = PatternKeeper.get_pattern_for_digit(digit)
 
-    val =
-      input
-      |> Enum.zip(Stream.cycle(pattern))
-      |> Enum.reduce(0, fn {a, b}, acc -> acc + a * b end)
-      |> rem(10)
-      |> abs
-
-    [val | do_digit(input, phase, digit + 1)]
+    input
+    |> Enum.zip(Stream.cycle(pattern))
+    |> Enum.reduce(0, fn {a, b}, acc -> acc + a * b end)
+    |> rem(10)
+    |> abs
   end
 
   defp parse_input(input) do
