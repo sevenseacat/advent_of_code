@@ -4,6 +4,7 @@ defmodule Y2015.Day13Test do
   doctest Day13
 
   test "verification, part 1", do: assert(Day13.part1_verify() == 709)
+  test "verification, part 2", do: assert(Day13.part2_verify() == 668)
 
   test "can parse input" do
     input = "Alice would gain 54 happiness units by sitting next to Bob.
