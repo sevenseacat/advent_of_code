@@ -17,23 +17,41 @@ defmodule Y2015.Day16 do
   def part1(input, tape \\ @tape) do
     input
     |> parse_input
-    |> find_matching_sue(tape)
+    |> find_matching_sue(tape, &eql_matching?/3)
   end
 
-  defp find_matching_sue(sues, rules) do
+  def part2(input, tape \\ @tape) do
+    input
+    |> parse_input
+    |> find_matching_sue(tape, &range_matching?/3)
+  end
+
+  defp find_matching_sue(sues, rules, matching_fn) do
     sues
     |> Enum.find(fn {_no, attrs} ->
-      Enum.all?(attrs, fn {attr, val} -> attr_matching?(attr, val, rules) end)
+      Enum.all?(attrs, fn {attr, val} -> matching_fn.(attr, val, rules) end)
     end)
   end
 
-  defp attr_matching?(attr, val, rules) do
+  defp eql_matching?(attr, val, rules) do
     if Map.has_key?(rules, attr) do
       Map.get(rules, attr) == val
     else
       true
     end
   end
+
+  defp range_matching?(attr, val, rules) do
+    if Map.has_key?(rules, attr) do
+      Kernel.apply(Kernel, range_op(attr), [val, Map.get(rules, attr)])
+    else
+      true
+    end
+  end
+
+  defp range_op(attr) when attr == "cats" or attr == "trees", do: :>
+  defp range_op(attr) when attr == "pomeranians" or attr == "goldfish", do: :<
+  defp range_op(_attr), do: :==
 
   def parse_input(input) do
     input
@@ -60,4 +78,5 @@ defmodule Y2015.Day16 do
   end
 
   def part1_verify, do: input() |> part1() |> elem(0)
+  def part2_verify, do: input() |> part2() |> elem(0)
 end
