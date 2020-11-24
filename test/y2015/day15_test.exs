@@ -3,6 +3,8 @@ defmodule Y2015.Day15Test do
   alias Y2015.Day15
   doctest Day15
 
+  test "verification, part 1", do: assert(Day15.part1_verify() == 21_367_368)
+
   test "score for cookie" do
     expected = 62_842_880
 

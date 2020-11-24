@@ -9,7 +9,12 @@ defmodule Y2015.Day15 do
   {[{"Butterscotch", 44}, {"Cinnamon", 56}], 62842880}
   """
   def part1(input, teaspoons \\ @max_teaspoons) do
-    # How to calculate permutations of ingredients that add up to @max_teaspoons ?
+    rules = parse_input(input)
+
+    rules
+    |> combinations(teaspoons)
+    |> Enum.map(fn quantities -> {quantities, score_for_cookie(quantities, rules)} end)
+    |> Enum.max_by(fn {_, score} -> score end)
   end
 
   def score_for_cookie(quantities, rules) do
@@ -28,6 +33,24 @@ defmodule Y2015.Day15 do
     end)
     |> Enum.sum()
     |> max(0)
+  end
+
+  defp combinations(rules, limit) do
+    # "Combinations with repetitions" - https://rosettacode.org/wiki/Combinations_with_repetitions#Elixir
+    # To get combinations of ingredients that add up to the required number of teaspoons
+    names = Enum.map(rules, fn %{name: name} -> name end)
+
+    limit
+    |> __MODULE__.CombinationsRepetitions.run(names)
+    |> Stream.map(&Enum.sort/1)
+    |> Stream.uniq()
+    |> Enum.map(&grouped/1)
+  end
+
+  defp grouped(list) do
+    list
+    |> Enum.group_by(& &1)
+    |> Enum.map(fn {name, list} -> {name, length(list)} end)
   end
 
   def parse_input(input) do
@@ -56,5 +79,17 @@ defmodule Y2015.Day15 do
       texture: String.to_integer(texture),
       calories: String.to_integer(calories)
     }
+  end
+
+  def part1_verify, do: input() |> part1() |> elem(1)
+
+  # https://rosettacode.org/wiki/Combinations_with_repetitions#Elixir
+  defmodule CombinationsRepetitions do
+    def run(0, _), do: [[]]
+    def run(_, []), do: []
+
+    def run(n, [h | t] = s) do
+      for(l <- run(n - 1, s), do: [h | l]) ++ run(n, t)
+    end
   end
 end
