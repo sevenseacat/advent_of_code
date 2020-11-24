@@ -4,13 +4,27 @@ defmodule Y2015.Day14 do
   @doc """
   iex> Day14.part1("Comet can fly 14 km/s for 10 seconds, but then must rest for 127 seconds.
   ...> Dancer can fly 16 km/s for 11 seconds, but then must rest for 162 seconds.", 1000)
-  {"Comet", 1120}
+  [{"Comet", 1120}]
   """
   def part1(input, max_time \\ 2503) do
-    input
-    |> parse_input
-    |> Enum.map(&distance_travelled(&1, max_time))
-    |> Enum.sort_by(fn {_name, distance} -> -distance end)
+    results =
+      input
+      |> parse_input
+      |> Enum.map(&distance_travelled(&1, max_time))
+      |> Enum.sort_by(fn {_name, distance} -> -distance end)
+
+    winning_distance = hd(results) |> elem(1)
+
+    Enum.take_while(results, fn {_name, distance} -> distance == winning_distance end)
+  end
+
+  def part2(input) do
+    1..2503
+    |> Enum.map(fn distance -> part1(input, distance) end)
+    |> List.flatten()
+    |> Enum.group_by(fn {name, _distance} -> name end)
+    |> Enum.map(fn {name, rows} -> {name, length(rows)} end)
+    |> Enum.sort_by(fn {_name, wins} -> -wins end)
     |> hd
   end
 
@@ -59,5 +73,6 @@ defmodule Y2015.Day14 do
     {name, String.to_integer(speed), String.to_integer(duration), String.to_integer(rest)}
   end
 
-  def part1_verify, do: input() |> part1() |> elem(1)
+  def part1_verify, do: input() |> part1() |> hd |> elem(1)
+  def part2_verify, do: input() |> part2() |> elem(1)
 end
