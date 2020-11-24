@@ -4,6 +4,7 @@ defmodule Y2015.Day15Test do
   doctest Day15
 
   test "verification, part 1", do: assert(Day15.part1_verify() == 21_367_368)
+  test "verification, part 2", do: assert(Day15.part2_verify() == 1_766_400)
 
   test "score for cookie" do
     expected = 62_842_880

@@ -26,7 +26,7 @@ defmodule Mix.Tasks.Bench do
   defp only_day_modules(module_name, year) do
     module_name
     |> Atom.to_string()
-    |> String.match?(~r/Elixir.Y#{year}.Day\d{2}/)
+    |> String.match?(~r/^Elixir.Y#{year}.Day\d{2}$/)
   end
 
   defp benchmarks(module_name) do
