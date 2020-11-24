@@ -6,4 +6,13 @@ defmodule Advent do
   def permutations(list, k) do
     for head <- list, tail <- permutations(list -- [head], k - 1), do: [head | tail]
   end
+
+  # Combinations don't involve any kind of order.
+  # https://stackoverflow.com/a/30587756/560215
+  def combinations(_, 0), do: [[]]
+  def combinations([], _), do: []
+
+  def combinations([x | xs], n) do
+    for(y <- combinations(xs, n - 1), do: [x | y]) ++ combinations(xs, n)
+  end
 end
