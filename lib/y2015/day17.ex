@@ -15,5 +15,21 @@ defmodule Y2015.Day17 do
     |> Enum.count()
   end
 
+  @doc """
+  iex> Day17.part2([20, 15, 10, 5, 5], 25)
+  3
+  """
+  def part2(input \\ @input, litres \\ @litres) do
+    valid_lists =
+      1..length(input)
+      |> Enum.reduce([], fn length, acc -> acc ++ Advent.combinations(input, length) end)
+      |> Enum.filter(fn list -> Enum.sum(list) == litres end)
+
+    shortest = Enum.min_by(valid_lists, fn list -> length(list) end) |> length
+
+    Enum.count(valid_lists, fn list -> length(list) == shortest end)
+  end
+
   def part1_verify, do: part1()
+  def part2_verify, do: part2()
 end
