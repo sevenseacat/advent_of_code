@@ -4,6 +4,7 @@ defmodule Y2015.Day18Test do
   doctest Day18
 
   test "verification, part 1", do: assert(Day18.part1_verify() == 768)
+  test "verification, part 2", do: assert(Day18.part2_verify() == 781)
 
   test "parse_input/1" do
     input = ".#.#.#\n...##.\n#....#\n..#...\n#.#..#\n####.."

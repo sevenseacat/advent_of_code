@@ -7,6 +7,10 @@ defmodule Y2015.Day18 do
     do_parts(input, loops, & &1)
   end
 
+  def part2(input, loops \\ @loops) do
+    do_parts(input, loops, &stuck_lights/1)
+  end
+
   defp do_parts(input, loops, func) do
     result = loop(input, loops, 0, func)
     Enum.count(result, fn {coord, _val} -> Map.get(result, coord) == :on end)
@@ -21,6 +25,16 @@ defmodule Y2015.Day18 do
     output
     |> post_process.()
     |> loop(max_loops, current_loop + 1, post_process)
+  end
+
+  def stuck_lights(input) do
+    row_size = input |> map_size() |> :math.sqrt() |> trunc
+
+    input
+    |> Map.put({0, 0}, :on)
+    |> Map.put({0, row_size - 1}, :on)
+    |> Map.put({row_size - 1, row_size - 1}, :on)
+    |> Map.put({row_size - 1, 0}, :on)
   end
 
   defp process_coord({coord, val}, {input, output}) do
@@ -88,4 +102,5 @@ defmodule Y2015.Day18 do
   defp val("#"), do: :on
 
   def part1_verify, do: input() |> parse_input() |> part1()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
