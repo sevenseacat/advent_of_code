@@ -4,15 +4,23 @@ defmodule Y2015.Day18 do
   @loops 100
 
   def part1(input, loops \\ @loops) do
-    loop(input, loops, 0)
-    |> Enum.count(fn {_coord, val} -> val == :on end)
+    do_parts(input, loops, & &1)
   end
 
-  def loop(input, loop, loop), do: input
+  defp do_parts(input, loops, func) do
+    result = loop(input, loops, 0, func)
+    Enum.count(result, fn {coord, _val} -> Map.get(result, coord) == :on end)
+  end
 
-  def loop(input, max_loops, current_loop) do
-    {_, output} = Enum.reduce(input, {input, %{}}, &process_coord/2)
-    loop(output, max_loops, current_loop + 1)
+  def loop(input, loop, current_loop \\ 0, post_process)
+  def loop(input, loop, loop, _post_process), do: input
+
+  def loop(input, max_loops, current_loop, post_process) do
+    {_, output} = Enum.reduce(input, {input, %{}}, fn x, acc -> process_coord(x, acc) end)
+
+    output
+    |> post_process.()
+    |> loop(max_loops, current_loop + 1, post_process)
   end
 
   defp process_coord({coord, val}, {input, output}) do

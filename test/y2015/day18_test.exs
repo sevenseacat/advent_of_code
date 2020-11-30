@@ -95,16 +95,17 @@ defmodule Y2015.Day18Test do
     assert Day18.format_output(input) == expected
   end
 
-  test "running loops" do
-    input = ".#.#.#\n...##.\n#....#\n..#...\n#.#..#\n####.."
+  test "running loops, part 1" do
+    parsed_input = Day18.parse_input(".#.#.#\n...##.\n#....#\n..#...\n#.#..#\n####..")
+    c = & &1
     step1 = "..##..\n..##.#\n...##.\n......\n#.....\n#.##.."
     step2 = "..###.\n......\n..###.\n......\n.#....\n.#...."
     step3 = "...#..\n......\n...#..\n..##..\n......\n......"
     step4 = "......\n......\n..##..\n..##..\n......\n......"
 
-    assert input |> Day18.parse_input() |> Day18.loop(1, 0) |> Day18.format_output() == step1
-    assert input |> Day18.parse_input() |> Day18.loop(2, 0) |> Day18.format_output() == step2
-    assert input |> Day18.parse_input() |> Day18.loop(3, 0) |> Day18.format_output() == step3
-    assert input |> Day18.parse_input() |> Day18.loop(4, 0) |> Day18.format_output() == step4
+    assert parsed_input |> Day18.loop(1, c) |> Day18.format_output() == step1
+    assert parsed_input |> Day18.loop(2, c) |> Day18.format_output() == step2
+    assert parsed_input |> Day18.loop(3, c) |> Day18.format_output() == step3
+    assert parsed_input |> Day18.loop(4, c) |> Day18.format_output() == step4
   end
 end
