@@ -2,7 +2,7 @@
 
 My Elixir solutions for [Advent of Code 2020](https://adventofcode.com/2020).
 
-**Stars complete: 1/50 :star:**
+**Stars complete: 2/50 :star:**
 
 ## Benchmarks
 
@@ -14,5 +14,6 @@ You can check out the code yourself and run the benchmarks with `mix bench 2020`
 
 ```
 Name                     ips        average  deviation         median         99th %
-day 01, part 1        5.51 K      181.37 μs    ±19.35%      168.42 μs      253.32 μs
+day 01, part 1        5.56 K       0.180 ms    ±14.24%       0.168 ms        0.24 ms
+day 01, part 2        0.41 K        2.44 ms     ±2.71%        2.43 ms        2.52 ms
 ```
