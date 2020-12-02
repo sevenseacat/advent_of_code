@@ -2,17 +2,21 @@ defmodule Y2020.Day02 do
   use Advent.Day, no: 2
 
   def part1(input) do
-    Enum.count(input, &valid_password?/1)
+    Enum.count(input, &valid_old_password?/1)
+  end
+
+  def part2(input) do
+    Enum.count(input, &valid_new_password?/1)
   end
 
   @doc """
-  iex> Day02.valid_password?(%{min: 1, max: 3, letter: "a", password: "abcde"})
+  iex> Day02.valid_old_password?(%{min: 1, max: 3, letter: "a", password: "abcde"})
   true
 
-  iex> Day02.valid_password?(%{min: 1, max: 2, letter: "b", password: "cdefg"})
+  iex> Day02.valid_old_password?(%{min: 1, max: 2, letter: "b", password: "cdefg"})
   false
   """
-  def valid_password?(%{min: min, max: max, letter: letter, password: password}) do
+  def valid_old_password?(%{min: min, max: max, letter: letter, password: password}) do
     count =
       password
       |> String.graphemes()
@@ -20,6 +24,21 @@ defmodule Y2020.Day02 do
       |> length
 
     count >= min && count <= max
+  end
+
+  @doc """
+  iex> Day02.valid_new_password?(%{min: 1, max: 3, letter: "a", password: "abcde"})
+  true
+
+  iex> Day02.valid_new_password?(%{min: 2, max: 9, letter: "c", password: "ccccccccc"})
+  false
+  """
+  def valid_new_password?(%{min: min, max: max, letter: letter, password: password}) do
+    min_match = String.at(password, min - 1) == letter
+    max_match = String.at(password, max - 1) == letter
+
+    # No native xor?
+    (min_match || max_match) && min_match != max_match
   end
 
   @doc """
@@ -49,4 +68,5 @@ defmodule Y2020.Day02 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
