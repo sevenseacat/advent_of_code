@@ -36,6 +36,22 @@ defmodule Y2020.Day03 do
   end
 
   @doc """
+  iex> Day03.part2("..##.......\\n#...#...#..\\n.#....#..#.\\n..#.#...#.#\\n.#...##..#.\\n..#.##.....\\n
+  ...>.#.#.#....#\\n.#........#\\n#.##...#...\\n#...##....#\\n.#..#...#.#")
+  336
+  """
+  def part2(input) do
+    state = parse_input(input)
+
+    [{1, 1}, {3, 1}, {5, 1}, {7, 1}, {1, 2}]
+    |> Stream.map(fn {right, down} ->
+      make_step(state, {0, 0}, {right, down}, %{trees: 0, open: 0})
+    end)
+    |> Stream.map(fn result -> Map.get(result, :trees) end)
+    |> Enum.reduce(1, fn x, acc -> x * acc end)
+  end
+
+  @doc """
   iex> Day03.parse_input("..##.......\\n#...#...#..")
   {2, 11, MapSet.new([{0,2}, {0,3}, {1,0}, {1,4}, {1,8}])}
   """
@@ -65,4 +81,5 @@ defmodule Y2020.Day03 do
   defp parse_cell("#", row, col, set), do: MapSet.put(set, {row, col})
 
   def part1_verify, do: input() |> part1() |> Map.get(:trees)
+  def part2_verify, do: input() |> part2()
 end
