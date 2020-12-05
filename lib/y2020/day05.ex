@@ -39,13 +39,21 @@ defmodule Y2020.Day05 do
     parse_val(rest, lower, higher, div(max - min, 2) + min + 1, max)
   end
 
-  def part2(_input) do
-    :ok
+  def part2(input) do
+    input
+    |> Stream.map(&parse_pass/1)
+    |> Stream.map(fn %{seat_id: seat_id} -> seat_id end)
+    |> Enum.sort()
+    |> find_gap
   end
+
+  defp find_gap([a, b | rest]) when a == b - 1, do: find_gap([b | rest])
+  defp find_gap([a | _rest]), do: a + 1
 
   def parse_input(input) do
     String.split(input, "\n", trim: true)
   end
 
   def part1_verify, do: input() |> parse_input() |> part1() |> Map.get(:seat_id)
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
