@@ -20,6 +20,27 @@ defmodule Y2020.Day06 do
   end
 
   @doc """
+  iex> Day06.part2([[MapSet.new(["a"]), MapSet.new(["b"]), MapSet.new(["c"])],
+  ...>             [MapSet.new(["a", "b"]), MapSet.new(["a", "c"])]])
+  1
+  """
+  def part2(input) do
+    input
+    |> Stream.map(&count_common_answers/1)
+    |> Enum.sum()
+  end
+
+  defp count_common_answers([first | _rest] = group) do
+    first
+    |> MapSet.to_list()
+    |> Enum.count(fn answer ->
+      Enum.all?(group, fn person ->
+        MapSet.member?(person, answer)
+      end)
+    end)
+  end
+
+  @doc """
   iex> Day06.parse_input("a
   ...>b
   ...>c
@@ -54,4 +75,5 @@ defmodule Y2020.Day06 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
