@@ -37,40 +37,43 @@ defmodule Y2020.Day10 do
   19208
   """
   def part2(input) do
-    sorted = Enum.sort(input)
-
-    optional_voltage_differentials(Graph.new(), sorted)
-    |> Graph.Pathfinding.all(0, Enum.max(input))
-    |> length
+    [0 | Enum.sort(input)]
+    |> voltage_differentials
+    |> Enum.chunk_by(fn v -> v == 1 end)
+    |> Enum.reject(fn v -> v == [1] || Enum.all?(v, &(&1 == 3)) end)
+    |> Enum.map(&length/1)
+    |> Enum.map(&to_permutation_count/1)
+    |> Enum.reduce(1, fn x, acc -> x * acc end)
   end
 
-  defp optional_voltage_differentials(graph, [a, b, c]) do
-    graph
-    |> compare(b, a)
-    |> compare(c, a)
-    |> compare(c, b)
+  # this is ***between*** numbers - so a differential of 3, 1, 3 means there's a sequence like 4, 7, 8, 11
+  defp voltage_differentials([_a]), do: [3]
+
+  defp voltage_differentials([a, b | rest]) do
+    [b - a | voltage_differentials([b | rest])]
   end
 
-  defp optional_voltage_differentials(graph, [a, b, c, d | rest]) do
-    graph
-    |> compare(a, 0)
-    |> compare(b, 0)
-    |> compare(c, 0)
-    |> compare(b, a)
-    |> compare(c, a)
-    |> compare(d, a)
-    |> optional_voltage_differentials([b, c, d | rest])
-  end
+  # 3 sequential numbers - 2 different permutations
+  # 4 7 8 9 12
+  # 4 7   9 12
+  defp to_permutation_count(2), do: 2
 
-  defp compare(graph, b, a) do
-    if b - a <= 3 do
-      Graph.add_edge(graph, a, b)
-    else
-      graph
-    end
-  end
+  # 4 sequential numbers - 4 permutations
+  # 4 7 8 9 10 13
+  # 4 7   9 10 13
+  # 4 7 8   10 13
+  # 4 7     10 13
+  defp to_permutation_count(3), do: 4
 
-  # 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597 2584 4181 6765 10946 17711 (21)
+  # 5 sequential numbers - 7 permutations
+  # 4 7 8 9 10 11 14
+  # 4 7   9 10 11 14
+  # 4 7 8   10 11 14
+  # 4 7 8 9    11 14
+  # 4 7     10 11 14
+  # 4 7 8      11 14
+  # 4 7   9    11 14
+  defp to_permutation_count(4), do: 7
 
   @doc """
   iex> Day10.parse_input("1\\n2\\n3\\n")
