@@ -2,6 +2,7 @@ defmodule Y2020.Day11 do
   use Advent.Day, no: 11
 
   def part1(input), do: do_parts(input, 0, 4, &neighbouring_seats/2)
+  def part2(input), do: do_parts(input, 0, 5, &line_of_sight_seats/2)
 
   defp do_parts(input, round_no, max_occupied, neighbour_fn) do
     result = run_round(input, max_occupied, neighbour_fn)
@@ -13,7 +14,7 @@ defmodule Y2020.Day11 do
     end
   end
 
-  def run_round(input, max_occupied \\ 4, neighbour_fn \\ &neighbouring_seats/2) do
+  def run_round(input, max_occupied, neighbour_fn) do
     Enum.reduce(input, %{}, fn val, acc ->
       update_seat(val, input, acc, max_occupied, neighbour_fn)
     end)
@@ -36,22 +37,41 @@ defmodule Y2020.Day11 do
     |> Enum.count(fn seat -> seat == :occupied end)
   end
 
-  defp neighbouring_seats({row, col}, input) do
+  def neighbouring_seats({row, col}, input) do
     [
-      {row - 1, col},
-      {row - 1, col - 1},
-      {row, col - 1},
-      {row + 1, col - 1},
-      {row + 1, col},
-      {row + 1, col + 1},
-      {row, col + 1},
-      {row - 1, col + 1}
+      {-1, 0},
+      {-1, -1},
+      {0, -1},
+      {1, -1},
+      {1, 0},
+      {1, 1},
+      {0, 1},
+      {-1, 1}
     ]
-    |> Enum.map(fn pos -> Map.get(input, pos) end)
+    |> Enum.map(fn {row_inc, col_inc} -> Map.get(input, {row + row_inc, col + col_inc}) end)
   end
 
-  def part2(_input) do
-    :ok
+  def line_of_sight_seats(position, input) do
+    [
+      {-1, 0},
+      {-1, -1},
+      {0, -1},
+      {1, -1},
+      {1, 0},
+      {1, 1},
+      {0, 1},
+      {-1, 1}
+    ]
+    |> Enum.map(fn direction -> get_line_of_sight_seat(position, direction, input) end)
+  end
+
+  defp get_line_of_sight_seat({row, col}, {row_inc, col_inc}, input) do
+    pos_to_check = {row + row_inc, col + col_inc}
+
+    case Map.get(input, pos_to_check, nil) do
+      :floor -> get_line_of_sight_seat(pos_to_check, {row_inc, col_inc}, input)
+      val -> val
+    end
   end
 
   @doc """
@@ -86,4 +106,5 @@ defmodule Y2020.Day11 do
   defp raw_to_val("#"), do: :occupied
 
   def part1_verify, do: input() |> parse_input() |> part1() |> elem(0)
+  def part2_verify, do: input() |> parse_input() |> part2() |> elem(0)
 end
