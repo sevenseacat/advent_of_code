@@ -37,22 +37,57 @@ defmodule Y2020.Day13 do
   1202161486
   """
   def part2({_bus_no, buses}) do
+    # This is a slight variation of the Chinese Remainder Theorem.
+    # I didn't discover that myself. Someone mentioned the name of the algorithm on
+    # Slack and off I went.
     bus_data =
       buses
       |> Enum.with_index()
       |> Enum.filter(fn {bus, _} -> bus != nil end)
 
-    do_part2(0, bus_data)
+    bus_nos = Enum.map(bus_data, fn {i, _} -> i end)
+    offsets = Enum.map(bus_data, &get_offset/1)
+    chinese_remainder(bus_nos, offsets)
   end
 
-  def do_part2(time, bus_data) do
-    if Enum.all?(bus_data, fn {bus, offset} ->
-         rem(time, bus) == if offset == 0, do: 0, else: bus - offset
-       end) do
-      time
-    else
-      do_part2(time + 1, bus_data)
-    end
+  defp get_offset({_bus, 0}), do: 0
+  defp get_offset({bus, offset}), do: bus - offset
+
+  # Translated from Ruby - https://rosettacode.org/wiki/Chinese_remainder_theorem#Ruby
+  # Do I understand it? No. Does it work? Yep.
+  defp chinese_remainder(mods, remainders) do
+    max = Enum.reduce(mods, fn x, acc -> x * acc end)
+
+    remainders
+    |> Enum.zip(mods)
+    |> Enum.map(fn {r, m} -> div(r * max * invmod(div(max, m), m), m) end)
+    |> Enum.sum()
+    |> rem(max)
+  end
+
+  defp invmod(e, et) do
+    [1, x] = extended_gcd(e, et)
+    rem(x + et, et)
+  end
+
+  defp extended_gcd(a, b) do
+    [last_remainder, last_x] = compute_extended_gcd(abs(a), abs(b), 0, 1, 1, 0)
+    [last_remainder, last_x * if(a < 0, do: -1, else: 1)]
+  end
+
+  defp compute_extended_gcd(last_remainder, 0, _, last_x, _, _), do: [last_remainder, last_x]
+
+  defp compute_extended_gcd(last_remainder, remainder, x, last_x, y, last_y) do
+    [last_remainder, quotient, remainder] = [
+      remainder,
+      div(last_remainder, remainder),
+      rem(last_remainder, remainder)
+    ]
+
+    [x, last_x] = [last_x - quotient * x, x]
+    [y, last_y] = [last_y - quotient * y, y]
+
+    compute_extended_gcd(last_remainder, remainder, x, last_x, y, last_y)
   end
 
   @doc """
