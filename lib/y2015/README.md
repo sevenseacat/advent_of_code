@@ -8,6 +8,8 @@ If you're curious how long each of my solutions roughly takes to run.
 
 You can check out the code yourself and run the benchmarks with `mix bench 2015`!
 
+(Benchmarking results sorted manually for ease of read)
+
 ```
 Name                    ips        average  deviation         median         99th %
 day 1, part 1        6.40 K      156.17 μs     ±8.68%         154 μs         200 μs

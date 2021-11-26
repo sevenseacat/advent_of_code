@@ -1,21 +1,14 @@
-# Advent
+# Advent of Code
 
-**TODO: Add description**
+[![Elixir CI](https://github.com/sevenseacat/advent_of_code/actions/workflows/elixir.yml/badge.svg)](https://github.com/sevenseacat/advent_of_code/actions/workflows/elixir.yml)
 
-## Installation
+My Elixir solutions for [Advent of Code](https://adventofcode.com/) (all years).
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `advent` to your list of dependencies in `mix.exs`:
+This repository is a work in progress - I haven't yet completed all puzzles, but I'm working on them!
 
-```elixir
-def deps do
-  [
-    {:advent, "~> 0.1.0"}
-  ]
-end
-```
+Each yearly event has:
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/advent](https://hexdocs.pm/advent).
-
+* Daily solutions in `lib/y<year>/day<day>.ex`
+* Tests in `tests/y<year>/day<day>_test.exs`
+* Benchmarking in `lib/y<year>/README.md`
+* Doctests where applicable
