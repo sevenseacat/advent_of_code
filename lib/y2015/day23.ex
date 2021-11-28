@@ -1,10 +1,12 @@
 defmodule Y2015.Day23 do
   use Advent.Day, no: 23
 
-  def part1(cmds) do
-    registers = %{"a" => 0, "b" => 0}
+  def part1(cmds), do: do_parts(cmds, %{"a" => 0, "b" => 0})
+  def part2(cmds), do: do_parts(cmds, %{"a" => 1, "b" => 0})
 
-    run_commands(cmds, registers, 0, length(cmds))
+  def do_parts(cmds, initial) do
+    cmds
+    |> run_commands(initial, 0, length(cmds))
     |> Map.get("b")
   end
 
@@ -72,4 +74,5 @@ defmodule Y2015.Day23 do
   defp parse_command(["jio", reg, offset]), do: {:jio, reg, String.to_integer(offset)}
 
   def part1_verify, do: input() |> parse_input() |> part1()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
