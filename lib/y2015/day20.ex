@@ -14,18 +14,27 @@ defmodule Y2015.Day20 do
   4
   """
   def part1(at_least \\ @input) do
-    find_answer(1, 10, at_least)
+    find_answer(1, 10, at_least, &divisors/1)
   end
 
-  defp find_answer(current, presents_per_elf, at_least) do
-    if Enum.sum(divisors(current)) * 10 >= at_least do
-      current
+  def part2(at_least \\ @input) do
+    elves_at_number = fn number ->
+      divisors(number) |> Enum.filter(fn n -> number / n <= 50 end)
+    end
+
+    find_answer(1, 11, at_least, elves_at_number)
+  end
+
+  defp find_answer(number, presents_per_elf, at_least, elves_at_number) do
+    if Enum.sum(elves_at_number.(number)) * presents_per_elf >= at_least do
+      number
     else
-      find_answer(current + 1, presents_per_elf, at_least)
+      find_answer(number + 1, presents_per_elf, at_least, elves_at_number)
     end
   end
 
   def part1_verify, do: part1()
+  def part2_verify, do: part2()
 
   # Below adapted from https://rosettacode.org/wiki/Proper_divisors#Elixir
   # Includes that 1 and n are divisors of n
