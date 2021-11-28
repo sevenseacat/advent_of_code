@@ -1,11 +1,23 @@
 defmodule Y2015.Day22.GameState do
-  defstruct winner: nil, player: nil, boss: nil, mana_spent: 0, turn: :player, effects: []
+  defstruct mode: nil,
+            winner: nil,
+            player: nil,
+            boss: nil,
+            mana_spent: 0,
+            turn: :player,
+            effects: []
 end
 
 defmodule Y2015.Day22.MinManaSpent do
   use GenServer
 
-  def start, do: GenServer.start_link(__MODULE__, [], name: __MODULE__)
+  def start do
+    if GenServer.whereis(__MODULE__) do
+      GenServer.stop(__MODULE__)
+    end
+
+    GenServer.start_link(__MODULE__, [], name: __MODULE__)
+  end
 
   def min_mana_exceeded?(val) do
     GenServer.call(__MODULE__, {:mana_check, val})
@@ -44,7 +56,7 @@ defmodule Y2015.Day22 do
   @boss %{hp: 55, damage: 8}
   @attacks [
     %{name: :magic_missile, cost: 53, damage: 4},
-    %{name: :drain, cost: 72, damage: 2, healing: 2},
+    %{name: :drain, cost: 73, damage: 2, healing: 2},
     %{name: :shield, cost: 113, turns: 6, armor: 7},
     %{name: :poison, cost: 173, turns: 6, damage: 3},
     %{name: :recharge, cost: 229, turns: 5, regen: 101}
@@ -53,13 +65,22 @@ defmodule Y2015.Day22 do
   def part1(player \\ @player, boss \\ @boss) do
     MinManaSpent.start()
 
-    run_fights([%GameState{player: player, boss: boss}])
+    run_fights([%GameState{player: player, boss: boss, mode: :normal}])
+    MinManaSpent.get_mana()
+  end
+
+  def part2(player \\ @player, boss \\ @boss) do
+    MinManaSpent.start()
+
+    run_fights([%GameState{player: player, boss: boss, mode: :hard}])
     MinManaSpent.get_mana()
   end
 
   def run_fights([]), do: []
 
   def run_fights([%GameState{} = state | scenarios]) do
+    state = maybe_apply_penalty(state)
+
     %GameState{player: player, boss: boss, turn: turn, effects: effects} =
       state = apply_effects(state)
 
@@ -94,6 +115,14 @@ defmodule Y2015.Day22 do
 
       turn == :boss ->
         run_fights([apply_boss_attack(state) | scenarios])
+    end
+  end
+
+  defp maybe_apply_penalty(%GameState{player: player, turn: turn, mode: mode} = state) do
+    if mode == :hard && turn == :player do
+      %{state | player: %{player | hp: player.hp - 1}}
+    else
+      state
     end
   end
 
@@ -187,4 +216,5 @@ defmodule Y2015.Day22 do
   defp tick(effect), do: %{effect | turns: effect.turns - 1}
 
   def part1_verify, do: part1()
+  def part2_verify, do: part2()
 end
