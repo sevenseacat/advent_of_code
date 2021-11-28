@@ -5,25 +5,27 @@ defmodule Y2015.Day19 do
 
   @doc """
   iex> Day19.part1([{"H", "HO"}, {"H", "OH"}, {"O", "HH"}], "HOH")
-  ["HHHH", "HOHO", "HOOH", "OHOH"]
+  ["HOOH", "HOHO", "OHOH", "HHHH"]
 
   iex> Day19.part1([{"H", "HO"}, {"H", "OH"}, {"O", "HH"}], "HOHOHO") |> length
   7
   """
   def part1(rules, medicine \\ @medicine) do
     rules
-    |> Enum.map(fn rule -> find_replacements(medicine, rule) end)
-    |> List.flatten()
+    |> Enum.flat_map(fn rule -> find_replacements(medicine, rule) end)
     |> Enum.uniq()
-    |> Enum.sort()
     |> Kernel.--([medicine])
   end
 
   defp find_replacements(medicine, {from, to}) do
     match_count = String.split(medicine, from) |> length
 
-    0..match_count
-    |> Enum.map(fn i -> replace_nth(medicine, from, to, i) end)
+    if match_count == 1 do
+      []
+    else
+      1..(match_count - 1)
+      |> Enum.map(fn i -> replace_nth(medicine, from, to, i) end)
+    end
   end
 
   defp replace_nth(input, from, to, n) do
