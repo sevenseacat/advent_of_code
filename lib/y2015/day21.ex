@@ -4,6 +4,20 @@ defmodule Y2015.Day21 do
   @boss %{hp: 100, damage: 8, armor: 2}
 
   def part1 do
+    loadouts(:asc)
+    |> find_winning_loadout(:player)
+    |> stat_for_loadout(:cost)
+  end
+
+  def part2 do
+    loadouts(:desc)
+    |> find_winning_loadout(:boss)
+    |> stat_for_loadout(:cost)
+  end
+
+  defp loadouts(order) do
+    modifier = if order == :asc, do: 1, else: -1
+
     weapons = [
       %{cost: 8, damage: 4, name: "Dagger"},
       %{cost: 10, damage: 5, name: "Shortsword"},
@@ -41,14 +55,12 @@ defmodule Y2015.Day21 do
       z <- ring_loadouts,
       do: [x, y | z]
     )
-    |> Enum.sort_by(fn loadout -> stat_for_loadout(loadout, :cost) end)
-    |> find_winning_loadout()
-    |> stat_for_loadout(:cost)
+    |> Enum.sort_by(fn loadout -> modifier * stat_for_loadout(loadout, :cost) end)
   end
 
-  defp find_winning_loadout([]), do: nil
+  defp find_winning_loadout([], _to_win), do: nil
 
-  defp find_winning_loadout([loadout | rest]) do
+  defp find_winning_loadout([loadout | rest], to_win) do
     player = %{
       hp: 100,
       armor: stat_for_loadout(loadout, :armor),
@@ -57,10 +69,10 @@ defmodule Y2015.Day21 do
 
     {winner, _, _} = fight(player, @boss)
 
-    if winner == :player do
+    if winner == to_win do
       loadout
     else
-      find_winning_loadout(rest)
+      find_winning_loadout(rest, to_win)
     end
   end
 
@@ -105,4 +117,5 @@ defmodule Y2015.Day21 do
   end
 
   def part1_verify, do: part1()
+  def part2_verify, do: part2()
 end
