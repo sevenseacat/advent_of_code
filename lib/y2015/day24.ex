@@ -1,8 +1,11 @@
 defmodule Y2015.Day24 do
   use Advent.Day, no: 24
 
-  def part1(input) do
-    bucket_size = div(Enum.sum(input), 3)
+  def part1(input), do: do_parts(input, 3)
+  def part2(input), do: do_parts(input, 4)
+
+  defp do_parts(input, num_buckets) do
+    bucket_size = div(Enum.sum(input), num_buckets)
     check_bucket_size(input, bucket_size, 1)
   end
 
@@ -31,4 +34,5 @@ defmodule Y2015.Day24 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
