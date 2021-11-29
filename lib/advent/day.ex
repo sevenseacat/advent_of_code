@@ -34,7 +34,7 @@ defmodule Advent.Day do
 
   def benchee_config do
     [
-      print: [benchmarking: false, configuration: false],
+      print: [benchmarking: false],
       formatters: [{Benchee.Formatters.Console, comparison: false}]
     ]
   end

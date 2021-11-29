@@ -21,7 +21,7 @@ defmodule Advent.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:benchee, "~> 0.11", only: [:dev, :test]}
+      {:benchee, "~> 1.0", only: [:dev, :test]}
     ]
   end
 end

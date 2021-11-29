@@ -1,6 +1,6 @@
 defmodule Mix.Tasks.Bench do
   @moduledoc """
-  Run all daily benchmarks.
+  Run all daily benchmarks for a given year.
   """
 
   use Mix.Task
@@ -10,20 +10,27 @@ defmodule Mix.Tasks.Bench do
   end
 
   def run([year]) do
+    year
+    |> all_benchmarks_for_year()
+    |> Benchee.run(Advent.Day.benchee_config())
+  end
+
+  defp all_benchmarks_for_year(year) do
     {:ok, modules} = :application.get_key(:advent, :modules)
 
     modules
-    |> Enum.map(&"#{&1}")
     |> Enum.filter(fn module -> only_day_modules(module, year) end)
-    |> Enum.sort()
-    |> Enum.map(&run_bench/1)
+    |> Enum.flat_map(&benchmarks/1)
+    |> Enum.into(%{})
   end
 
-  def only_day_modules(module_name, year) do
-    String.starts_with?(module_name, "Elixir.Y#{year}.Day")
+  defp only_day_modules(module_name, year) do
+    module_name
+    |> Atom.to_string()
+    |> String.match?(~r/Elixir.Y#{year}.Day\d{2}/)
   end
 
-  def run_bench(module_name) do
-    apply(String.to_atom(module_name), :bench, [])
+  defp benchmarks(module_name) do
+    apply(module_name, :benchmarks, [])
   end
 end
