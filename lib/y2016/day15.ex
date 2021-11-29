@@ -21,6 +21,10 @@ defmodule Y2016.Day15 do
     run_timer(discs, slot, 1)
   end
 
+  def part2(discs \\ @discs, slot \\ 0) do
+    run_timer(discs ++ [%{number: 7, slots: 11, position: 0}], slot, 1)
+  end
+
   defp run_timer(discs, slot, time) do
     case drop_capsule(discs, slot, time) do
       :ok ->
@@ -50,4 +54,5 @@ defmodule Y2016.Day15 do
   end
 
   def part1_verify, do: part1()
+  def part2_verify, do: part2()
 end

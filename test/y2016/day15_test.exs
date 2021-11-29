@@ -4,4 +4,5 @@ defmodule Y2016.Day15Test do
   doctest Day15
 
   test "verification, part 1", do: assert(Day15.part1_verify() == 16824)
+  test "verification, part 2", do: assert(Day15.part2_verify() == 3_543_984)
 end
