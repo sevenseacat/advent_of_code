@@ -4,13 +4,13 @@ defmodule Advent.Day do
 
     quote do
       @doc """
-      Read an input data file with the specified file name.
-      This should be located in a `data` folder alongside the module.
+      Read an input file with the specified file name.
+      This should be located in a `input` folder alongside the module.
       """
-      def data(filename \\ "day#{unquote(formatted_day_no)}") do
-        data_folder = __ENV__.file |> Path.dirname()
+      def input(filename \\ "day#{unquote(formatted_day_no)}") do
+        input_folder = __ENV__.file |> Path.dirname()
 
-        "#{data_folder}/data/#{filename}.txt"
+        "#{input_folder}/input/#{filename}.txt"
         |> File.read!()
         |> String.trim()
       end

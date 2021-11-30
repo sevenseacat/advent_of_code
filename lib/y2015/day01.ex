@@ -32,10 +32,10 @@ defmodule Y2015.Day01 do
   def part2(<<")", rest::binary>>, floor, index), do: part2(rest, floor - 1, index + 1)
 
   def part1_verify do
-    data() |> part1()
+    input() |> part1()
   end
 
   def part2_verify do
-    data() |> part2()
+    input() |> part2()
   end
 end

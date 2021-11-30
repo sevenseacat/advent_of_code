@@ -57,6 +57,6 @@ defmodule Y2015.Day02 do
     |> Enum.map(&String.to_integer/1)
   end
 
-  def part1_verify, do: data() |> part1()
-  def part2_verify, do: data() |> part2()
+  def part1_verify, do: input() |> part1()
+  def part2_verify, do: input() |> part2()
 end

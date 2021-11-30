@@ -43,6 +43,6 @@ defmodule Y2015.Day03 do
     [new_grid, position]
   end
 
-  def part1_verify, do: data() |> part1()
-  def part2_verify, do: data() |> part2()
+  def part1_verify, do: input() |> part1()
+  def part2_verify, do: input() |> part2()
 end

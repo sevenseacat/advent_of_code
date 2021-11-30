@@ -79,6 +79,6 @@ defmodule Y2015.Day05 do
   defp check_for_sequences(true, _, _), do: true
   defp check_for_sequences(_, x, y), do: Enum.member?(@forbidden_sequences, "#{x}#{y}")
 
-  def part1_verify, do: data() |> part1()
-  def part2_verify, do: data() |> part2()
+  def part1_verify, do: input() |> part1()
+  def part2_verify, do: input() |> part2()
 end
