@@ -14,21 +14,21 @@ You can check out the code yourself and run the benchmarks with `mix bench 2016`
 
 ```
 Name                     ips        average  deviation         median         99th %
-day 01, part 1      15319.15      0.0653 ms    ±25.50%      0.0600 ms       0.130 ms
-day 01, part 2       3210.96        0.31 ms    ±20.62%        0.30 ms        0.49 ms
-day 02, part 1        293.85        3.40 ms     ±7.79%        3.43 ms        4.40 ms
-day 02, part 2        179.75        5.56 ms    ±10.74%        5.40 ms        8.84 ms
-day 03, part 1        747.39        1.34 ms    ±10.97%        1.35 ms        1.67 ms
-day 03, part 2        782.32        1.28 ms     ±6.28%        1.28 ms        1.53 ms
-day 04, part 1         59.52       16.80 ms     ±4.21%       16.72 ms       20.45 ms
-day 04, part 2         66.33       15.08 ms     ±1.63%       15.07 ms       15.88 ms
-day 05, part 1        0.0356    28090.67 ms     ±0.00%    28090.67 ms    28090.67 ms
-day 05, part 2        0.0233    42981.96 ms     ±0.00%    42981.96 ms    42981.96 ms
-day 06, part 1        290.71        3.44 ms     ±4.50%        3.45 ms        3.90 ms
-day 06, part 2        291.47        3.43 ms     ±2.93%        3.45 ms        3.73 ms
-day 07, part 1         25.15       39.75 ms     ±1.33%       39.61 ms       42.70 ms
-day 07, part 2         28.38       35.23 ms     ±0.90%       35.23 ms       36.89 ms
-day 08, part 1        285.96        3.50 ms     ±2.98%        3.50 ms        3.85 ms
-day 09, part 1        134.08        7.46 ms     ±8.18%        7.29 ms       10.55 ms
-day 09, part 2         83.52       11.97 ms     ±1.51%       11.96 ms       12.58 ms
+day 01, part 1      14495.22      0.0690 ms    ±22.42%      0.0650 ms       0.135 ms
+day 01, part 2       3324.64        0.30 ms    ±22.42%        0.29 ms        0.47 ms
+day 02, part 1        313.38        3.19 ms     ±1.56%        3.18 ms        3.37 ms
+day 02, part 2        184.21        5.43 ms     ±1.40%        5.41 ms        5.71 ms
+day 03, part 1        742.01        1.35 ms     ±8.84%        1.38 ms        1.59 ms
+day 03, part 2        614.70        1.63 ms    ±11.15%        1.62 ms        2.15 ms
+day 04, part 1         63.12       15.84 ms     ±1.72%       15.82 ms       16.57 ms
+day 04, part 2         68.63       14.57 ms     ±2.26%       14.52 ms       16.10 ms
+day 05, part 1         0.125     8022.60 ms     ±0.00%     8022.60 ms     8022.60 ms
+day 05, part 2        0.0798    12525.01 ms     ±0.00%    12525.01 ms    12525.01 ms
+day 06, part 1        292.47        3.42 ms     ±2.93%        3.43 ms        3.76 ms
+day 06, part 2        293.17        3.41 ms     ±2.51%        3.43 ms        3.60 ms
+day 07, part 1         25.00       40.00 ms     ±1.65%       39.78 ms       43.66 ms
+day 07, part 2         27.79       35.99 ms     ±1.43%       35.92 ms       39.80 ms
+day 08, part 1        280.68        3.56 ms     ±6.20%        3.52 ms        4.40 ms
+day 09, part 1        131.15        7.63 ms     ±8.63%        7.49 ms       10.41 ms
+day 09, part 2         71.87       13.91 ms    ±25.79%       12.13 ms       27.32 ms
 ```

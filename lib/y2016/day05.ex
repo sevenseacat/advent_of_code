@@ -24,10 +24,13 @@ defmodule Y2016.Day05 do
     do: String.reverse(password)
 
   defp brute_force(input, counter, password) do
+    <<val::size(24), _rest::binary>> = :erlang.md5("#{input}#{counter}")
+
     password =
-      case :crypto.hash(:md5, "#{input}#{counter}") |> Base.encode16() do
-        <<"00000", char::binary-size(1), _rest::binary>> -> char <> password
-        _ -> password
+      if val < 16 do
+        Integer.to_string(val, 16) <> password
+      else
+        password
       end
 
     brute_force(input, counter + 1, password)
@@ -42,14 +45,13 @@ defmodule Y2016.Day05 do
   end
 
   defp complex_brute_force(input, counter, password) do
-    password =
-      case :crypto.hash(:md5, "#{input}#{counter}") |> Base.encode16() do
-        <<"00000", position::binary-size(1), char::binary-size(1), _rest::binary>>
-        when position <= "7" ->
-          Map.put_new(password, position, char)
+    <<position::size(24), char::size(4), _rest::bits>> = :erlang.md5("#{input}#{counter}")
 
-        _ ->
-          password
+    password =
+      if position <= 7 do
+        Map.put_new(password, position, Integer.to_string(char, 16))
+      else
+        password
       end
 
     complex_brute_force(input, counter + 1, password)
