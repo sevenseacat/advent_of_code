@@ -21,6 +21,7 @@ defmodule Mix.Tasks.Bench do
     modules
     |> Enum.filter(fn module -> only_day_modules(module, year) end)
     |> Enum.flat_map(&benchmarks/1)
+    |> Enum.into(%{})
   end
 
   defp only_day_modules(module_name, year) do

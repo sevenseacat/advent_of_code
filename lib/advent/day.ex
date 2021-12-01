@@ -27,6 +27,7 @@ defmodule Advent.Day do
           "day #{unquote(formatted_day_no)}, part 2" => maybe_run(:part2_verify)
         }
         |> Enum.filter(fn {name, fun} -> fun end)
+        |> Enum.into(%{})
       end
 
       # Only run a benchmark if it is defined.
