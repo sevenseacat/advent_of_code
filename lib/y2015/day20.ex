@@ -36,13 +36,16 @@ defmodule Y2015.Day20 do
   def part1_verify, do: part1()
   def part2_verify, do: part2()
 
-  # Below adapted from https://rosettacode.org/wiki/Proper_divisors#Elixir
-  # Includes that 1 and n are divisors of n
-  def divisors(1), do: [1]
-  def divisors(n), do: [1, n | divisors(2, n, :math.sqrt(n))] |> Enum.sort()
+  # Below adapted from https://rosettacode.org/wiki/Factors_of_an_integer#Elixir
+  # Not sure about the differences between the two methods of finding divisors...
+  def divisors(n), do: divisors(n, 1, [])
 
-  defp divisors(k, _n, q) when k > q, do: []
-  defp divisors(k, n, q) when rem(n, k) > 0, do: divisors(k + 1, n, q)
-  defp divisors(k, n, q) when k * k == n, do: [k | divisors(k + 1, n, q)]
-  defp divisors(k, n, q), do: [k, div(n, k) | divisors(k + 1, n, q)]
+  defp divisors(n, i, factors) when n < i * i, do: factors
+  defp divisors(n, i, factors) when n == i * i, do: [i | factors]
+
+  defp divisors(n, i, factors) when rem(n, i) == 0 do
+    divisors(n, i + 1, [i, div(n, i) | factors])
+  end
+
+  defp divisors(n, i, factors), do: divisors(n, i + 1, factors)
 end
