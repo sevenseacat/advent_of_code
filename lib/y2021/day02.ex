@@ -9,9 +9,25 @@ defmodule Y2021.Day02 do
     Enum.reduce(input, %{horizontal: 0, depth: 0}, &move/2)
   end
 
+  def part2(input) do
+    Enum.reduce(input, %{horizontal: 0, depth: 0, aim: 0}, &move_with_aim/2)
+  end
+
   defp move({:up, num}, position), do: Map.update!(position, :depth, &(&1 - num))
   defp move({:down, num}, position), do: Map.update!(position, :depth, &(&1 + num))
   defp move({:forward, num}, position), do: Map.update!(position, :horizontal, &(&1 + num))
+
+  defp move_with_aim({:up, num}, position) do
+    Map.update!(position, :aim, &(&1 - num))
+  end
+
+  defp move_with_aim({:down, num}, position) do
+    Map.update!(position, :aim, &(&1 + num))
+  end
+
+  defp move_with_aim({:forward, num}, %{horizontal: h, depth: d, aim: aim}) do
+    %{horizontal: h + num, depth: d + aim * num, aim: aim}
+  end
 
   @doc """
   iex> Day02.parse_input("forward 5\\ndown 5\\nforward 8\\nup 3\\ndown 8\\nforward 2")
@@ -30,6 +46,11 @@ defmodule Y2021.Day02 do
 
   def part1_verify do
     %{horizontal: h, depth: d} = input() |> parse_input() |> part1()
+    h * d
+  end
+
+  def part2_verify do
+    %{horizontal: h, depth: d} = input() |> parse_input() |> part2()
     h * d
   end
 end
