@@ -8,49 +8,10 @@ defmodule Y2015.Day22.GameState do
             effects: []
 end
 
-defmodule Y2015.Day22.MinManaSpent do
-  use GenServer
-
-  def start do
-    if GenServer.whereis(__MODULE__) do
-      GenServer.stop(__MODULE__)
-    end
-
-    GenServer.start_link(__MODULE__, [], name: __MODULE__)
-  end
-
-  def min_mana_exceeded?(val) do
-    GenServer.call(__MODULE__, {:mana_check, val})
-  end
-
-  def set_mana_used(val) do
-    GenServer.call(__MODULE__, {:set_mana, val})
-  end
-
-  def get_mana() do
-    GenServer.call(__MODULE__, {:get_mana})
-  end
-
-  # Private
-  def init([]), do: {:ok, nil}
-
-  def handle_call({:mana_check, val}, _from, state) do
-    {:reply, state && val > state, state}
-  end
-
-  def handle_call({:set_mana, val}, _from, state) do
-    {:reply, :ok, if(state, do: min(val, state), else: val)}
-  end
-
-  def handle_call({:get_mana}, _from, state) do
-    {:reply, state, state}
-  end
-end
-
 defmodule Y2015.Day22 do
   use Advent.Day, no: 22
 
-  alias Y2015.Day22.{GameState, MinManaSpent}
+  alias Y2015.Day22.GameState
 
   @player %{hp: 50, mana: 500, armor: 0}
   @boss %{hp: 55, damage: 8}
@@ -63,42 +24,36 @@ defmodule Y2015.Day22 do
   ]
 
   def part1(player \\ @player, boss \\ @boss) do
-    MinManaSpent.start()
-
-    run_fights([%GameState{player: player, boss: boss, mode: :normal}])
-    MinManaSpent.get_mana()
+    run_fights([%GameState{player: player, boss: boss, mode: :normal}], nil)
   end
 
   def part2(player \\ @player, boss \\ @boss) do
-    MinManaSpent.start()
-
-    run_fights([%GameState{player: player, boss: boss, mode: :hard}])
-    MinManaSpent.get_mana()
+    run_fights([%GameState{player: player, boss: boss, mode: :hard}], nil)
   end
 
-  def run_fights([]), do: []
+  def run_fights([], min_mana), do: min_mana
 
-  def run_fights([%GameState{} = state | scenarios]) do
+  def run_fights([%GameState{} = state | scenarios], min_mana) do
     state = maybe_apply_penalty(state)
 
     %GameState{player: player, boss: boss, turn: turn, effects: effects} =
       state = apply_effects(state)
 
     cond do
-      MinManaSpent.min_mana_exceeded?(state.mana_spent) ->
-        run_fights(scenarios)
+      min_mana && state.mana_spent > min_mana ->
+        run_fights(scenarios, min_mana)
 
       player.hp <= 0 ->
-        run_fights(scenarios)
+        run_fights(scenarios, min_mana)
 
       boss.hp <= 0 ->
-        MinManaSpent.set_mana_used(state.mana_spent)
-        run_fights(scenarios)
+        min_mana = if min_mana, do: min(min_mana, state.mana_spent), else: state.mana_spent
+        run_fights(scenarios, min_mana)
 
       turn == :player ->
         case possible_attacks(player, effects) do
           [] ->
-            [%{state | winner: :boss} | run_fights(scenarios)]
+            run_fights(scenarios, min_mana)
 
           attacks ->
             new_scenarios =
@@ -110,11 +65,11 @@ defmodule Y2015.Day22 do
                 }
               end)
 
-            run_fights(new_scenarios ++ scenarios)
+            run_fights(new_scenarios ++ scenarios, min_mana)
         end
 
       turn == :boss ->
-        run_fights([apply_boss_attack(state) | scenarios])
+        run_fights([apply_boss_attack(state) | scenarios], min_mana)
     end
   end
 
