@@ -4,6 +4,7 @@ defmodule Y2021.Day04Test do
   doctest Day04
 
   test "verification, part 1", do: assert(Day04.part1_verify() == 49686)
+  test "verification, part 2", do: assert(Day04.part2_verify() == 26878)
 
   describe "part1/2" do
     test "works for a full board" do

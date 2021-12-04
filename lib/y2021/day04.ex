@@ -10,6 +10,13 @@ defmodule Y2021.Day04 do
     |> calculate_score()
   end
 
+  def part2(boards, called \\ @called_numbers) do
+    called
+    |> parse_called()
+    |> play_anti_bingo(boards)
+    |> calculate_score()
+  end
+
   defp play_bingo([], _boards), do: raise("No winners!")
 
   defp play_bingo([number | numbers], boards) do
@@ -18,6 +25,22 @@ defmodule Y2021.Day04 do
     case Enum.find(boards, &winning_board?/1) do
       nil -> play_bingo(numbers, boards)
       board -> {board, number}
+    end
+  end
+
+  defp play_anti_bingo(_numbers, []), do: raise("Everyone wins! Oops")
+  defp play_anti_bingo([], _boards), do: raise("No winners!")
+
+  defp play_anti_bingo([number | numbers], boards) do
+    non_winning_boards =
+      boards
+      |> Enum.map(&mark_number_on_board(&1, number))
+      |> Enum.reject(&winning_board?/1)
+
+    if length(non_winning_boards) == 0 && length(boards) == 1 do
+      {hd(boards) |> mark_number_on_board(number), number}
+    else
+      play_anti_bingo(numbers, non_winning_boards)
     end
   end
 
@@ -94,4 +117,5 @@ defmodule Y2021.Day04 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
