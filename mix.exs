@@ -14,14 +14,13 @@ defmodule Advent.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger, :crypto]
+      extra_applications: [:logger]
     ]
   end
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:gproc, "~> 0.6.1"},
       {:jason, "~> 1.2"},
       {:benchee, "~> 1.0", only: [:dev, :test]}
     ]
