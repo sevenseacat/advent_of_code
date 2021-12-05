@@ -2,7 +2,7 @@
 
 My Elixir solutions for [Advent of Code 2021](https://adventofcode.com/2021).
 
-**Stars complete: 8/50 :star:**
+**Stars complete: 10/50 :star:**
 
 ## Benchmarks
 
@@ -14,12 +14,14 @@ You can check out the code yourself and run the benchmarks with `mix bench 2021`
 
 ```
 Name                     ips        average  deviation         median         99th %
-day 01, part 1        6.18 K       0.162 ms    ±21.73%       0.153 ms        0.22 ms
-day 01, part 2        5.50 K       0.182 ms    ±38.30%       0.173 ms        0.24 ms
-day 02, part 1        1.76 K        0.57 ms    ±38.71%        0.55 ms        0.73 ms
-day 02, part 2        1.79 K        0.56 ms    ±37.22%        0.52 ms        1.18 ms
-day 03, part 1        0.25 K        3.95 ms    ±10.56%        3.88 ms        5.61 ms
-day 03, part 2        0.65 K        1.55 ms    ±19.48%        1.54 ms        1.99 ms
-day 04, part 1      0.0889 K       11.24 ms     ±1.44%       11.24 ms       11.73 ms
-day 04, part 2      0.0448 K       22.31 ms     ±1.50%       22.25 ms       23.28 ms
+day 01, part 1       6223.23       0.161 ms    ±13.90%       0.153 ms        0.21 ms
+day 01, part 2       5539.59       0.181 ms    ±12.91%       0.173 ms        0.23 ms
+day 02, part 1       1863.81        0.54 ms     ±8.07%        0.53 ms        0.61 ms
+day 02, part 2       1929.63        0.52 ms     ±8.48%        0.51 ms        0.60 ms
+day 03, part 1        251.68        3.97 ms     ±1.02%        3.97 ms        4.11 ms
+day 03, part 2        680.49        1.47 ms    ±23.09%        1.45 ms        1.66 ms
+day 04, part 1         89.19       11.21 ms     ±0.91%       11.21 ms       11.38 ms
+day 04, part 2         44.33       22.56 ms     ±4.87%       22.43 ms       30.11 ms
+day 05, part 1         18.74       53.36 ms     ±4.10%       53.49 ms       58.43 ms
+day 05, part 2          9.80      102.01 ms     ±3.75%      101.67 ms      115.62 ms
 ```
