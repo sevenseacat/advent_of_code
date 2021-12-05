@@ -15,4 +15,11 @@ defmodule Advent do
   def combinations([x | xs], n) do
     for(y <- combinations(xs, n - 1), do: [x | y]) ++ combinations(xs, n)
   end
+
+  # https://stackoverflow.com/a/42887944/560215
+  def transpose(rows) do
+    rows
+    |> List.zip()
+    |> Enum.map(&Tuple.to_list/1)
+  end
 end

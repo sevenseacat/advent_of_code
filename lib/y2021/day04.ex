@@ -75,18 +75,11 @@ defmodule Y2021.Day04 do
 
   defp winning_column?(board) do
     board
-    |> transpose()
+    |> Advent.transpose()
     |> winning_row?()
   end
 
   defp all_marked?(numbers), do: Enum.all?(numbers, fn {_num, marked} -> marked end)
-
-  # https://stackoverflow.com/a/42887944/560215
-  defp transpose(rows) do
-    rows
-    |> List.zip()
-    |> Enum.map(&Tuple.to_list/1)
-  end
 
   def parse_input(string) do
     string
