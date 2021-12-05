@@ -1,4 +1,4 @@
-defmodule Y2031.Day03Test do
+defmodule Y2021.Day03Test do
   use ExUnit.Case, async: true
   alias Y2021.Day03
   doctest Day03
