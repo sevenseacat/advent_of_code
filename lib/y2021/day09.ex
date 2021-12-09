@@ -8,13 +8,39 @@ defmodule Y2021.Day09 do
     |> Enum.sum()
   end
 
+  def part2(input) do
+    input
+    |> find_low_points()
+    |> Enum.map(&find_basin(&1, input))
+    |> Enum.map(&length/1)
+    |> Enum.sort_by(&(-&1))
+    |> Enum.take(3)
+    |> Enum.reduce(&*/2)
+  end
+
   def find_low_points(input) do
     Enum.filter(input, fn {{row, col}, val} ->
       Enum.all?([{row - 1, col}, {row + 1, col}, {row, col - 1}, {row, col + 1}], fn coord ->
-        !Map.has_key?(input, coord) || Map.get(input, coord) > val
+        coord_val = Map.get(input, coord, nil)
+        coord_val == nil || coord_val > val
       end)
     end)
     |> Enum.sort()
+  end
+
+  def find_basin(low_point, input), do: do_find_basin([low_point], input) |> Enum.uniq()
+
+  defp do_find_basin([], _input), do: []
+
+  defp do_find_basin([{{row, col}, val} = this | rest], input) do
+    new_to_check =
+      [{row - 1, col}, {row + 1, col}, {row, col - 1}, {row, col + 1}]
+      |> Enum.map(fn coord -> {coord, Map.get(input, coord, nil)} end)
+      |> Enum.filter(fn {_coord, coord_val} ->
+        coord_val != nil && coord_val != 9 && coord_val > val
+      end)
+
+    [this | do_find_basin(new_to_check ++ rest, input)]
   end
 
   @doc """
@@ -36,4 +62,5 @@ defmodule Y2021.Day09 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
