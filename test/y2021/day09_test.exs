@@ -21,15 +21,15 @@ defmodule Y2021.Day09Test do
   end
 
   test "find_low_points/1", %{input: sample_input} do
-    actual = Day09.find_low_points(sample_input)
-    expected = [{{0, 1}, 1}, {{0, 9}, 0}, {{2, 2}, 5}, {{4, 6}, 5}]
+    actual = Day09.find_low_points(sample_input) |> Enum.sort()
+    expected = [{{0, 1}, 1}, {{0, 9}, 0}, {{2, 2}, 5}, {{4, 6}, 5}] |> Enum.sort()
     assert actual == expected
   end
 
   describe "find_basin/2" do
     test "first basin", %{input: sample_input} do
       actual = Day09.find_basin({{0, 1}, 1}, sample_input) |> Enum.sort()
-      expected = [{{0, 0}, 2}, {{0, 1}, 1}, {{1, 0}, 3}]
+      expected = [{{0, 0}, 2}, {{0, 1}, 1}, {{1, 0}, 3}] |> Enum.sort()
       assert actual == expected
     end
 

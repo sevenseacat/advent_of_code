@@ -12,35 +12,36 @@ defmodule Y2021.Day09 do
     input
     |> find_low_points()
     |> Enum.map(&find_basin(&1, input))
-    |> Enum.map(&length/1)
-    |> Enum.sort_by(&(-&1))
+    |> Enum.map(&MapSet.size/1)
+    |> Enum.sort(:desc)
     |> Enum.take(3)
     |> Enum.reduce(&*/2)
   end
 
   def find_low_points(input) do
-    Enum.filter(input, fn {{row, col}, val} ->
-      Enum.all?([{row - 1, col}, {row + 1, col}, {row, col - 1}, {row, col + 1}], fn coord ->
-        coord_val = Map.get(input, coord, nil)
-        coord_val == nil || coord_val > val
+    Enum.filter(input, fn {coord, val} ->
+      Enum.all?(adjacent(coord, input), fn {_adj_coord, adj_val} ->
+        adj_val == nil || adj_val > val
       end)
     end)
-    |> Enum.sort()
   end
 
-  def find_basin(low_point, input), do: do_find_basin([low_point], input) |> Enum.uniq()
+  defp adjacent({row, col}, input) do
+    [{row - 1, col}, {row + 1, col}, {row, col - 1}, {row, col + 1}]
+    |> Enum.map(fn coord -> {coord, Map.get(input, coord, nil)} end)
+  end
 
-  defp do_find_basin([], _input), do: []
+  def find_basin(low_point, input), do: do_find_basin([low_point], MapSet.new(), input)
 
-  defp do_find_basin([{{row, col}, val} = this | rest], input) do
+  defp do_find_basin([], seen, _input), do: seen
+
+  defp do_find_basin([{coord, val} = this | rest], seen, input) do
     new_to_check =
-      [{row - 1, col}, {row + 1, col}, {row, col - 1}, {row, col + 1}]
-      |> Enum.map(fn coord -> {coord, Map.get(input, coord, nil)} end)
-      |> Enum.filter(fn {_coord, coord_val} ->
-        coord_val != nil && coord_val != 9 && coord_val > val
+      Enum.filter(adjacent(coord, input), fn {_adj_coord, adj_val} ->
+        adj_val != nil && adj_val != 9 && adj_val > val
       end)
 
-    [this | do_find_basin(new_to_check ++ rest, input)]
+    do_find_basin(new_to_check ++ rest, MapSet.put(seen, this), input)
   end
 
   @doc """
