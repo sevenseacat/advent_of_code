@@ -6,12 +6,29 @@ defmodule Y2016.Day11.State do
 
   def winning_floor, do: @winning_floor
 
-  def initial do
-    Code.eval_file("lib/y2016/input/day11.txt") |> elem(0)
-  end
+  @doc """
+  iex> State.add_components(%State{floors: [
+  ...>   %Floor{number: 2, chips: [:s], generators: [:t]},
+  ...>   %Floor{number: 1, chips: [:u], generators: [:v]}
+  ...> ]}, 1, [:a, :b])
+  %State{floors: [
+    %Floor{number: 2, chips: [:s], generators: [:t]},
+    %Floor{number: 1, chips: [:u, :a, :b], generators: [:v, :a, :b]}
+  ]}
+  """
+  def add_components(%State{floors: floors} = state, number, to_add) do
+    floors =
+      Enum.map(floors, fn floor ->
+        if floor.number == number do
+          floor
+          |> Map.update!(:chips, fn chips -> chips ++ to_add end)
+          |> Map.update!(:generators, fn generators -> generators ++ to_add end)
+        else
+          floor
+        end
+      end)
 
-  def part2_initial do
-    Code.eval_file("lib/y2016/input/day11_part2.txt") |> elem(0)
+    %{state | floors: floors}
   end
 
   @doc """

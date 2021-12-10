@@ -1,9 +1,0 @@
-%Y2016.Day11.State{
-  elevator: 1,
-  floors: [
-    %Y2016.Day11.Floor{number: 4, chips: [], generators: []},
-    %Y2016.Day11.Floor{number: 3, chips: [:thulium], generators: []},
-    %Y2016.Day11.Floor{number: 2, chips: [:ruthenium, :curium], generators: [:thulium, :ruthenium, :curium]},
-    %Y2016.Day11.Floor{number: 1, chips: [:strontium, :plutonium, :elerium, :dilithium], generators: [:strontium, :plutonium, :elerium, :dilithium]}
-  ]
-}

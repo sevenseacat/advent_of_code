@@ -7,6 +7,11 @@ defmodule Y2016.Day11Test do
   doctest Day11.State
   doctest Day11.Floor
 
+  test "verification, part 1", do: assert(Day11.part1_verify() == 37)
+
+  @tag timeout: :infinity
+  test "verification, part 2", do: assert(Day11.part2_verify() == 61)
+
   test "calculating legal moves for a given state" do
     expected_states = [
       %State{

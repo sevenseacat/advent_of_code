@@ -3,14 +3,15 @@ defmodule Y2016.Day11 do
 
   alias Y2016.Day11.State
 
-  def part1 do
-    State.initial()
+  def part1(input) do
+    input
     |> get_optimal_path
     |> length
   end
 
-  def part2 do
-    State.part2_initial()
+  def part2(input) do
+    input
+    |> State.add_components(1, [:dilithium, :elerium])
     |> get_optimal_path
     |> length
   end
@@ -24,9 +25,9 @@ defmodule Y2016.Day11 do
 
   # Reached the end of a level. Start going through allll the states on the next level.
   defp do_search([], next_level_states, all_seen_states) do
-    IO.puts(
-      "* Level #{next_level_states |> hd |> elem(0) |> length}: #{length(next_level_states)} states to check."
-    )
+    # IO.puts(
+    #   "* Level #{next_level_states |> hd |> elem(0) |> length}: #{length(next_level_states)} states to check."
+    # )
 
     do_search(next_level_states, [], all_seen_states)
   end
@@ -63,4 +64,13 @@ defmodule Y2016.Day11 do
         end
     end
   end
+
+  def parse_input(input) do
+    input
+    |> Code.eval_string()
+    |> elem(0)
+  end
+
+  def part1_verify, do: input() |> parse_input() |> part1()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
