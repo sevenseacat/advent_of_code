@@ -5,5 +5,6 @@
     %Y2016.Day11.Floor{number: 3, chips: [:thulium], generators: []},
     %Y2016.Day11.Floor{number: 2, chips: [:ruthenium, :curium], generators: [:thulium, :ruthenium, :curium]},
     %Y2016.Day11.Floor{number: 1, chips: [:strontium, :plutonium], generators: [:strontium, :plutonium]}
-  ]
+  ],
+  types: [:thulium, :ruthenium, :curium, :strontium, :plutonium]
 }

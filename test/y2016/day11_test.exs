@@ -138,10 +138,41 @@ defmodule Y2016.Day11Test do
         %Floor{number: 2, chips: [], generators: [:h]},
         %Floor{number: 3, chips: [], generators: [:l]},
         %Floor{number: 4, chips: [], generators: []}
-      ]
+      ],
+      types: [:h, :l]
     }
 
     actual_path = Day11.get_optimal_path(initial_state)
     assert length(actual_path) == 11
+  end
+
+  test "state equivalence" do
+    state_a = %State{
+      elevator: 1,
+      floors: [%Floor{number: 1, chips: [:a], generators: [:a]}],
+      types: [:a]
+    }
+
+    state_b = %State{
+      elevator: 1,
+      floors: [%Floor{number: 1, chips: [:b], generators: [:b]}],
+      types: [:b]
+    }
+
+    assert State.normalized(state_a) == State.normalized(state_b)
+
+    state_ab = %State{
+      elevator: 1,
+      floors: [%Floor{number: 1, chips: [:b, :a], generators: [:a, :b]}],
+      types: [:a, :b]
+    }
+
+    state_ba = %State{
+      elevator: 1,
+      floors: [%Floor{number: 1, chips: [:a, :b], generators: [:b, :a]}],
+      types: [:a, :b]
+    }
+
+    assert State.normalized(state_ab) == State.normalized(state_ba)
   end
 end

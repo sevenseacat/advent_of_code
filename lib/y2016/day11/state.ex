@@ -1,6 +1,6 @@
 defmodule Y2016.Day11.State do
   alias Y2016.Day11.{State, Floor, Elevator}
-  defstruct floors: [], elevator: 1
+  defstruct floors: [], elevator: 1, types: []
 
   @winning_floor 4
 
@@ -10,13 +10,13 @@ defmodule Y2016.Day11.State do
   iex> State.add_components(%State{floors: [
   ...>   %Floor{number: 2, chips: [:s], generators: [:t]},
   ...>   %Floor{number: 1, chips: [:u], generators: [:v]}
-  ...> ]}, 1, [:a, :b])
+  ...> ], types: [:s, :t, :u, :v]}, 1, [:a, :b])
   %State{floors: [
     %Floor{number: 2, chips: [:s], generators: [:t]},
     %Floor{number: 1, chips: [:u, :a, :b], generators: [:v, :a, :b]}
-  ]}
+  ], types: [:s, :t, :u, :v, :a, :b]}
   """
-  def add_components(%State{floors: floors} = state, number, to_add) do
+  def add_components(%State{floors: floors, types: types} = state, number, to_add) do
     floors =
       Enum.map(floors, fn floor ->
         if floor.number == number do
@@ -28,7 +28,7 @@ defmodule Y2016.Day11.State do
         end
       end)
 
-    %{state | floors: floors}
+    %{state | floors: floors, types: types ++ to_add}
   end
 
   @doc """
@@ -124,5 +124,41 @@ defmodule Y2016.Day11.State do
 
   defp floor_index(%State{floors: floors}, floor_no) do
     Enum.find_index(floors, fn floor -> floor.number == floor_no end)
+  end
+
+  @doc """
+  This is the absolute secret sauce to solving this problem - it greatly reduces the number of
+  states we save to check later.
+
+  Because all we care about is chip/generator combinations, we don't care *which* chips and generators
+  are on which floors. If chip/generator A are on floor 1 and chip/generator B are on floor 3 in one
+  scenario, that is functionally the same as chip/generator B being on floor 1 and chip/generator A being on
+  floor 3. If the chip/generators were unique in some way, eg. some were more powerful than others,
+  then this would not hold true, but ours are all the same.
+
+  To normalize a state, we can find the floor numbers of all of the chip/generator pairs, and then sort them.
+  We also need the elevator position, just in case.
+  """
+  def normalized(%State{elevator: elevator, floors: floors, types: types}) do
+    {elevator,
+     types
+     |> Enum.map(fn type -> find_chip_and_generator(floors, type) end)
+     |> Enum.sort()}
+  end
+
+  defp find_chip_and_generator(floors, type) do
+    chip = find_item(floors, :chips, type)
+    generator = find_item(floors, :generators, type)
+
+    {chip, generator}
+  end
+
+  defp find_item(floors, key, value) do
+    Enum.find(floors, fn floor ->
+      floor
+      |> Map.get(key)
+      |> Enum.member?(value)
+    end)
+    |> Map.get(:number)
   end
 end

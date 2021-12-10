@@ -26,7 +26,7 @@ defmodule Y2016.Day11 do
   # Reached the end of a level. Start going through allll the states on the next level.
   defp do_search([], next_level_states, all_seen_states) do
     # IO.puts(
-    #   "* Level #{next_level_states |> hd |> elem(0) |> length}: #{length(next_level_states)} states to check."
+    #  "* Level #{next_level_states |> hd |> elem(0) |> length}: #{length(next_level_states)} states to check."
     # )
 
     do_search(next_level_states, [], all_seen_states)
@@ -47,13 +47,16 @@ defmodule Y2016.Day11 do
       # Avoid cycles by only using this computed state if it is not already in the path taken to get to this state.
       # Also drastically cut down on the number of states in memory, by recording *all* states
       # we've seen - if we see a state twice, the earlier one was clearly more optimal so disregard future references to it.
-      if MapSet.member?(all_seen_states, state) do
+      # Don't store the entire state as part of the set, that would grow massive - normalize it instead.
+      normalized_state = State.normalized(state)
+
+      if MapSet.member?(all_seen_states, normalized_state) do
         do_search([{path, states} | alt_paths], next_level_states, all_seen_states)
       else
         do_search(
           [{path, states} | alt_paths],
           [{[state | path], State.legal_moves(state)} | next_level_states],
-          MapSet.put(all_seen_states, state)
+          MapSet.put(all_seen_states, normalized_state)
         )
       end
     end
