@@ -2,22 +2,23 @@ defmodule Y2021.Day10 do
   use Advent.Day, no: 10
 
   @char_mappings %{?( => ?), ?{ => ?}, ?< => ?>, ?[ => ?]}
+  @part1_points %{?) => 3, ?] => 57, ?} => 1197, ?> => 25137}
+  @part2_points %{?) => 1, ?] => 2, ?} => 3, ?> => 4}
 
   def part1(input) do
     input
-    |> Enum.map(&corruption_info/1)
-    |> Enum.filter(fn {status, _char, _to_close} -> status == :err end)
-    |> Enum.map(fn {:err, char, _to_close} -> char_to_p1_value(char) end)
+    |> Enum.map(&check_syntax/1)
+    |> Enum.filter(fn {status, _char} -> status == :corrupt end)
+    |> Enum.map(fn {:corrupt, char} -> Map.get(@part1_points, char) end)
     |> Enum.sum()
   end
 
   def part2(input) do
     list =
       input
-      |> Enum.map(&corruption_info/1)
-      |> Enum.filter(fn {status, _char, to_close} -> status == :ok && to_close != '' end)
-      |> Enum.map(fn {_status, _char, to_close} -> to_close end)
-      |> Enum.map(&to_p2_score/1)
+      |> Enum.map(&check_syntax/1)
+      |> Enum.filter(fn {status, _to_close} -> status == :incomplete end)
+      |> Enum.map(fn {:incomplete, to_close} -> to_p2_score(to_close) end)
       |> Enum.sort()
 
     # Get the middle value of the list https://stackoverflow.com/a/33729229/560215
@@ -32,58 +33,40 @@ defmodule Y2021.Day10 do
   288957
   """
   def to_p2_score(charlist) do
-    Enum.reduce(charlist, 0, fn x, acc -> acc * 5 + char_to_p2_value(x) end)
+    Enum.reduce(charlist, 0, fn x, acc -> acc * 5 + Map.get(@part2_points, x) end)
   end
-
-  defp char_to_p1_value(?)), do: 3
-  defp char_to_p1_value(?]), do: 57
-  defp char_to_p1_value(?}), do: 1197
-  defp char_to_p1_value(?>), do: 25137
-
-  defp char_to_p2_value(?)), do: 1
-  defp char_to_p2_value(?]), do: 2
-  defp char_to_p2_value(?}), do: 3
-  defp char_to_p2_value(?>), do: 4
 
   @doc """
-  iex> Day10.corruption_info("([])")
-  {:ok, nil, ''}
+  iex> Day10.check_syntax("([])")
+  {:ok, nil}
 
-  iex> Day10.corruption_info("[({(<(())[]>[[{[]{<()<>>")
-  {:ok, nil, '}}]])})]'}
+  iex> Day10.check_syntax("[({(<(())[]>[[{[]{<()<>>")
+  {:incomplete, '}}]])})]'}
 
-  iex> Day10.corruption_info("[(()[<>])]({[<{<<[]>>(")
-  {:ok, nil, ')}>]})'}
+  iex> Day10.check_syntax("[(()[<>])]({[<{<<[]>>(")
+  {:incomplete, ')}>]})'}
 
-  iex> Day10.corruption_info("{()()()>")
-  {:err, ?>, '}'}
+  iex> Day10.check_syntax("{()()()>")
+  {:corrupt, ?>}
 
-  iex> Day10.corruption_info("{([(<{}[<>[]}>{[]{[(<()>")
-  {:err, ?}, ']>)])}'}
+  iex> Day10.check_syntax("{([(<{}[<>[]}>{[]{[(<()>")
+  {:corrupt, ?}}
 
-  iex> Day10.corruption_info("[[<[([]))<([[{}[[()]]]")
-  {:err, ?), ']>]]'}
-
-  iex> Day10.corruption_info("[({(<(())[]>[[{[]{<()<>>")
-  {:ok, nil, '}}]])})]'}
+  iex> Day10.check_syntax("[[<[([]))<([[{}[[()]]]")
+  {:corrupt, ?)}
   """
-  def corruption_info(line, open \\ [])
+  def check_syntax(line), do: do_check_syntax(line, [])
 
-  def corruption_info(<<>>, open), do: {:ok, nil, to_closing_string(open)}
+  defp do_check_syntax(<<>>, []), do: {:ok, nil}
+  defp do_check_syntax(<<>>, open), do: {:incomplete, Enum.map(open, &to_closing_char/1)}
 
-  def corruption_info(<<char, rest::binary>>, open) do
+  defp do_check_syntax(<<char, rest::binary>>, open) do
     cond do
-      opening_character?(char) -> corruption_info(rest, [char | open])
-      matching_characters?(hd(open), char) -> corruption_info(rest, tl(open))
-      true -> {:err, char, to_closing_string(open)}
+      opening_character?(char) -> do_check_syntax(rest, [char | open])
+      matching_characters?(hd(open), char) -> do_check_syntax(rest, tl(open))
+      true -> {:corrupt, char}
     end
   end
-
-  defp to_closing_string(open, closed \\ [])
-  defp to_closing_string([], closed), do: Enum.reverse(closed)
-
-  defp to_closing_string([char | rest], closed),
-    do: to_closing_string(rest, [to_closing_char(char) | closed])
 
   defp opening_character?(char), do: Enum.member?(Map.keys(@char_mappings), char)
   defp matching_characters?(open, close), do: Map.get(@char_mappings, open) == close
