@@ -9,9 +9,10 @@ defmodule Y2016.Day11.Floor do
   end
 
   def winning?(%Floor{number: number, chips: chips, generators: generators}) do
-    case number == State.winning_floor() do
-      true -> Enum.sort(chips) == Enum.sort(generators)
-      false -> Enum.empty?(chips) && Enum.empty?(generators)
+    if number == State.winning_floor() do
+      Enum.sort(chips) == Enum.sort(generators)
+    else
+      Enum.empty?(chips) && Enum.empty?(generators)
     end
   end
 
