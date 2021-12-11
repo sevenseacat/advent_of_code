@@ -10,6 +10,9 @@ defmodule Y2016.Day13 do
     |> length
   end
 
+  # I didn't actually write any code for part 2 - the answer fell out while looking at the debugging
+  # output for part 1.
+
   @doc """
   This is the actual breadth-first search part. ie. the point of the puzzle.
   """
@@ -25,9 +28,9 @@ defmodule Y2016.Day13 do
 
   # Reached the end of a level. Start going through allll the positions on the next level.
   defp do_search([], next_level, destination, magic_number, visited) do
-    IO.puts(
-      "* Level #{next_level |> hd |> elem(0) |> length}: #{length(next_level)} positions to check. Visited nodes: #{map_size(visited)}"
-    )
+    # IO.puts(
+    #   "* Level #{next_level |> hd |> elem(0) |> length}: #{length(next_level)} positions to check. Visited nodes: #{map_size(visited)}"
+    # )
 
     do_search(next_level, [], destination, magic_number, visited)
   end
