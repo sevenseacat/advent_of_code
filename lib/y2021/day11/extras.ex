@@ -23,5 +23,3 @@ defimpl Inspect, for: Y2021.Day11.Grid do
     |> concat()
   end
 end
-
-# data = Day11.input("../../../test/y2021/input/day11") |> Day11.parse_input

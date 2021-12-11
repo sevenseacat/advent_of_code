@@ -10,8 +10,6 @@ defmodule Y2021.Day11 do
   def run_steps(grid, 0, count), do: {grid, count}
 
   def run_steps(grid, step, count) do
-    # IO.inspect("NEW STEP!!!!!")
-
     {grid, count} =
       grid
       |> increase_energy()
@@ -55,24 +53,16 @@ defmodule Y2021.Day11 do
 
   def run_flash(grid, [], flashing_coords), do: {grid, flashing_coords}
 
-  def run_flash(%Grid{map: map} = grid, to_flash, flashing_coords) do
-    # IO.inspect(grid)
-    # IO.inspect(to_flash, label: "running a flash loop")
-
+  def run_flash(%Grid{map: map}, to_flash, flashing_coords) do
     {map, to_flash, flashing_coords} =
       to_flash
       |> Enum.reduce({map, [], flashing_coords}, fn coord, {map, to_flash, flashing_coords} ->
         if MapSet.member?(flashing_coords, coord) do
           {map, to_flash, flashing_coords}
         else
-          # IO.inspect(coord, label: "checking")
-          # IO.inspect(Grid.new(map), label: "before\n")
-
           adjacent =
             adjacent_coordinates(coord, map)
             |> Enum.reject(fn {coord, _energy} -> MapSet.member?(flashing_coords, coord) end)
-
-          # |> IO.inspect(label: "adjacent")
 
           to_flash =
             to_flash ++
@@ -84,15 +74,11 @@ defmodule Y2021.Day11 do
               Map.update!(map, coord, &(&1 + 1))
             end)
 
-          # IO.inspect(Grid.new(map), label: "after\n")
-
           {map, to_flash, MapSet.put(flashing_coords, coord)}
         end
       end)
 
-    grid = Grid.new(map)
-    # IO.inspect(grid, label: "brother may I have some loopz\n")
-    run_flash(grid, to_flash |> Enum.uniq(), flashing_coords)
+    run_flash(Grid.new(map), to_flash |> Enum.uniq(), flashing_coords)
   end
 
   defp adjacent_coordinates({row, col}, map) do
