@@ -4,6 +4,7 @@ defmodule Y2021.Day11Test do
   doctest Day11
 
   test "verification, part 1", do: assert(Day11.part1_verify() == 1675)
+  test "verification, part 2", do: assert(Day11.part2_verify() == 515)
 
   describe "part1/1" do
     test "small input" do
@@ -23,6 +24,17 @@ defmodule Y2021.Day11Test do
 
       assert Day11.part1(input, 10) == 204
       assert Day11.part1(input, 100) == 1656
+    end
+  end
+
+  describe "part2/1" do
+    test "large input" do
+      input =
+        Day11.parse_input(
+          "5483143223\n2745854711\n5264556173\n6141336146\n6357385478\n4167524645\n2176841721\n6882881134\n4846848554\n5283751526"
+        )
+
+      assert Day11.part2(input) == 195
     end
   end
 

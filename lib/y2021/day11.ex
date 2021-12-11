@@ -5,6 +5,8 @@ defmodule Y2021.Day11 do
 
   def part1(grid, steps), do: run_steps(grid, steps, 0) |> elem(1)
 
+  def part2(grid), do: look_for_synchronization(grid, 1)
+
   def run_steps(grid, 0, count), do: {grid, count}
 
   def run_steps(grid, step, count) do
@@ -16,6 +18,19 @@ defmodule Y2021.Day11 do
       |> flash(count)
 
     run_steps(grid, step - 1, count)
+  end
+
+  def look_for_synchronization(grid, step) do
+    {grid, count} =
+      grid
+      |> increase_energy()
+      |> flash(0)
+
+    if count == Grid.size(grid) do
+      step
+    else
+      look_for_synchronization(grid, step + 1)
+    end
   end
 
   defp increase_energy(%Grid{map: map}) do
@@ -107,4 +122,5 @@ defmodule Y2021.Day11 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1(100)
+  def part2_verify, do: input() |> parse_input() |> part2()
 end

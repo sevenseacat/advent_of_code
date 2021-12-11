@@ -2,6 +2,8 @@ defmodule Y2021.Day11.Grid do
   defstruct map: %{}
 
   def new(map), do: %__MODULE__{map: map}
+
+  def size(%__MODULE__{map: map}), do: map_size(map)
 end
 
 defimpl Inspect, for: Y2021.Day11.Grid do
