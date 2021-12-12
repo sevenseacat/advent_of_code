@@ -2,12 +2,13 @@ defmodule Y2016.Day14.Cache do
   use GenServer
 
   # Public API
-  def start_link do
-    GenServer.start_link(__MODULE__, nil, name: :hash_cache)
+  def start do
+    {:ok, pid} = GenServer.start_link(__MODULE__, nil)
+    pid
   end
 
-  def hash(index, salt, func) do
-    GenServer.call(:hash_cache, {:hash, index, salt, func})
+  def hash(pid, index, salt, func) do
+    GenServer.call(pid, {:hash, index, salt, func})
   end
 
   # Callbacks

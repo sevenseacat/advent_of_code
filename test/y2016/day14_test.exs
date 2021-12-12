@@ -4,11 +4,6 @@ defmodule Y2016.Day14Test do
   alias Y2016.Day14.Cache
   doctest Day14
 
-  setup do
-    Cache.start_link()
-    :ok
-  end
-
   test "verification, part 1", do: assert(Day14.part1_verify() == 16106)
 
   @tag timeout: :infinity
