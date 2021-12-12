@@ -4,6 +4,7 @@ defmodule Y2021.Day12Test do
   doctest Day12
 
   test "verification, part 1", do: assert(Day12.part1_verify() == 5958)
+  test "verification, part 2", do: assert(Day12.part2_verify() == 150_426)
 
   describe "build_paths/1" do
     test "small input 1" do

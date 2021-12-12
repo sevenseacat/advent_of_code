@@ -23,4 +23,4 @@ For the puzzles I completed prior to Advent of Code 2021, I've copied them from 
 * 2018 - 50/50 :star: (not yet added to this repo - you can [see my original repository here](https://github.com/sevenseacat/advent_of_code_2018))
 * 2019 - 31/50 :star: (not yet added to this repo - you can [see my original repository here](https://github.com/sevenseacat/advent_of_code_2019))
 * 2020 - 26/50 :star: (not yet added to this repo - you can [see my original repository here](https://github.com/sevenseacat/advent_of_code_2020))
-* [2021 - 22/22 :star:](/lib/y2021/README.md)
+* [2021 - 24/24 :star:](/lib/y2021/README.md)
