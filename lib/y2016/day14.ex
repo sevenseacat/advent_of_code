@@ -4,25 +4,26 @@ defmodule Y2016.Day14 do
   alias Y2016.Day14.Cache
 
   @salt "zpqevtbw"
+  @max_keys 64
 
-  def part1 do
-    look_for_key(0, %{}, &hash/2, Cache.start())
+  def part1(salt \\ @salt, max_keys \\ @max_keys) do
+    look_for_key(0, %{}, salt, max_keys, &hash/2, Cache.start())
   end
 
-  def part2 do
-    look_for_key(0, %{}, &super_hash/2, Cache.start())
+  def part2(salt \\ @salt, max_keys \\ @max_keys) do
+    look_for_key(0, %{}, salt, max_keys, &super_hash/2, Cache.start())
   end
 
-  def look_for_key(index, keys, _hash_fn, _cache) when map_size(keys) == 64, do: index - 1
+  def look_for_key(index, keys, _salt, max_keys, _hash_fn, _cache)
+      when map_size(keys) == max_keys,
+      do: index - 1
 
-  def look_for_key(index, keys, hash_fn, cache) do
-    case key?(index, @salt, hash_fn, cache) do
-      true ->
-        IO.puts("Found key #{map_size(keys) + 1}: #{index}")
-        look_for_key(index + 1, Map.put_new(keys, index, true), hash_fn, cache)
-
-      false ->
-        look_for_key(index + 1, keys, hash_fn, cache)
+  def look_for_key(index, keys, salt, max_keys, hash_fn, cache) do
+    if key?(index, salt, hash_fn, cache) do
+      # IO.puts("Found key #{map_size(keys) + 1}: #{index}")
+      look_for_key(index + 1, Map.put_new(keys, index, true), salt, max_keys, hash_fn, cache)
+    else
+      look_for_key(index + 1, keys, salt, max_keys, hash_fn, cache)
     end
   end
 
@@ -86,7 +87,7 @@ defmodule Y2016.Day14 do
   true
   """
   def hash(index, salt), do: hash("#{salt}#{index}")
-  def hash(string), do: :crypto.hash(:md5, string) |> Base.encode16() |> String.downcase()
+  def hash(string), do: :erlang.md5(string) |> Base.encode16(case: :lower)
 
   @doc """
   iex> Day14.super_hash(0, "abc")
