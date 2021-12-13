@@ -11,6 +11,14 @@ defmodule Y2021.Day13 do
     |> length
   end
 
+  # When the `display()` call is uncommented, prints the string out to the console.
+  def part2({points, folds}) do
+    fold(points, folds)
+    # |> display()
+
+    :ok
+  end
+
   defp fold(points, []), do: points
 
   defp fold(points, [fold | folds]) do
@@ -52,5 +60,21 @@ defmodule Y2021.Day13 do
     end)
   end
 
+  def display(points) do
+    IO.puts("\n")
+    {{min_row, _}, {max_row, _}} = Enum.min_max_by(points, fn {row, _col} -> row end)
+    {{_, min_col}, {_, max_col}} = Enum.min_max_by(points, fn {_row, col} -> col end)
+    points = MapSet.new(points)
+
+    for col <- min_col..max_col do
+      for row <- min_row..max_row do
+        if {row, col} in points, do: IO.ANSI.format([:blue, "🁢"]), else: " "
+      end
+      |> Enum.intersperse("")
+      |> IO.puts()
+    end
+  end
+
   def part1_verify, do: input() |> parse_input() |> part1()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
