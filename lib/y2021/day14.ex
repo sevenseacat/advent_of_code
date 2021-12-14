@@ -1,28 +1,41 @@
 defmodule Y2021.Day14 do
   use Advent.Day, no: 14
 
-  def part1({input, rules}, count) do
+  def parts({input, rules}, count) do
     {{_, min}, {_, max}} =
       input
       |> String.graphemes()
-      |> pair_insertion(rules, count)
+      |> Enum.chunk_every(2, 1, :discard)
       |> Enum.frequencies()
+      |> pair_insertion(rules, count)
+      |> to_individuals()
       |> Enum.min_max_by(fn {_, count} -> count end)
 
     max - min
   end
 
-  def pair_insertion(input, _rules, 0), do: input
+  def pair_insertion(frequencies, _rules, 0), do: frequencies
 
-  def pair_insertion(input, rules, count) do
-    iterate_over(input, rules) |> pair_insertion(rules, count - 1)
+  def pair_insertion(frequencies, rules, count) do
+    Enum.reduce(frequencies, %{}, fn {[left, right], count}, acc ->
+      middle = Map.get(rules, "#{left}#{right}")
+
+      acc
+      |> Map.update([left, middle], count, &(&1 + count))
+      |> Map.update([middle, right], count, &(&1 + count))
+    end)
+    |> Enum.into(%{})
+    |> pair_insertion(rules, count - 1)
   end
 
-  defp iterate_over([a], _rules), do: [a]
+  defp to_individuals(frequencies) do
+    Enum.reduce(frequencies, %{}, fn
+      {[left, right, count]}, %{} ->
+        %{left => count, right => count}
 
-  defp iterate_over([a, b | rest], rules) do
-    replacement = Map.get(rules, "#{a}#{b}")
-    [a, replacement | iterate_over([b | rest], rules)]
+      {[_left, right], count}, acc ->
+        Map.update(acc, right, count, &(&1 + count))
+    end)
   end
 
   def parse_input(input) do
@@ -36,5 +49,6 @@ defmodule Y2021.Day14 do
     {source, rules}
   end
 
-  def part1_verify, do: input() |> parse_input() |> part1(10)
+  def part1_verify, do: input() |> parse_input() |> parts(10)
+  def part2_verify, do: input() |> parse_input() |> parts(40)
 end
