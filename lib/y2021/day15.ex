@@ -2,7 +2,7 @@ defmodule Y2021.Day15 do
   use Advent.Day, no: 15
 
   def part1(input) do
-    {to_row, to_col} = find_target(input)
+    {to_row, to_col} = find_max(input)
 
     input
     |> build_graph()
@@ -10,7 +10,30 @@ defmodule Y2021.Day15 do
     |> get_score(input)
   end
 
-  defp find_target(input) do
+  def part2(input) do
+    max = find_max(input)
+
+    input
+    |> grow_input(max, {5, 5})
+    |> part1()
+  end
+
+  def grow_input(input, {max_row, max_col}, {row_mult, col_mult}) do
+    for row_offset <- 0..(row_mult - 1), col_offset <- 0..(col_mult - 1) do
+      Enum.reduce(input, Map.new(), fn {{row, col}, val}, acc ->
+        Map.put(
+          acc,
+          {row + row_offset * (max_row + 1), col + col_offset * (max_col + 1)},
+          wrap(val + row_offset + col_offset)
+        )
+      end)
+    end
+    |> Enum.reduce(Map.new(), fn x, acc -> Map.merge(x, acc) end)
+  end
+
+  defp wrap(val), do: if(val > 9, do: val - 9, else: val)
+
+  defp find_max(input) do
     {{max_row, _}, _} = Enum.max_by(input, fn {{row, _}, _} -> row end)
     {{_, max_col}, _} = Enum.max_by(input, fn {{_, col}, _} -> col end)
 
@@ -55,4 +78,5 @@ defmodule Y2021.Day15 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
