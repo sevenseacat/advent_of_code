@@ -105,18 +105,16 @@ defmodule Y2021.Day16 do
   defp parse_packet(<<version::3, 4::3, rest::bits>>) do
     {literal, rest} = parse_literal(rest)
     number = literal_list_to_number(literal)
-    {%{version: version, type_id: 4, value: number}, rest} |> IO.inspect(label: "literal packet")
+    {%{version: version, type_id: 4, value: number}, rest}
   end
 
   defp parse_packet(<<version::3, type::3, rest::bits>>) do
-    {subpackets, rest} = parse_subpackets(rest) |> IO.inspect(label: "parsed subpackets")
+    {subpackets, rest} = parse_subpackets(rest)
 
     {%{version: version, type_id: type, subpackets: subpackets}, rest}
-    |> IO.inspect(label: "operator packet")
   end
 
-  defp parse_packet(val) do
-    IO.inspect(val, label: "unknown packet data")
+  defp parse_packet(_) do
     {[], ""}
   end
 
@@ -131,16 +129,15 @@ defmodule Y2021.Day16 do
   defp parse_packets(<<0::7>>), do: {[], ""}
 
   defp parse_packets(bits) do
-    IO.inspect("looking for packets!")
-    {packet, rest} = parse_packet(bits) |> IO.inspect(label: "packet")
-    {packets, rest} = parse_packets(rest) |> IO.inspect(label: "packets")
+    {packet, rest} = parse_packet(bits)
+    {packets, rest} = parse_packets(rest)
     {[packet | packets], rest}
   end
 
   defp parse_subpackets(<<0::1, rest::bits>>) do
     <<subpacket_length::15, rest::bits>> = rest
     <<subpackets::bits-size(subpacket_length), rest::bits>> = rest
-    {parse_packets(subpackets) |> elem(0), rest} |> IO.inspect(label: "subpackets by size")
+    {parse_packets(subpackets) |> elem(0), rest}
   end
 
   defp parse_subpackets(<<1::1, rest::bits>>) do
@@ -154,7 +151,6 @@ defmodule Y2021.Day16 do
       end)
 
     {Enum.reverse(packets), rest}
-    |> IO.inspect(label: "subpackets by count")
   end
 
   # Ignore trailing zeros
