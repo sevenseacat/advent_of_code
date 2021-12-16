@@ -2,7 +2,7 @@
 
 My Elixir solutions for [Advent of Code 2021](https://adventofcode.com/2021).
 
-**Stars complete: 30/30 :star:**
+**Stars complete: 32/32 :star:**
 
 ## Benchmarks
 
@@ -14,34 +14,36 @@ You can check out the code yourself and run the benchmarks with `mix bench 2021`
 
 ```
 Name                     ips        average  deviation         median         99th %
-day 01, part 1       7052.41       0.142 ms    ±15.20%       0.140 ms       0.165 ms
-day 01, part 2       6035.72       0.166 ms    ±34.72%       0.160 ms       0.183 ms
-day 02, part 1       2294.27        0.44 ms    ±38.55%        0.43 ms        0.49 ms
-day 02, part 2       2402.12        0.42 ms     ±5.89%        0.42 ms        0.46 ms
-day 03, part 1        890.56        1.12 ms     ±6.77%        1.13 ms        1.27 ms
-day 03, part 2        933.18        1.07 ms     ±3.26%        1.06 ms        1.17 ms
-day 04, part 1        116.34        8.60 ms     ±9.14%        8.51 ms        9.94 ms
-day 04, part 2         58.61       17.06 ms     ±0.63%       17.05 ms       17.26 ms
-day 05, part 1         24.59       40.67 ms     ±4.60%       41.10 ms       45.40 ms
-day 05, part 2          9.92      100.76 ms     ±4.09%       99.40 ms      115.43 ms
-day 06, part 1       7879.11       0.127 ms    ±14.73%       0.124 ms       0.160 ms
-day 06, part 2       4307.58        0.23 ms    ±13.47%        0.23 ms        0.26 ms
-day 07, part 1         20.34       49.17 ms     ±0.57%       49.04 ms       50.04 ms
-day 07, part 2         14.48       69.07 ms     ±0.38%       68.96 ms       69.53 ms
-day 08, part 1        249.16        4.01 ms     ±3.35%        4.00 ms        4.31 ms
-day 08, part 2        246.83        4.05 ms     ±3.22%        4.04 ms        4.35 ms
-day 09, part 1        129.95        7.70 ms     ±4.03%        7.52 ms        8.80 ms
-day 09, part 2         47.33       21.13 ms     ±2.23%       21.11 ms       21.90 ms
-day 10, part 1       2148.44        0.47 ms     ±7.10%        0.46 ms        0.55 ms
-day 10, part 2       2071.19        0.48 ms     ±4.44%        0.48 ms        0.56 ms
-day 11, part 1        135.07        7.40 ms     ±1.58%        7.38 ms        7.78 ms
-day 11, part 2         27.53       36.32 ms     ±0.49%       36.32 ms       36.94 ms
-day 12, part 1         54.47       18.36 ms     ±1.81%       18.20 ms       19.82 ms
-day 12, part 2          0.41     2464.63 ms     ±0.77%     2469.12 ms     2481.00 ms
-day 13, part 1       1980.58        0.50 ms     ±6.57%        0.50 ms        0.59 ms
-day 13, part 2        658.87        1.52 ms    ±33.58%        1.48 ms        1.73 ms
-day 14, part 1       2064.37        0.48 ms    ±10.52%        0.48 ms        0.57 ms
-day 14, part 2        527.43        1.90 ms     ±4.60%        1.89 ms        2.33 ms
-day 15, part 1          6.60      151.47 ms     ±4.12%      150.49 ms      166.28 ms
-day 15, part 2         0.134     7447.61 ms     ±0.00%     7447.61 ms     7447.61 ms
+day 01, part 1       6033.51       0.166 ms    ±93.02%       0.142 ms        0.61 ms
+day 01, part 2       5568.32       0.180 ms   ±111.12%       0.159 ms        0.45 ms
+day 02, part 1       2501.80        0.40 ms    ±19.05%        0.39 ms        0.65 ms
+day 02, part 2       2514.44        0.40 ms    ±59.30%        0.38 ms        0.67 ms
+day 03, part 1        919.38        1.09 ms     ±8.09%        1.07 ms        1.21 ms
+day 03, part 2        930.88        1.07 ms    ±20.30%        1.06 ms        1.19 ms
+day 04, part 1        117.26        8.53 ms     ±0.81%        8.52 ms        8.71 ms
+day 04, part 2         58.42       17.12 ms     ±1.51%       17.09 ms       17.53 ms
+day 05, part 1         24.70       40.49 ms     ±4.36%       40.97 ms       45.53 ms
+day 05, part 2          9.81      101.96 ms     ±5.57%       99.74 ms      119.56 ms
+day 06, part 1       7686.54       0.130 ms    ±98.15%       0.124 ms       0.194 ms
+day 06, part 2       4240.38        0.24 ms    ±26.71%        0.23 ms        0.39 ms
+day 07, part 1         19.98       50.05 ms     ±1.31%       49.98 ms       53.14 ms
+day 07, part 2         14.31       69.90 ms     ±1.93%       69.72 ms       79.54 ms
+day 08, part 1        242.57        4.12 ms    ±10.77%        4.03 ms        6.53 ms
+day 08, part 2        244.92        4.08 ms     ±9.16%        4.02 ms        5.85 ms
+day 09, part 1        129.26        7.74 ms     ±4.93%        7.54 ms        8.93 ms
+day 09, part 2         46.53       21.49 ms     ±4.42%       21.52 ms       26.37 ms
+day 10, part 1       2021.26        0.49 ms    ±49.50%        0.47 ms        1.02 ms
+day 10, part 2       1843.98        0.54 ms    ±57.25%        0.48 ms        2.34 ms
+day 11, part 1        132.23        7.56 ms     ±5.07%        7.46 ms        9.34 ms
+day 11, part 2         26.28       38.05 ms     ±3.37%       37.84 ms       45.64 ms
+day 12, part 1         53.37       18.74 ms     ±4.21%       18.53 ms       22.53 ms
+day 12, part 2          0.39     2568.90 ms     ±0.41%     2568.90 ms     2576.27 ms
+day 13, part 1       1662.62        0.60 ms    ±72.06%        0.51 ms        2.13 ms
+day 13, part 2        609.65        1.64 ms    ±32.73%        1.51 ms        4.40 ms
+day 14, part 1       1944.96        0.51 ms    ±40.69%        0.48 ms        1.08 ms
+day 14, part 2        505.09        1.98 ms    ±23.91%        1.91 ms        3.61 ms
+day 15, part 1          6.55      152.63 ms     ±5.13%      149.26 ms      166.67 ms
+day 15, part 2         0.129     7730.02 ms     ±0.00%     7730.02 ms     7730.02 ms
+day 16, part 1       6573.23       0.152 ms   ±132.68%       0.137 ms        0.41 ms
+day 16, part 2       7271.19       0.138 ms    ±27.76%       0.134 ms       0.196 ms
 ```
