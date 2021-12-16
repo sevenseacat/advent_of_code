@@ -3,5 +3,5 @@ defmodule Y2021.Day16Test do
   alias Y2021.Day16
   doctest Day16
 
-  test "verification, part 1", do: assert(Day16.part1_verify() == :ok)
+  test "verification, part 1", do: assert(Day16.part1_verify() == 891)
 end
