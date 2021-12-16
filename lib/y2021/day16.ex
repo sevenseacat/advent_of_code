@@ -24,11 +24,63 @@ defmodule Y2021.Day16 do
     |> get_version()
   end
 
+  @doc """
+  iex> Day16.part2("C200B40A82")
+  3
+
+  iex> Day16.part2("04005AC33890")
+  54
+
+  iex> Day16.part2("880086C3E88112")
+  7
+
+  iex> Day16.part2("CE00C43D881120")
+  9
+
+  iex> Day16.part2("D8005AC2A8F0")
+  1
+
+  iex> Day16.part2("F600BC2D8F")
+  0
+
+  iex> Day16.part2("9C005AC2F8F0")
+  0
+
+  iex> Day16.part2("9C0141080250320F1802104A08")
+  1
+  """
+  def part2(string) do
+    string
+    |> parse_input
+    |> hd()
+    |> get_value
+  end
+
   defp get_version(%{version: version, subpackets: subpackets}) do
     version + Enum.reduce(subpackets, 0, fn packet, acc -> acc + get_version(packet) end)
   end
 
   defp get_version(%{version: version}), do: version
+
+  defp get_value(%{type_id: 4, value: value}), do: value
+
+  defp get_value(%{type_id: type_id, subpackets: subpackets}) do
+    values = Enum.map(subpackets, &get_value/1)
+
+    case type_id do
+      0 -> Enum.sum(values)
+      1 -> Enum.reduce(values, &*/2)
+      2 -> Enum.min(values)
+      3 -> Enum.max(values)
+      5 -> greater_than?(values)
+      6 -> greater_than?(Enum.reverse(values))
+      7 -> equal?(values)
+    end
+  end
+
+  defp greater_than?([val1, val2]), do: if(val1 > val2, do: 1, else: 0)
+
+  defp equal?([val1, val2]), do: if(val1 == val2, do: 1, else: 0)
 
   @doc """
   iex> Day16.parse_input("D2FE28")
@@ -125,4 +177,5 @@ defmodule Y2021.Day16 do
     do: num * Integer.pow(16, power) + make_number(nums, power + 1)
 
   def part1_verify, do: input() |> part1()
+  def part2_verify, do: input() |> part2()
 end
