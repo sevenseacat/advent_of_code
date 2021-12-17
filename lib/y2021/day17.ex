@@ -7,15 +7,28 @@ defmodule Y2021.Day17 do
   iex> Day17.part1(%{x: {20, 30}, y: {-10, -5}})
   {{6,9}, 45}
   """
-  def part1(%{x: {_x_min, x_max} = x_range, y: {y_min, _y_max} = y_range} \\ @target) do
-    for(
-      x <- 0..x_max,
-      y <- y_min..x_max,
-      lands_in_area?({x, y}, {0, 0}, {x_range, y_range}),
-      do: {x, y}
-    )
+  def part1(%{y: {y_min, _}} = target \\ @target) do
+    target
+    |> possible_velocities()
     |> Enum.map(fn {x, y} -> {{x, y}, find_max_y({x, y}, {0, 0}, y_min)} end)
     |> Enum.max_by(fn {_coord, y} -> y end)
+  end
+
+  @doc """
+  iex> Day17.part2(%{x: {20, 30}, y: {-10, -5}})
+  112
+  """
+  def part2(target \\ @target) do
+    target
+    |> possible_velocities()
+    |> length
+  end
+
+  defp possible_velocities(%{x: {_x_min, x_max} = x_range, y: {y_min, _y_max} = y_range}) do
+    for x <- 0..x_max,
+        y <- y_min..x_max,
+        lands_in_area?({x, y}, {0, 0}, {x_range, y_range}),
+        do: {x, y}
   end
 
   defp find_max_y(velocities, position, max_y) do
@@ -62,4 +75,5 @@ defmodule Y2021.Day17 do
   defp in_range?(value, {min, max}), do: value >= min && value <= max
 
   def part1_verify, do: part1() |> elem(1)
+  def part2_verify, do: part2()
 end
