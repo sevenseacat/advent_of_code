@@ -7,6 +7,13 @@ defmodule Y2021.Day18 do
     |> magnitude()
   end
 
+  def part2(input) do
+    input
+    |> Advent.permutations(2)
+    |> Enum.map(fn pair -> pair |> reduce() |> magnitude() end)
+    |> Enum.max()
+  end
+
   def final_sum([one]), do: one
 
   def final_sum([one, two | rest]) do
@@ -85,4 +92,5 @@ defmodule Y2021.Day18 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
