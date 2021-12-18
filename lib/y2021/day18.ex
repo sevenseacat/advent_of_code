@@ -37,14 +37,14 @@ defmodule Y2021.Day18 do
   end
 
   defp maybe_explode([left, right], level) do
-    case {maybe_explode(left, level + 1), maybe_explode(right, level + 1)} do
-      {^left, ^right} ->
-        [left, right]
-
-      {{val, {move_left, move_right}}, _right} ->
+    with {:left, ^left} <- {:left, maybe_explode(left, level + 1)},
+         {:right, ^right} <- {:right, maybe_explode(right, level + 1)} do
+      [left, right]
+    else
+      {:left, {val, {move_left, move_right}}} ->
         {[val, add_to_left(right, move_right)], {move_left, nil}}
 
-      {^left, {val, {move_left, move_right}}} ->
+      {:right, {val, {move_left, move_right}}} ->
         {[add_to_right(left, move_left), val], {nil, move_right}}
     end
   end
@@ -65,10 +65,12 @@ defmodule Y2021.Day18 do
   end
 
   def maybe_split([left, right]) do
-    case {maybe_split(left), maybe_split(right)} do
-      {^left, ^right} -> [left, right]
-      {^left, new_right} -> [left, new_right]
-      {new_left, _right} -> [new_left, right]
+    with {:left, ^left} <- {:left, maybe_split(left)},
+         {:right, ^right} <- {:right, maybe_split(right)} do
+      [left, right]
+    else
+      {:left, new_left} -> [new_left, right]
+      {:right, new_right} -> [left, new_right]
     end
   end
 
