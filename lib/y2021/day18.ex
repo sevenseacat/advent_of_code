@@ -85,10 +85,7 @@ defmodule Y2021.Day18 do
   def parse_input(input) do
     input
     |> String.split("\n", trim: true)
-    |> Enum.map(fn line ->
-      {list, _binding} = Code.eval_string(line)
-      list
-    end)
+    |> Enum.map(&Jason.decode!/1)
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
