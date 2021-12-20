@@ -97,7 +97,7 @@ defmodule Y2017.Day22 do
   defp update_infection_count(count, :weakened, :evolved), do: count + 1
   defp update_infection_count(count, _, _), do: count
 
-  defp display_grid(data, pos) do
+  def display_grid(data, pos) do
     for i <- -4..4,
         j <- -4..4 do
       var =
