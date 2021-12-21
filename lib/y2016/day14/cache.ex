@@ -1,23 +1,18 @@
 defmodule Y2016.Day14.Cache do
-  use GenServer
+  use Agent
 
   # Public API
-  def start do
-    {:ok, pid} = GenServer.start_link(__MODULE__, nil)
+  def start(hash_fn, salt) do
+    {:ok, pid} = Agent.start_link(fn -> {hash_fn, salt, Map.new()} end)
     pid
   end
 
-  def hash(pid, index, salt, func) do
-    GenServer.call(pid, {:hash, index, salt, func})
-  end
-
-  # Callbacks
-  def init(_), do: {:ok, %{}}
-
-  def handle_call({:hash, index, salt, func}, _, cache) do
-    cache = Map.put_new_lazy(cache, key(index), fn -> func.(index, salt) end)
-
-    {:reply, Map.get(cache, key(index)), cache}
+  def hash(pid, index) do
+    Agent.get_and_update(pid, fn {hash_fn, salt, cache} ->
+      key = key(index)
+      cache = Map.put_new_lazy(cache, key, fn -> hash_fn.(index, salt) end)
+      {Map.get(cache, key), {hash_fn, salt, cache}}
+    end)
   end
 
   # Private functions

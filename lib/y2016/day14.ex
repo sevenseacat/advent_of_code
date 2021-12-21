@@ -7,55 +7,53 @@ defmodule Y2016.Day14 do
   @max_keys 64
 
   def part1(salt \\ @salt, max_keys \\ @max_keys) do
-    look_for_key(0, %{}, salt, max_keys, &hash/2, Cache.start())
+    look_for_key(0, 0, max_keys, Cache.start(&hash/2, salt))
   end
 
   def part2(salt \\ @salt, max_keys \\ @max_keys) do
-    look_for_key(0, %{}, salt, max_keys, &super_hash/2, Cache.start())
+    look_for_key(0, 0, max_keys, Cache.start(&super_hash/2, salt))
   end
 
-  def look_for_key(index, keys, _salt, max_keys, _hash_fn, _cache)
-      when map_size(keys) == max_keys,
-      do: index - 1
+  def look_for_key(index, max_keys, max_keys, _cache), do: index - 1
 
-  def look_for_key(index, keys, salt, max_keys, hash_fn, cache) do
-    if key?(index, salt, hash_fn, cache) do
+  def look_for_key(index, key_count, max_keys, cache) do
+    if key?(index, cache) do
       # IO.puts("Found key #{map_size(keys) + 1}: #{index}")
-      look_for_key(index + 1, Map.put_new(keys, index, true), salt, max_keys, hash_fn, cache)
+      look_for_key(index + 1, key_count + 1, max_keys, cache)
     else
-      look_for_key(index + 1, keys, salt, max_keys, hash_fn, cache)
+      look_for_key(index + 1, key_count, max_keys, cache)
     end
   end
 
   @doc """
-  iex> Day14.key?(18, "abc", &Day14.hash/2, Cache.start())
+  iex> Day14.key?(18, Cache.start(&Day14.hash/2, "abc"))
   false # has triple but is not key
 
-  iex> Day14.key?(38, "abc", &Day14.hash/2, Cache.start())
+  iex> Day14.key?(38, Cache.start(&Day14.hash/2, "abc"))
   false
 
-  iex> Day14.key?(39, "abc", &Day14.hash/2, Cache.start())
+  iex> Day14.key?(39, Cache.start(&Day14.hash/2, "abc"))
   true
 
-  iex> Day14.key?(40, "abc", &Day14.hash/2, Cache.start())
+  iex> Day14.key?(40, Cache.start(&Day14.hash/2, "abc"))
   false
 
-  iex> Day14.key?(5, "abc", &Day14.super_hash/2, Cache.start())
+  iex> Day14.key?(5, Cache.start(&Day14.super_hash/2, "abc"))
   false # triple but not key
 
-  iex> Day14.key?(10, "abc", &Day14.super_hash/2, Cache.start())
+  iex> Day14.key?(10, Cache.start(&Day14.super_hash/2, "abc"))
   true
 
-  iex> Day14.key?(11, "abc", &Day14.super_hash/2, Cache.start())
+  iex> Day14.key?(11, Cache.start(&Day14.super_hash/2, "abc"))
   false
 
-  iex> Day14.key?(22551, "abc", &Day14.super_hash/2, Cache.start())
+  iex> Day14.key?(22551, Cache.start(&Day14.super_hash/2, "abc"))
   true
   """
-  def key?(index, salt, hash_fn, cache) do
-    {is_triple, letter} = Cache.hash(cache, index, salt, hash_fn) |> is_triple?
+  def key?(index, cache) do
+    {is_triple, letter} = Cache.hash(cache, index) |> is_triple?
 
-    is_triple && check_for_five_char_sequence(index, salt, letter, hash_fn, cache)
+    is_triple && check_for_five_char_sequence(index, letter, cache)
   end
 
   def is_triple?(string) do
@@ -65,21 +63,12 @@ defmodule Y2016.Day14 do
     end
   end
 
-  def check_for_five_char_sequence(index, salt, letter, hash_fn, cache) do
+  def check_for_five_char_sequence(index, letter, cache) do
+    sequence = String.duplicate(letter, 5)
+
     Enum.any?((index + 1)..(index + 1000), fn new_index ->
-      Cache.hash(cache, new_index, salt, hash_fn) |> has_five_char_sequence?(letter)
+      Cache.hash(cache, new_index) |> String.contains?(sequence)
     end)
-  end
-
-  @doc """
-  iex> Day14.has_five_char_sequence?("abc123", "a")
-  false
-
-  iex> Day14.has_five_char_sequence?("abcaaaaa123", "a")
-  true
-  """
-  def has_five_char_sequence?(string, letter) do
-    String.contains?(string, String.duplicate(letter, 5))
   end
 
   @doc """
@@ -93,9 +82,9 @@ defmodule Y2016.Day14 do
   iex> Day14.super_hash(0, "abc")
   "a107ff634856bb300138cac6568c0f24"
   """
-  def super_hash(index, salt), do: "#{salt}#{index}" |> do_super_hash(0)
-  def do_super_hash(string, 2017), do: string
-  def do_super_hash(string, index), do: string |> hash |> do_super_hash(index + 1)
+  def super_hash(index, salt) do
+    Enum.reduce(1..2017, "#{salt}#{index}", fn _x, acc -> hash(acc) end)
+  end
 
   def part1_verify, do: part1()
   def part2_verify, do: part2()
