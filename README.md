@@ -18,7 +18,7 @@ For the puzzles I completed prior to Advent of Code 2021, I've copied them from 
 ## My current stats
 
 * [2015 - 48/50 :star:](/lib/y2015/) 
-* [2016 - 33/50 :star:](/lib/y2016/)
+* [2016 - 35/50 :star:](/lib/y2016/)
 * [2017 - 50/50 :star:](/lib/y2017/)
 * 2018 - 50/50 :star: (not yet added to this repo - you can [see my original repository here](https://github.com/sevenseacat/advent_of_code_2018))
 * 2019 - 31/50 :star: (not yet added to this repo - you can [see my original repository here](https://github.com/sevenseacat/advent_of_code_2019))
