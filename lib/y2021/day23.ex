@@ -80,16 +80,14 @@ defmodule Y2021.Day23 do
         {_x, 0} ->
           can_go_home?(position, positions)
 
+        # If this is at home, it is movable if its blocking something
         # If not already at home or blocking an other-type amphipod, may go out
         # into the hallway as long as there's somewhere for it to go left or right
-        {x, 1} ->
-          !at_home?(position) ||
-            (blocking_other?(positions, position) &&
-               (Map.get(positions, {x - 1, 0}) == nil || Map.get(positions, {x + 1, 0}) == nil))
-
-        # Can only move if its not at home and nothing in front of it.
         {x, y} ->
-          !at_home?(position) && nothing_blocking?(positions, {x, y})
+          home? = if at_home?(position), do: blocking_other?(positions, position), else: true
+
+          home? && nothing_blocking?(positions, {x, y}) &&
+            (Map.get(positions, {x - 1, 0}) == nil || Map.get(positions, {x + 1, 0}) == nil)
       end
     end)
   end
@@ -138,12 +136,16 @@ defmodule Y2021.Day23 do
     |> Map.put_new(to, type)
   end
 
-  defp blocking_other?(positions, {{x, 1}, type}) do
-    Map.get(positions, {x, 2}) != type
+  defp blocking_other?(positions, {{x, y}, type}) do
+    Enum.any?((y + 1)..4, fn num ->
+      Map.get(positions, {x, num}, type) != type
+    end)
   end
 
+  defp nothing_blocking?(_positions, {_x, 1}), do: true
+
   defp nothing_blocking?(positions, {x, y}) do
-    Enum.all?((y - 1)..1, fn new_y -> Map.get(positions, {x, new_y}) == nil end)
+    Enum.all?(1..(y - 1), fn new_y -> Map.get(positions, {x, new_y}) == nil end)
   end
 
   defp can_go_home?({coord, type}, positions) do
@@ -151,7 +153,11 @@ defmodule Y2021.Day23 do
       path_home(coord, type, positions)
       |> Enum.all?(fn new_coord -> Map.get(positions, new_coord) == nil end)
 
-    no_other_types_home = Enum.member?([type, nil], Map.get(positions, {home_column(type), 2}))
+    no_other_types_home =
+      Enum.all?(2..4, fn num ->
+        Enum.member?([type, nil], Map.get(positions, {home_column(type), num}))
+      end)
+
     path_clear && no_other_types_home
   end
 
@@ -182,10 +188,15 @@ defmodule Y2021.Day23 do
     Enum.reduce(x..home_column, path, fn new_x, acc -> [{new_x, 0} | acc] end)
   end
 
+  # The deepest home value that doesn't have something in it - works for
+  # both parts 1 and 2.
   defp go_to_home(path, positions, type) do
     x = home_column(type)
-    row = if Map.get(positions, {x, 2}) == nil, do: 2, else: 1
-    Enum.reduce(1..row, path, fn new_y, acc -> [{x, new_y} | acc] end)
+    {{_x, y}, _type} = Enum.max_by(positions, fn {{_x, y}, _type} -> y end)
+
+    1..y
+    |> Enum.take_while(fn y -> !Map.has_key?(positions, {x, y}) end)
+    |> Enum.reduce(path, fn new_y, acc -> [{x, new_y} | acc] end)
   end
 
   defp home_column(:amber), do: 2
