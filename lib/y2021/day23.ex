@@ -11,43 +11,61 @@ defmodule Y2021.Day23 do
   possibilities have been exhausted.
   """
   def get_optimal_result(state) do
-    do_search(legal_moves(state), [], nil, Map.new())
+    do_search(
+      add_to_queue(PriorityQueue.new(), legal_moves(state)),
+      PriorityQueue.new(),
+      nil,
+      MapSet.new()
+    )
   end
 
-  defp do_search([], [], nil, _seen), do: raise("no winning states")
-  defp do_search([], [], result, _seen), do: result
-
-  defp do_search([], next_level, result, seen) do
-    IO.inspect(length(next_level), label: "next level!")
-    do_search(next_level, [], result, seen)
+  defp add_to_queue(queue, states) do
+    Enum.reduce(states, queue, fn {_coord, energy} = state, queue ->
+      PriorityQueue.push(queue, state, energy)
+    end)
   end
 
-  defp do_search(
-         [{positions, energy_used} = state | states],
+  defp do_search(queue, next_level_queue, min_energy, seen) do
+    do_search_element(PriorityQueue.pop(queue), next_level_queue, min_energy, seen)
+  end
+
+  defp do_search_element({:empty, _queue}, next_level, min_energy, seen) do
+    with {:value, _item} <- PriorityQueue.peek(next_level) do
+      do_search(next_level, PriorityQueue.new(), min_energy, seen)
+    else
+      :empty -> final_result(min_energy)
+    end
+  end
+
+  defp do_search_element(
+         {{:value, {positions, energy_used} = state}, queue},
          next_level,
          min_energy,
          seen
        ) do
     if min_energy != nil && energy_used > min_energy do
       # We've already used more energy than the best recorded result, scrap this state
-      do_search(states, next_level, min_energy, seen)
+      do_search(queue, next_level, min_energy, seen)
     else
-      if Map.get(seen, positions) != nil && Map.get(seen, positions) < energy_used do
+      if positions in seen do
         # Seen a better version of this state, scrap this one
-        do_search(states, next_level, min_energy, seen)
+        do_search(queue, next_level, min_energy, seen)
       else
         # Calculate legal moves, record seen, etc.
-        seen = Map.put(seen, positions, energy_used)
+        seen = MapSet.put(seen, positions)
 
         do_search(
-          states,
-          legal_moves(state) ++ next_level,
+          queue,
+          add_to_queue(next_level, legal_moves(state)),
           maybe_new_best_result(state, min_energy),
           seen
         )
       end
     end
   end
+
+  defp final_result(nil), do: raise("No winning states!")
+  defp final_result(num) when is_number(num), do: num
 
   defp maybe_new_best_result({positions, energy_used}, min_energy) do
     if all_in_correct_places?(positions) && (min_energy == nil || energy_used < min_energy) do
