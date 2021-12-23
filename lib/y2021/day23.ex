@@ -1,11 +1,7 @@
 defmodule Y2021.Day23 do
   use Advent.Day, no: 23
 
-  @doc """
-  iex> Day23.part1_input(true) |> Day23.part1()
-  12521
-  """
-  def part1(positions) do
+  def parts(positions) do
     {positions, 0}
     |> get_optimal_result()
   end
@@ -77,15 +73,16 @@ defmodule Y2021.Day23 do
         {_x, 0} ->
           can_go_home?(position, positions)
 
-        # If not already at home or blocking an other-type amphipod, may go
-        # out into the hallway not in front of the room.
+        # If not already at home or blocking an other-type amphipod, may go out
+        # into the hallway as long as there's somewhere for it to go left or right
         {x, 1} ->
-          (!at_home?(position) || blocking_other?(position, positions)) &&
-            Map.get(positions, {x, 0}) == nil
+          !at_home?(position) ||
+            (blocking_other?(positions, position) &&
+               (Map.get(positions, {x - 1, 0}) == nil || Map.get(positions, {x + 1, 0}) == nil))
 
         # Can only move if its not at home and nothing in front of it.
-        {x, 2} ->
-          !at_home?(position) && Map.get(positions, {x, 1}) == nil
+        {x, y} ->
+          !at_home?(position) && nothing_blocking?(positions, {x, y})
       end
     end)
   end
@@ -97,10 +94,7 @@ defmodule Y2021.Day23 do
 
   # Can go out into the hallway, but not to block a room and not past any other animal
   # May also be able to go home
-  defp possible_moves(
-         {positions, energy} = state,
-         {{x, y}, type} = position
-       ) do
+  defp possible_moves({positions, energy} = state, {{x, y}, type} = position) do
     home_moves =
       if can_go_home?(position, positions) do
         home_moves(state, position)
@@ -137,8 +131,12 @@ defmodule Y2021.Day23 do
     |> Map.put_new(to, type)
   end
 
-  defp blocking_other?({{x, 1}, type}, positions) do
+  defp blocking_other?(positions, {{x, 1}, type}) do
     Map.get(positions, {x, 2}) != type
+  end
+
+  defp nothing_blocking?(positions, {x, y}) do
+    Enum.all?((y - 1)..1, fn new_y -> Map.get(positions, {x, new_y}) == nil end)
   end
 
   defp can_go_home?({coord, type}, positions) do
@@ -160,7 +158,10 @@ defmodule Y2021.Day23 do
   end
 
   defp go_to_hallway(path, {_x, y}) when y == 0 or y == 1, do: path
-  defp go_to_hallway(path, {x, 2}), do: [{x, 1} | path]
+
+  defp go_to_hallway(path, {x, y}) do
+    Enum.reduce((y - 1)..1, path, fn new_y, acc -> [{x, new_y} | acc] end)
+  end
 
   defp go_to_home_column(path, {x, 0}, home_column) do
     if home_column > x do
@@ -193,32 +194,10 @@ defmodule Y2021.Day23 do
   defp at_home?({{col, _y}, type}), do: home_column(type) == col
 
   defp all_in_correct_places?(positions) do
-    positions == %{
-      {2, 1} => :amber,
-      {2, 2} => :amber,
-      {4, 1} => :bronze,
-      {4, 2} => :bronze,
-      {6, 1} => :copper,
-      {6, 2} => :copper,
-      {8, 1} => :desert,
-      {8, 2} => :desert
-    }
+    Enum.all?(positions, fn {{x, _y}, type} -> x == home_column(type) end)
   end
 
-  def part1_input(true) do
-    %{
-      {2, 1} => :bronze,
-      {2, 2} => :amber,
-      {4, 1} => :copper,
-      {4, 2} => :desert,
-      {6, 1} => :bronze,
-      {6, 2} => :copper,
-      {8, 1} => :desert,
-      {8, 2} => :amber
-    }
-  end
-
-  def part1_input(false) do
+  def part1_input(:real) do
     %{
       {2, 1} => :desert,
       {2, 2} => :copper,
@@ -231,5 +210,61 @@ defmodule Y2021.Day23 do
     }
   end
 
-  def part1_verify, do: part1_input(false) |> part1()
+  def part1_input(:sample) do
+    %{
+      {2, 1} => :bronze,
+      {2, 2} => :amber,
+      {4, 1} => :copper,
+      {4, 2} => :desert,
+      {6, 1} => :bronze,
+      {6, 2} => :copper,
+      {8, 1} => :desert,
+      {8, 2} => :amber
+    }
+  end
+
+  def part2_input(:real) do
+    %{
+      {2, 1} => :desert,
+      {2, 2} => :desert,
+      {2, 3} => :desert,
+      {2, 4} => :copper,
+      {4, 1} => :bronze,
+      {4, 2} => :copper,
+      {4, 3} => :bronze,
+      {4, 4} => :amber,
+      {6, 1} => :copper,
+      {6, 2} => :bronze,
+      {6, 3} => :amber,
+      {6, 4} => :desert,
+      {8, 1} => :amber,
+      {8, 2} => :amber,
+      {8, 3} => :copper,
+      {8, 4} => :bronze
+    }
+  end
+
+  def part2_input(:sample) do
+    %{
+      {2, 1} => :bronze,
+      {2, 2} => :desert,
+      {2, 3} => :desert,
+      {2, 4} => :amber,
+      {4, 1} => :copper,
+      {4, 2} => :copper,
+      {4, 3} => :bronze,
+      {4, 4} => :desert,
+      {6, 1} => :bronze,
+      {6, 2} => :bronze,
+      {6, 3} => :amber,
+      {6, 4} => :copper,
+      {8, 1} => :desert,
+      {8, 2} => :amber,
+      {8, 3} => :copper,
+      {8, 4} => :amber
+    }
+  end
+
+  def part1_verify, do: part1_input(:real) |> parts()
+  def part2_verify, do: part2_input(:real) |> parts()
 end
