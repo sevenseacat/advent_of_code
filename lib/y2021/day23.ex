@@ -13,7 +13,6 @@ defmodule Y2021.Day23 do
   def get_optimal_result(state) do
     do_search(
       add_to_queue(PriorityQueue.new(), legal_moves(state)),
-      PriorityQueue.new(),
       nil,
       MapSet.new()
     )
@@ -25,47 +24,37 @@ defmodule Y2021.Day23 do
     end)
   end
 
-  defp do_search(queue, next_level_queue, min_energy, seen) do
-    do_search_element(PriorityQueue.pop(queue), next_level_queue, min_energy, seen)
+  defp do_search(queue, min_energy, seen) do
+    do_search_element(PriorityQueue.pop(queue), min_energy, seen)
   end
 
-  defp do_search_element({:empty, _queue}, next_level, min_energy, seen) do
-    with {:value, _item} <- PriorityQueue.peek(next_level) do
-      do_search(next_level, PriorityQueue.new(), min_energy, seen)
-    else
-      :empty -> final_result(min_energy)
-    end
-  end
+  defp do_search_element({:empty, _queue}, nil, _seen), do: raise("No winning states!")
+  defp do_search_element({:empty, _queue}, num, _seen), do: num
 
   defp do_search_element(
          {{:value, {positions, energy_used} = state}, queue},
-         next_level,
          min_energy,
          seen
        ) do
     if min_energy != nil && energy_used > min_energy do
       # We've already used more energy than the best recorded result, scrap this state
-      do_search(queue, next_level, min_energy, seen)
+      do_search(queue, min_energy, seen)
     else
       if positions in seen do
         # Seen a better version of this state, scrap this one
-        do_search(queue, next_level, min_energy, seen)
+        do_search(queue, min_energy, seen)
       else
         # Calculate legal moves, record seen, etc.
         seen = MapSet.put(seen, positions)
 
         do_search(
-          queue,
-          add_to_queue(next_level, legal_moves(state)),
+          add_to_queue(queue, legal_moves(state)),
           maybe_new_best_result(state, min_energy),
           seen
         )
       end
     end
   end
-
-  defp final_result(nil), do: raise("No winning states!")
-  defp final_result(num) when is_number(num), do: num
 
   defp maybe_new_best_result({positions, energy_used}, min_energy) do
     if all_in_correct_places?(positions) && (min_energy == nil || energy_used < min_energy) do
