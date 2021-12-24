@@ -2,18 +2,16 @@ defmodule Y2021.Day23 do
   use Advent.Day, no: 23
 
   def parts(positions) do
-    {positions, 0}
-    |> get_optimal_result()
+    get_optimal_result({positions, 0})
   end
 
   @doc """
-  Runs a breadth-first search, keeping track of the best-seen result so far, until all
-  possibilities have been exhausted.
+  Runs a priority search, returning once a result has been found. As we process nodes in order
+  of energy use ascending, the first result will automatically be the lowest energy use solution.
   """
   def get_optimal_result(state) do
     do_search(
       add_to_queue(PriorityQueue.new(), legal_moves(state)),
-      nil,
       MapSet.new()
     )
   end
@@ -24,43 +22,30 @@ defmodule Y2021.Day23 do
     end)
   end
 
-  defp do_search(queue, min_energy, seen) do
-    do_search_element(PriorityQueue.pop(queue), min_energy, seen)
+  defp do_search(queue, seen) do
+    do_search_element(PriorityQueue.pop(queue), seen)
   end
 
-  defp do_search_element({:empty, _queue}, nil, _seen), do: raise("No winning states!")
-  defp do_search_element({:empty, _queue}, num, _seen), do: num
+  defp do_search_element({:empty, _queue}, _seen), do: raise("No winning states!")
 
   defp do_search_element(
          {{:value, {positions, energy_used} = state}, queue},
-         min_energy,
          seen
        ) do
-    if min_energy != nil && energy_used > min_energy do
-      # We've already used more energy than the best recorded result, scrap this state
-      do_search(queue, min_energy, seen)
+    if all_in_correct_places?(positions) do
+      # Winner winner chicken dinner.
+      energy_used
     else
       if positions in seen do
         # Seen a better version of this state, scrap this one
-        do_search(queue, min_energy, seen)
+        do_search(queue, seen)
       else
         # Calculate legal moves, record seen, etc.
-        seen = MapSet.put(seen, positions)
-
         do_search(
           add_to_queue(queue, legal_moves(state)),
-          maybe_new_best_result(state, min_energy),
-          seen
+          MapSet.put(seen, positions)
         )
       end
-    end
-  end
-
-  defp maybe_new_best_result({positions, energy_used}, min_energy) do
-    if all_in_correct_places?(positions) && (min_energy == nil || energy_used < min_energy) do
-      energy_used
-    else
-      min_energy
     end
   end
 
