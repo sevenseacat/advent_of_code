@@ -2,7 +2,7 @@
 
 My Elixir solutions for [Advent of Code 2021](https://adventofcode.com/2021).
 
-**Stars complete: 43/46 :star:**
+**Stars complete: 44/50 :star:**
 
 ## Benchmarks
 
@@ -57,4 +57,5 @@ day 21, part 2     0.00006 K        16.09 s     ±0.00%        16.09 s        16
 day 22, part 1          1.40      712.23 ms    ±10.98%      730.44 ms      811.03 ms
 day 23, part 1          0.50         2.00 s     ±3.90%         1.99 s         2.09 s
 day 23, part 2          0.29         3.47 s     ±2.18%         3.47 s         3.52 s
+day 25, part 1        0.0297        33.62 s     ±0.00%        33.62 s        33.62 s
 ```
