@@ -1,64 +1,107 @@
 defmodule Y2021.Day24 do
   use Advent.Day, no: 24
 
-  @doc """
-  iex> Day24.part1(:parsed_input)
-  :ok
-  """
   def part1(cmds) do
-    check_cmds(cmds, 99_999_999_999_999, %{"w" => 0, "x" => 0, "y" => 0, "z" => 0})
+    cmds = group_per_input_cmd(cmds)
+    do_parts(cmds, [{[], {0, 0}}], 9..1)
   end
 
-  defp check_cmds(cmds, num_to_check, registers) do
-    digits = Integer.digits(num_to_check)
-
-    # No zeros allowed in the model number.
-    if Enum.any?(digits, fn digit -> digit == 0 end) do
-      check_cmds(cmds, num_to_check - 1, registers)
-    else
-      # Run the commands, get the result.
-      registers = run_cmds(cmds, digits, registers)
-
-      if Map.get(registers, "z") == 0 do
-        num_to_check
-      else
-        check_cmds(cmds, num_to_check - 1, registers)
-      end
-    end
+  def part2(cmds) do
+    cmds = group_per_input_cmd(cmds)
+    do_parts(cmds, [{[], {0, 0}}], 1..9)
   end
 
-  defp run_cmds([], _digits, registers), do: registers
+  defp do_parts([], outputs, _range) do
+    outputs
+    |> Enum.find(fn {_digits, {_, z}} -> z == 0 end)
+    |> elem(0)
+    |> Enum.reverse()
+    |> Enum.join()
+  end
+
+  defp do_parts([cmd_set | cmd_sets], states, digit_range) do
+    new_states =
+      for(
+        {digits, {y, z}} <- states,
+        digit <- digit_range,
+        do: {[digit | digits], run_cmds(cmd_set, [digit], {0, 0, y, z})}
+      )
+      |> Enum.uniq_by(fn {_digits, registers} -> registers end)
+
+    IO.puts("Digit #{hd(new_states) |> elem(0) |> length}: #{length(new_states)} states")
+    do_parts(cmd_sets, new_states, digit_range)
+  end
+
+  # The w register will be overwritten at the start of each new block of cmds
+  defp run_cmds([], _digits, {_, _, y, z}), do: {y, z}
 
   defp run_cmds([{:inp, reg} | cmds], [digit | digits], registers) do
-    run_cmds(cmds, digits, Map.put(registers, reg, digit))
+    run_cmds(cmds, digits, set_val(registers, reg, digit))
   end
 
   defp run_cmds([{:add, reg, val} | cmds], digits, registers) do
-    run_cmds(cmds, digits, Map.update!(registers, reg, &(&1 + val(registers, val))))
+    run_cmds(
+      cmds,
+      digits,
+      update_val(registers, reg, &(&1 + val(registers, val)))
+    )
   end
 
   defp run_cmds([{:mul, reg, val} | cmds], digits, registers) do
-    run_cmds(cmds, digits, Map.update!(registers, reg, &(&1 * val(registers, val))))
+    run_cmds(cmds, digits, update_val(registers, reg, &(&1 * val(registers, val))))
   end
 
   defp run_cmds([{:div, reg, val} | cmds], digits, registers) do
-    run_cmds(cmds, digits, Map.update!(registers, reg, &div(&1, val(registers, val))))
+    run_cmds(cmds, digits, update_val(registers, reg, &div(&1, val(registers, val))))
   end
 
   defp run_cmds([{:mod, reg, val} | cmds], digits, registers) do
-    run_cmds(cmds, digits, Map.update!(registers, reg, &rem(&1, val(registers, val))))
+    run_cmds(cmds, digits, update_val(registers, reg, &rem(&1, val(registers, val))))
   end
 
   defp run_cmds([{:eql, reg, val} | cmds], digits, registers) do
     run_cmds(
       cmds,
       digits,
-      Map.update!(registers, reg, &if(&1 == val(registers, val), do: 1, else: 0))
+      update_val(registers, reg, &if(&1 == val(registers, val), do: 1, else: 0))
     )
   end
 
+  defp set_val({_w, x, y, z}, "w", val), do: {val, x, y, z}
+  defp set_val({w, _x, y, z}, "x", val), do: {w, val, y, z}
+  defp set_val({w, x, _y, z}, "y", val), do: {w, x, val, z}
+  defp set_val({w, x, y, _z}, "z", val), do: {w, x, y, val}
+
   defp val(_registers, val) when is_integer(val), do: val
-  defp val(registers, val), do: Map.fetch!(registers, val)
+  defp val({w, _, _, _}, "w"), do: w
+  defp val({_, x, _, _}, "x"), do: x
+  defp val({_, _, y, _}, "y"), do: y
+  defp val({_, _, _, z}, "z"), do: z
+
+  defp update_val(registers, reg, update_fn) do
+    set_val(registers, reg, update_fn.(val(registers, reg)))
+  end
+
+  # Split the commands up into groups headed by a new input. Each group will be run
+  # in a branching BFS manner for all possible digits, to avoid duplication of work.
+  defp group_per_input_cmd(cmds) do
+    Enum.chunk_while(
+      cmds,
+      [],
+      fn cmd, acc ->
+        if elem(cmd, 0) == :inp do
+          {:cont, Enum.reverse(acc), [cmd]}
+        else
+          {:cont, [cmd | acc]}
+        end
+      end,
+      fn
+        [] -> {:cont, []}
+        acc -> {:cont, Enum.reverse(acc), nil}
+      end
+    )
+    |> tl()
+  end
 
   @doc """
   iex> Day24.parse_input("inp x\\nmul x -1\\n")
@@ -81,4 +124,5 @@ defmodule Y2021.Day24 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
