@@ -11,10 +11,20 @@ defmodule Y2021.Day24 do
     do_parts(cmds, [{[], {0, 0}}], 1..9)
   end
 
-  defp do_parts([], outputs, _range) do
-    outputs
-    |> Enum.find(fn {_digits, {_, z}} -> z == 0 end)
-    |> elem(0)
+  # If we're up to the last digit, just find the first state that is valid -
+  # no need to run all cmds for all states then find the first that wins
+  defp do_parts([cmd_set], states, digit_range) do
+    states
+    |> Enum.find_value(fn {digits, {y, z}} ->
+      # Digits are the first 13 digits of the number in reverse order
+      case Enum.find(digit_range, fn digit ->
+             {_, new_z} = run_cmds(cmd_set, {digit, rem(z, 26), y, z})
+             new_z == 0
+           end) do
+        nil -> nil
+        num -> [num | digits]
+      end
+    end)
     |> Enum.reverse()
     |> Enum.join()
   end
@@ -24,7 +34,7 @@ defmodule Y2021.Day24 do
       for(
         {digits, {y, z}} <- states,
         digit <- digit_range,
-        do: {[digit | digits], run_cmds(cmd_set, [digit], {0, 0, y, z})}
+        do: {[digit | digits], run_cmds(cmd_set, {digit, rem(z, 26), y, z})}
       )
       |> Enum.uniq_by(fn {_digits, registers} -> registers end)
 
@@ -33,36 +43,53 @@ defmodule Y2021.Day24 do
   end
 
   # The w register will be overwritten at the start of each new block of cmds
-  defp run_cmds([], _digits, {_, _, y, z}), do: {y, z}
+  defp run_cmds([], {_, _, y, z}), do: {y, z}
 
-  defp run_cmds([{:inp, reg} | cmds], [digit | digits], registers) do
-    run_cmds(cmds, digits, set_val(registers, reg, digit))
+  defp run_cmds([{:mul, reg, 0}, {:add, reg, other} | cmds], registers) do
+    run_cmds(cmds, set_val(registers, reg, val(registers, other)))
   end
 
-  defp run_cmds([{:add, reg, val} | cmds], digits, registers) do
+  defp run_cmds([{:add, reg, other}, {:add, reg, val} | cmds], registers) when is_integer(val) do
     run_cmds(
       cmds,
-      digits,
+      update_val(registers, reg, &(&1 + val + val(registers, other)))
+    )
+  end
+
+  defp run_cmds([{:add, reg, val} | cmds], registers) do
+    run_cmds(
+      cmds,
       update_val(registers, reg, &(&1 + val(registers, val)))
     )
   end
 
-  defp run_cmds([{:mul, reg, val} | cmds], digits, registers) do
-    run_cmds(cmds, digits, update_val(registers, reg, &(&1 * val(registers, val))))
+  defp run_cmds([{:mul, _, 1} | cmds], registers) do
+    run_cmds(cmds, registers)
   end
 
-  defp run_cmds([{:div, reg, val} | cmds], digits, registers) do
-    run_cmds(cmds, digits, update_val(registers, reg, &div(&1, val(registers, val))))
+  defp run_cmds([{:mul, reg, 0} | cmds], registers) do
+    run_cmds(cmds, set_val(registers, reg, 0))
   end
 
-  defp run_cmds([{:mod, reg, val} | cmds], digits, registers) do
-    run_cmds(cmds, digits, update_val(registers, reg, &rem(&1, val(registers, val))))
+  defp run_cmds([{:mul, reg, val} | cmds], registers) do
+    run_cmds(cmds, update_val(registers, reg, &(&1 * val(registers, val))))
   end
 
-  defp run_cmds([{:eql, reg, val} | cmds], digits, registers) do
+  defp run_cmds([{:div, _, 1} | cmds], registers) do
+    run_cmds(cmds, registers)
+  end
+
+  defp run_cmds([{:div, reg, val} | cmds], registers) do
+    run_cmds(cmds, update_val(registers, reg, &div(&1, val(registers, val))))
+  end
+
+  defp run_cmds([{:mod, reg, val} | cmds], registers) do
+    run_cmds(cmds, update_val(registers, reg, &rem(&1, val(registers, val))))
+  end
+
+  defp run_cmds([{:eql, reg, val} | cmds], registers) do
     run_cmds(
       cmds,
-      digits,
       update_val(registers, reg, &if(&1 == val(registers, val), do: 1, else: 0))
     )
   end
@@ -101,6 +128,7 @@ defmodule Y2021.Day24 do
       end
     )
     |> tl()
+    |> Enum.map(fn cmd_set -> Enum.drop(cmd_set, 4) end)
   end
 
   @doc """
