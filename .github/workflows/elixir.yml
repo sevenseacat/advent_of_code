@@ -9,7 +9,7 @@ jobs:
       matrix:
         otp: [25.0.4]
         elixir: [1.14.0]
-        event_year: [2015, 2016, 2017, 2021]
+        event_year: [2015, 2016, 2017, 2020, 2021]
     steps:
       - uses: actions/checkout@v2
       - name: Setup Elixir
