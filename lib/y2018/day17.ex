@@ -12,55 +12,55 @@ defmodule Y2018.Day17 do
   """
   def part1(state, {from_x, from_y} \\ {500, 0}) do
     {_max_x, max_y} = state |> Map.get(:clay) |> Enum.max_by(fn {_, y} -> y end)
-    Ground.init(state)
+    {:ok, ground} = Ground.init(state)
 
-    run_water([from_x], {from_y, max_y + 1})
-    Ground.count_wet_squares()
+    run_water(ground, [from_x], {from_y, max_y + 1})
+    Ground.count_wet_squares(ground)
   end
 
-  defp run_water(x, {max_y, max_y}), do: x
+  defp run_water(_ground, x, {max_y, max_y}), do: x
 
-  defp run_water(streams, {y, max_y}) do
+  defp run_water(ground, streams, {y, max_y}) do
     new_streams =
-      Enum.map(streams, fn stream -> drip(stream, {y, max_y}) end)
+      Enum.map(streams, fn stream -> drip(ground, stream, {y, max_y}) end)
       |> List.flatten()
       |> Enum.uniq()
       |> Enum.reject(fn stream -> stream == nil end)
 
-    run_water(new_streams, {y + 1, max_y})
+    run_water(ground, new_streams, {y + 1, max_y})
   end
 
-  def drip(x, {max_y, max_y}), do: x
+  def drip(_ground, x, {max_y, max_y}), do: x
 
-  def drip(x, {y, _}) do
-    {x, y} |> Ground.mark_wet()
+  def drip(ground, x, {y, _}) do
+    Ground.mark_wet(ground, {x, y})
 
-    if Ground.sand?({x, y + 1}) do
+    if Ground.sand?(ground, {x, y + 1}) do
       # Stream continues down
       x
     else
       # Clay or water. We may fill a clay bucket, or may run over the edge and fall.
-      fill_bucket({x, y}, y + 1)
+      fill_bucket(ground, {x, y}, y + 1)
     end
   end
 
-  defp fill_bucket({x, y}, max_y) do
-    {left_edge, left_state} = check_left({x, y})
-    {right_edge, right_state} = check_right({x, y})
+  defp fill_bucket(ground, {x, y}, max_y) do
+    {left_edge, left_state} = check_left(ground, {x, y})
+    {right_edge, right_state} = check_right(ground, {x, y})
 
     if left_state == :clay && right_state == :clay do
-      Ground.fill_row(left_edge, right_edge)
-      fill_bucket({x, y - 1}, max_y)
+      Ground.fill_row(ground, left_edge, right_edge)
+      fill_bucket(ground, {x, y - 1}, max_y)
     else
       if left_state == :sand || right_state == :sand do
-        Ground.wet_row(left_edge, right_edge)
+        Ground.wet_row(ground, left_edge, right_edge)
 
         acc = []
 
         acc =
           if left_state == :sand do
             {left_x, left_y} = left_edge
-            [run_water([left_x], {left_y, max_y}) | acc]
+            [run_water(ground, [left_x], {left_y, max_y}) | acc]
           else
             acc
           end
@@ -68,7 +68,7 @@ defmodule Y2018.Day17 do
         acc =
           if right_state == :sand do
             {right_x, right_y} = right_edge
-            [run_water([right_x], {right_y, max_y}) | acc]
+            [run_water(ground, [right_x], {right_y, max_y}) | acc]
           else
             acc
           end
@@ -78,25 +78,25 @@ defmodule Y2018.Day17 do
     end
   end
 
-  defp check_left({x, y}) do
-    if Ground.sand?({x, y + 1}) do
+  defp check_left(ground, {x, y}) do
+    if Ground.sand?(ground, {x, y + 1}) do
       {{x, y}, :sand}
     else
-      if Ground.sand?({x - 1, y}) do
-        check_left({x - 1, y})
+      if Ground.sand?(ground, {x - 1, y}) do
+        check_left(ground, {x - 1, y})
       else
         {{x, y}, :clay}
       end
     end
   end
 
-  defp check_right({x, y}) do
-    if Ground.sand?({x, y + 1}) do
+  defp check_right(ground, {x, y}) do
+    if Ground.sand?(ground, {x, y + 1}) do
       # This is the edge.
       {{x, y}, :sand}
     else
-      if Ground.sand?({x + 1, y}) do
-        check_right({x + 1, y})
+      if Ground.sand?(ground, {x + 1, y}) do
+        check_right(ground, {x + 1, y})
       else
         {{x, y}, :clay}
       end

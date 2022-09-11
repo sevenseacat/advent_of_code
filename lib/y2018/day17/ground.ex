@@ -4,15 +4,11 @@ defmodule Y2018.Day17.Ground do
   def init(state) do
     {_min_x, min_y} = Enum.min_by(state.clay, fn {_, y} -> y end)
 
-    Agent.start_link(fn -> {min_y, state} end, name: __MODULE__)
+    Agent.start_link(fn -> {min_y, state} end)
   end
 
-  def kill do
-    Agent.stop(__MODULE__)
-  end
-
-  def mark_wet({x, y}) do
-    Agent.update(__MODULE__, fn {min_y, field} ->
+  def mark_wet(pid, {x, y}) do
+    Agent.update(pid, fn {min_y, field} ->
       field =
         if y < min_y do
           field
@@ -24,16 +20,16 @@ defmodule Y2018.Day17.Ground do
     end)
   end
 
-  def fill_row({x1, y}, {x2, y}) do
-    for x <- x1..x2, do: mark_water({x, y})
+  def fill_row(pid, {x1, y}, {x2, y}) do
+    for x <- x1..x2, do: mark_water(pid, {x, y})
   end
 
-  def wet_row({x1, y}, {x2, y}) do
-    for x <- x1..x2, do: mark_wet({x, y})
+  def wet_row(pid, {x1, y}, {x2, y}) do
+    for x <- x1..x2, do: mark_wet(pid, {x, y})
   end
 
-  def mark_water(coord) do
-    Agent.update(__MODULE__, fn {min_y, field} ->
+  def mark_water(pid, coord) do
+    Agent.update(pid, fn {min_y, field} ->
       field =
         field
         |> Map.update!(:wet, fn wet -> MapSet.delete(wet, coord) end)
@@ -43,18 +39,18 @@ defmodule Y2018.Day17.Ground do
     end)
   end
 
-  def count_wet_squares() do
-    Agent.get(__MODULE__, fn {_, field} ->
+  def count_wet_squares(pid) do
+    Agent.get(pid, fn {_, field} ->
       MapSet.size(Map.get(field, :wet)) + MapSet.size(Map.get(field, :water))
     end)
   end
 
-  def sand?(coord), do: at(coord) == :sand
-  def water?(coord), do: at(coord) == :water
-  def clay?(coord), do: at(coord) == :clay
+  def sand?(pid, coord), do: at(pid, coord) == :sand
+  def water?(pid, coord), do: at(pid, coord) == :water
+  def clay?(pid, coord), do: at(pid, coord) == :clay
 
-  defp at(coord) do
-    Agent.get(__MODULE__, fn {_min_y, field} ->
+  defp at(pid, coord) do
+    Agent.get(pid, fn {_min_y, field} ->
       if MapSet.member?(field.clay, coord) do
         :clay
       else
@@ -67,9 +63,9 @@ defmodule Y2018.Day17.Ground do
     end)
   end
 
-  def show_state({hi_x, hi_y} \\ {500, 0}) do
+  def show_state(pid, {hi_x, hi_y} \\ {500, 0}) do
     Agent.get(
-      __MODULE__,
+      pid,
       fn {_min_y, field} ->
         {{_min_x, min_y}, {_max_x, max_y}} =
           field |> Map.get(:clay) |> Enum.min_max_by(fn {_, y} -> y end)
