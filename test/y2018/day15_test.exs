@@ -6,7 +6,7 @@ defmodule Y2018.Day15Test do
   @tag timeout: :infinity
   test "verification, part 1", do: assert(Day15.part1_verify() == 245_280)
 
-  @tag timeout: :infinity
+  @tag :skip
   test "verification, part 2", do: assert(Day15.part2_verify() == 74984)
 
   describe "part1" do
