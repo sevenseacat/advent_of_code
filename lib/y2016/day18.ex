@@ -7,17 +7,14 @@ defmodule Y2016.Day18 do
     Enum.reduce(1..(rows - 1), [parse_input(input)], fn _x, acc ->
       [next_row(hd(acc)) | acc]
     end)
-    |> Enum.reverse()
     |> Enum.map(&count_safe/1)
     |> Enum.sum()
   end
 
   def next_row(row) do
-    padded_row = [:s] ++ row ++ [:s]
-
-    for i <- 1..length(row) do
-      check_rules(Enum.slice(padded_row, (i - 1)..(i + 1)))
-    end
+    ([:s] ++ row ++ [:s])
+    |> Enum.chunk_every(3, 1, :discard)
+    |> Enum.map(&check_rules/1)
   end
 
   defp count_safe(row), do: Enum.count(row, fn char -> char == :s end)
@@ -38,4 +35,5 @@ defmodule Y2016.Day18 do
   defp to_symbol("^"), do: :t
 
   def part1_verify, do: part1()
+  def part2_verify, do: part1(@input, 400_000)
 end

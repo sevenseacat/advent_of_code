@@ -4,6 +4,7 @@ defmodule Y2016.Day18Test do
   doctest Day18
 
   test "verification, part 1", do: assert(Day18.part1_verify() == 1989)
+  test "verification, part 2", do: assert(Day18.part2_verify() == 19_999_894)
 
   describe "part1/2" do
     test "small input" do
