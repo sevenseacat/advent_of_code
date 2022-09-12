@@ -1,7 +1,7 @@
 defmodule Y2021.Day20 do
   use Advent.Day, no: 20
 
-  use Bitwise
+  import Bitwise
 
   def parts({algorithm, image}, times \\ 2) do
     run_transformations({algorithm, image}, times)

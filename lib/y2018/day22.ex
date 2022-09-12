@@ -79,15 +79,11 @@ defmodule Y2018.Day22 do
     to_tools = valid_tools(to_soil)
 
     # https://kmrakibulislam.wordpress.com/2015/10/25/find-common-items-in-two-lists-in-elixir/
-    case from_tools -- from_tools -- to_tools do
-      nil ->
-        graph
+    [tool] = from_tools -- from_tools -- to_tools
 
-      [tool] ->
-        graph
-        |> Graph.add_edge({from_x, from_y, tool}, {to_x, to_y, tool}, weight: 1)
-        |> Graph.add_edge({to_x, to_y, tool}, {from_x, from_y, tool}, weight: 1)
-    end
+    graph
+    |> Graph.add_edge({from_x, from_y, tool}, {to_x, to_y, tool}, weight: 1)
+    |> Graph.add_edge({to_x, to_y, tool}, {from_x, from_y, tool}, weight: 1)
   end
 
   defp add_tool_changes(graph, {x, y, soil}) do

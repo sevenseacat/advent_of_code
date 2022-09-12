@@ -1,7 +1,7 @@
 defmodule Y2017.Day10 do
   use Advent.Day, no: 10
 
-  use Bitwise
+  import Bitwise
 
   @doc """
   Run in a console like:
