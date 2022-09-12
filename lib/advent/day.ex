@@ -45,8 +45,7 @@ defmodule Advent.Day do
   def benchee_config do
     [
       print: [benchmarking: true, configuration: false],
-      formatters: [{Benchee.Formatters.Console, comparison: false}],
-      unit_scaling: :smallest
+      formatters: [{Benchee.Formatters.Console, comparison: false}]
     ]
   end
 end
