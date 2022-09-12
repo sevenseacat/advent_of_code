@@ -3,17 +3,17 @@ defmodule Y2018.Day19 do
 
   def part1(input) do
     %{ip: ip, commands: commands} = parse_input(input)
-    run_commands([0, 0, 0, 0, 0, 0], ip, commands)
+    run_commands({0, 0, 0, 0, 0, 0}, ip, commands)
   end
 
   def part2(_input) do
     # %{ip: ip, commands: commands} = parse_input(input)
-    # run_commands([1, 0, 0, 0, 0, 0], ip, commands)
+    # run_commands({1, 0, 0, 0, 0, 0}, ip, commands)
     # lol no it's not that simple.
 
     # imma reverse engineer the fuck outta this. this is very reminiscent of day 23 from last year.
-    # part 1 - first loop is when registers are [0, 4, 1, 1, 1, 950]
-    # part 2 - first loop is when registers are [0, 4, 1, 1, 1, 10551350]
+    # part 1 - first loop is when registers are {0, 4, 1, 1, 1, 950}
+    # part 2 - first loop is when registers are {0, 4, 1, 1, 1, 10551350}
     # so part 2's outermost loop is stupidly longer than part 1
 
     # what does the loop in part 1 actually do? if I know that, I can repeat process for part 2.
@@ -32,8 +32,8 @@ defmodule Y2018.Day19 do
     # it didn't stop, but when it got to 190, reg 1 incremented by 5 (reg 2)! now we're onto something.
     # next divisor of 950 is 10. if my prediction is right, all the looping should continue up to
     # 950, then when reg 3 is 10, and reg 5 is 95, reg 1 should become 18.
-    # [8, 7, 10, 1, 95, 950]
-    # [18, 8, 10, 1, 95, 950]
+    # {8, 7, 10, 1, 95, 950}
+    # {18, 8, 10, 1, 95, 950}
     # I love when I'm right.
     # so we're just adding up all the divisors of the number in reg 6, in a crazy long complicated way.
     # I googled. And found this: http://www.javascripter.net/math/calculators/divisorscalculator.htm
@@ -45,19 +45,19 @@ defmodule Y2018.Day19 do
   end
 
   def run_commands(rs, ip, commands) do
-    command = Map.get(commands, Enum.at(rs, ip))
+    command = Map.get(commands, elem(rs, ip))
 
     case command do
       nil ->
         # Not a valid command - decrement the IP register and exit.
-        List.replace_at(rs, ip, Enum.at(rs, ip) - 1)
+        put_elem(rs, ip, elem(rs, ip) - 1)
 
       {cmd, in1, in2, out} ->
         # Run the command and update the out register
-        rs = List.replace_at(rs, out, apply(Y2018.Day16, cmd, [rs, [in1, in2]]))
+        rs = put_elem(rs, out, apply(Y2018.Day16, cmd, [rs, [in1, in2]]))
 
         # Increment the IP register and continue
-        rs = List.replace_at(rs, ip, Enum.at(rs, ip) + 1)
+        rs = put_elem(rs, ip, elem(rs, ip) + 1)
         run_commands(rs, ip, commands)
     end
   end
@@ -79,5 +79,5 @@ defmodule Y2018.Day19 do
     {Map.put(map, count, cmd), count + 1}
   end
 
-  def part1_verify, do: input() |> part1() |> Enum.at(0)
+  def part1_verify, do: input() |> part1() |> elem(0)
 end

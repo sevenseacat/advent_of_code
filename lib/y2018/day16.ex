@@ -30,7 +30,7 @@ defmodule Y2018.Day16 do
 
     input2
     |> parse_input_part2()
-    |> run_codes([0, 0, 0, 0], mapping)
+    |> run_codes({0, 0, 0, 0}, mapping)
   end
 
   defp filter_one_option(options, known) when map_size(options) == 0, do: known
@@ -67,26 +67,22 @@ defmodule Y2018.Day16 do
 
   defp run_codes([], registers, _), do: registers
 
-  defp run_codes([[op, in1, in2, out] | codes], registers, mapping) do
+  defp run_codes([{op, in1, in2, out} | codes], registers, mapping) do
     run_codes(
       codes,
-      List.replace_at(
-        registers,
-        out,
-        apply(__MODULE__, Map.get(mapping, op), [registers, [in1, in2]])
-      ),
+      put_elem(registers, out, apply(__MODULE__, Map.get(mapping, op), [registers, [in1, in2]])),
       mapping
     )
   end
 
   @doc """
-  iex> Day16.possible_commands(%{before: [3,2,1,1], after: [3,2,2,1], code: [9,2,1,2]})
+  iex> Day16.possible_commands(%{before: {3,2,1,1}, after: {3,2,2,1}, code: {9,2,1,2}})
   {9, MapSet.new([:addi, :mulr, :seti])}
   """
-  def possible_commands(%{before: b, after: a, code: [num, in1, in2, out]}) do
+  def possible_commands(%{before: b, after: a, code: {num, in1, in2, out}}) do
     possibles =
       Enum.filter(@commands, fn option ->
-        a == List.replace_at(b, out, apply(__MODULE__, option, [b, [in1, in2]]))
+        a == put_elem(b, out, apply(__MODULE__, option, [b, [in1, in2]]))
       end)
 
     {num, MapSet.new(possibles)}
@@ -109,7 +105,7 @@ defmodule Y2018.Day16 do
   def eqri(rs, [a, b]), do: bool(v(rs, a) == b)
   def eqrr(rs, [a, b]), do: bool(v(rs, a) == v(rs, b))
 
-  defp v(rs, a), do: Enum.at(rs, a)
+  defp v(rs, a), do: elem(rs, a)
 
   defp bool(val) do
     if val, do: 1, else: 0
@@ -117,7 +113,7 @@ defmodule Y2018.Day16 do
 
   @doc """
   iex> Day16.parse_input_part1("Before: [3, 2, 1, 1]\\n9 2 1 2\\nAfter:  [3, 2, 2, 1]")
-  [%{before: [3,2,1,1], after: [3,2,2,1], code: [9,2,1,2]}]
+  [%{before: {3,2,1,1}, after: {3,2,2,1}, code: {9,2,1,2}}]
   """
   def parse_input_part1(input) do
     input
@@ -131,8 +127,8 @@ defmodule Y2018.Day16 do
     [_, a1, a2, a3, a4 | _] = String.split(after_, ["After:  [", ", ", "]"])
 
     %{
-      before: [b1, b2, b3, b4] |> Enum.map(&String.to_integer/1),
-      after: [a1, a2, a3, a4] |> Enum.map(&String.to_integer/1),
+      before: [b1, b2, b3, b4] |> Enum.map(&String.to_integer/1) |> List.to_tuple(),
+      after: [a1, a2, a3, a4] |> Enum.map(&String.to_integer/1) |> List.to_tuple(),
       code: parse_code(code)
     }
   end
@@ -147,8 +143,9 @@ defmodule Y2018.Day16 do
     code
     |> String.split(" ")
     |> Enum.map(&String.to_integer/1)
+    |> List.to_tuple()
   end
 
   def part1_verify, do: input("day16_part1") |> part1()
-  def part2_verify, do: part2(input("day16_part1"), input("day16_part2")) |> hd()
+  def part2_verify, do: part2(input("day16_part1"), input("day16_part2")) |> elem(0)
 end

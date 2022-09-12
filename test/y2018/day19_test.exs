@@ -8,7 +8,7 @@ defmodule Y2018.Day19Test do
   describe "part 1" do
     test "it works with sample input" do
       input = test_data("sample")
-      output = [6, 5, 6, 0, 0, 9]
+      output = {6, 5, 6, 0, 0, 9}
 
       assert Day19.part1(input) == output
     end
