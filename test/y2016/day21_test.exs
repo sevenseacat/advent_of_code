@@ -4,6 +4,7 @@ defmodule Y2016.Day21Test do
   doctest Day21
 
   test "verification, part 1", do: assert(Day21.part1_verify() == "agcebfdh")
+  test "verification, part 2", do: assert(Day21.part2_verify() == "afhdbegc")
 
   test "parse_input/1" do
     input = """
@@ -22,26 +23,14 @@ defmodule Y2016.Day21Test do
              {:rotate_left, 1},
              {:rotate_right, 3},
              {:move_position, 3, 0},
-             {:rotate_position, "b"},
+             {:rotate_position, "b", :forward},
              {:reverse, 1, 2}
            ]
   end
 
   describe "part1/1" do
     test "full sample" do
-      cmds =
-        Day21.parse_input("""
-        swap position 4 with position 0
-        swap letter d with letter b
-        reverse positions 0 through 4
-        rotate left 1 step
-        move position 1 to position 4
-        move position 3 to position 0
-        rotate based on position of letter b
-        rotate based on position of letter d
-        """)
-
-      assert Day21.part1(cmds, "abcde") == "decab"
+      assert Day21.part1(sample_commands(), "abcde") == "decab"
     end
 
     test "swap command" do
@@ -66,13 +55,32 @@ defmodule Y2016.Day21Test do
 
     test "rotate position command" do
       # position 2 + 1
-      assert Day21.part1([{:rotate_position, "s"}], "arstdhneio") == "eioarstdhn"
+      assert Day21.part1([{:rotate_position, "s", :forward}], "arstdhneio") == "eioarstdhn"
 
       # position 4 + 2
-      assert Day21.part1([{:rotate_position, "d"}], "arstdhneio") == "dhneioarst"
+      assert Day21.part1([{:rotate_position, "d", :forward}], "arstdhneio") == "dhneioarst"
 
       # position 4 + 2
-      assert Day21.part1([{:rotate_position, "d"}], "arstd") == "darst"
+      assert Day21.part1([{:rotate_position, "d", :forward}], "arstd") == "darst"
     end
+  end
+
+  describe "part2/1" do
+    test "full sample" do
+      assert Day21.part2(sample_commands(), "decab") == "abcde"
+    end
+  end
+
+  defp sample_commands do
+    Day21.parse_input("""
+    swap position 4 with position 0
+    swap letter d with letter b
+    reverse positions 0 through 4
+    rotate left 1 step
+    move position 1 to position 4
+    move position 3 to position 0
+    rotate based on position of letter b
+    rotate based on position of letter d
+    """)
   end
 end
