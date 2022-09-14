@@ -2,7 +2,7 @@
 
 My Elixir solutions for [Advent of Code 2016](https://adventofcode.com/2016).
 
-**Stars complete: 41/50 :star:**
+**Stars complete: 42/50 :star:**
 
 ## Benchmarks
 
@@ -53,4 +53,5 @@ day 20, part 1       2406.76        0.42 ms    ±23.19%        0.41 ms        0.
 day 20, part 2       1880.72        0.53 ms     ±7.62%        0.52 ms        0.63 ms
 day 21, part 1      10452.99      0.0957 ms    ±72.83%      0.0758 ms       0.192 ms
 day 21, part 2      11103.77      0.0901 ms    ±24.83%      0.0838 ms       0.165 ms
+day 22, part 1         21.46       46.60 ms     ±3.73%       45.77 ms       50.34 ms
 ```
