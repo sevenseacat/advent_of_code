@@ -23,7 +23,9 @@ defmodule Y2016.Day22 do
   # space.
   def part2(map) do
     max_x = Enum.max_by(map, fn {{x, _}, _} -> x end) |> elem(0) |> elem(0)
-    get_shortest_result({map, {max_x, 0}})
+    empty_coords = Enum.find(map, fn {_pos, node} -> node.used == 0 end) |> elem(0)
+
+    get_shortest_result({map, empty_coords, {max_x, 0}})
   end
 
   defp get_shortest_result(state) do
@@ -34,7 +36,7 @@ defmodule Y2016.Day22 do
   end
 
   defp add_to_queue(queue, {states, turns}) do
-    Enum.reduce(states, queue, fn {_map, target} = state, queue ->
+    Enum.reduce(states, queue, fn {_map, _empty, target} = state, queue ->
       priority = turns + distance_to_goal(target) / 100
       PriorityQueue.push(queue, {state, turns}, priority)
     end)
@@ -69,20 +71,19 @@ defmodule Y2016.Day22 do
     end
   end
 
-  defp legal_moves({state, target}) do
-    state
-    |> all_valid_connected_nodes()
+  defp legal_moves({state, empty_coords, target}) do
+    {empty_coords, Map.get(state, empty_coords)}
+    |> valid_connected_nodes(state)
     |> Enum.map(fn move -> make_move(state, move, target) end)
   end
 
-  defp hash({state, target}) do
-    empty_state = Enum.find(state, fn {_coord, node} -> node.used == 0 end)
-    {elem(empty_state, 0), target}
-  end
+  defp hash({_state, empty, target}), do: {empty, target}
 
   # The game is over if the node at x=0 y=0 has the target data.
-  defp winning?({_map, target}), do: target == {0, 0}
+  defp winning?({_map, _empty, target}), do: target == {0, 0}
 
+  # Moving the emptiness from the empty node to another node. Kind of
+  # the inverse of what we were doing before.
   defp make_move(state, [from: from_pos, to: to_pos], target) do
     from = Map.fetch!(state, from_pos)
     to = Map.fetch!(state, to_pos)
@@ -90,19 +91,19 @@ defmodule Y2016.Day22 do
     new_state =
       state
       |> Map.update!(to_pos, fn to_node ->
-        %{
-          to_node
-          | used: to.used + from.used,
-            available: to.available - from.used
-        }
+        %{to_node | used: 0, available: to_node.size}
       end)
       |> Map.update!(from_pos, fn from_node ->
-        %{from_node | used: 0, available: from.size}
+        %{
+          from_node
+          | used: to.used + from.used,
+            available: from.available - to.used
+        }
       end)
 
-    new_target = if target == from_pos, do: to_pos, else: target
+    new_target = if target == to_pos, do: from_pos, else: target
 
-    {new_state, new_target}
+    {new_state, to_pos, new_target}
   end
 
   defp all_valid_moves(list) do
@@ -117,18 +118,13 @@ defmodule Y2016.Day22 do
     |> Enum.map(fn {to_position, _} -> [from: from_position, to: to_position] end)
   end
 
-  defp all_valid_connected_nodes(map) do
-    Enum.flat_map(map, fn node -> valid_connected_nodes(node, map) end)
-  end
-
+  # Connecting from the *empty* node to another node
   defp valid_connected_nodes({{x, y}, from}, map) do
     [{x - 1, y}, {x + 1, y}, {x, y - 1}, {x, y + 1}]
     |> Enum.flat_map(fn coord ->
       if Map.has_key?(map, coord), do: [{coord, Map.fetch!(map, coord)}], else: []
     end)
-    |> Enum.filter(fn {_position, to} ->
-      from.used > 0 && to.available >= from.used
-    end)
+    |> Enum.filter(fn {_position, to} -> from.available >= to.used end)
     |> Enum.map(fn {to_position, _} -> [from: {x, y}, to: to_position] end)
   end
 
