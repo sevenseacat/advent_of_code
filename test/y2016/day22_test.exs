@@ -5,6 +5,9 @@ defmodule Y2016.Day22Test do
 
   test "verification, part 1", do: assert(Day22.part1_verify() == 987)
 
+  @tag timeout: :infinity
+  test "verification, part 2", do: assert(Day22.part2_verify() == 220)
+
   describe "part2/1" do
     test "sample input" do
       input = test_data("part2_sample") |> Day22.parse_input()

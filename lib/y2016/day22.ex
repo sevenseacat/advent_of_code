@@ -7,6 +7,20 @@ defmodule Y2016.Day22 do
     |> length()
   end
 
+  # This is basically a giant slide puzzle. The grid of nodes starts with one
+  # empty node, and the goal is to get the square in the top-right corner, to
+  # the top-left corner.
+  # This is probably overcomplicated because I originally tried to solve it
+  # naively, first with a breadth-first search, then with a priority queue,
+  # but the search space is just too large.
+  # This solution keeps the priority queue, but makes one big assumption
+  # about the data -
+  #
+  # Any states with both the empty node and the goal node in the same spots, are equivalent.
+  #
+  # We're not going to worry about the scenario where the data on two nodes
+  # can be combined, that would create two empty nodes and double the search
+  # space.
   def part2(map) do
     max_x = Enum.max_by(map, fn {{x, _}, _} -> x end) |> elem(0) |> elem(0)
     get_shortest_result({map, {max_x, 0}})
@@ -40,14 +54,16 @@ defmodule Y2016.Day22 do
       # Winner winner chicken dinner.
       turns
     else
-      if state in seen do
+      hash = hash(state)
+
+      if hash in seen do
         # Seen a better version of this state, scrap this one
         do_search(queue, seen)
       else
         # Calculate legal moves, record seen, etc.
         do_search(
           add_to_queue(queue, {legal_moves(state), turns + 1}),
-          MapSet.put(seen, hash(state))
+          MapSet.put(seen, hash)
         )
       end
     end
@@ -59,7 +75,10 @@ defmodule Y2016.Day22 do
     |> Enum.map(fn move -> make_move(state, move, target) end)
   end
 
-  defp hash(state), do: :erlang.phash2(state)
+  defp hash({state, target}) do
+    empty_state = Enum.find(state, fn {_coord, node} -> node.used == 0 end)
+    {elem(empty_state, 0), target}
+  end
 
   # The game is over if the node at x=0 y=0 has the target data.
   defp winning?({_map, target}), do: target == {0, 0}
@@ -108,7 +127,7 @@ defmodule Y2016.Day22 do
       if Map.has_key?(map, coord), do: [{coord, Map.fetch!(map, coord)}], else: []
     end)
     |> Enum.filter(fn {_position, to} ->
-      from != to && from.used > 0 && to.available >= from.used
+      from.used > 0 && to.available >= from.used
     end)
     |> Enum.map(fn {to_position, _} -> [from: {x, y}, to: to_position] end)
   end
