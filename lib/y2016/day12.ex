@@ -2,15 +2,25 @@ defmodule Y2016.Day12 do
   use Advent.Day, no: 12
 
   @doc """
-  iex> Day12.run_assembunny_code(["cpy 41 a", "inc a", "inc a", "dec a", "jnz a 2", "dec a"]) |> elem(0)
+  iex> Day12.run_assembunny_code(%{0 => ["cpy", "41", "a"], 1 => ["inc", "a"], 2 => ["inc", "a"],
+  ...>  3 => ["dec", "a"], 4 => ["jnz", "a", "2"], 5 => ["dec", "a"]}) |> elem(0)
   42
   """
   def run_assembunny_code(input) do
-    execute_instructions(input, input, {0, 0, 0, 0}, 0)
+    execute_instructions(input, {0, 0, 0, 0}, 0)
   end
 
   def run_new_assembunny_code(input) do
-    execute_instructions(input, input, {0, 0, 1, 0}, 0)
+    execute_instructions(input, {0, 0, 1, 0}, 0)
+  end
+
+  defp execute_instructions(input, state, index) do
+    if command = Map.get(input, index) do
+      {state, index} = execute_instruction(command, state, index)
+      execute_instructions(input, state, index)
+    else
+      state
+    end
   end
 
   @doc """
@@ -35,19 +45,6 @@ defmodule Y2016.Day12 do
   iex> Day12.execute_instruction(["jnz", "0", "-1"], {2, 3, 4, 5}, 2)
   {{2, 3, 4, 5}, 3}
   """
-
-  def execute_instructions([], _input, state, _index), do: state
-
-  def execute_instructions([line | _lines], input, state, index) do
-    {state, index} =
-      line
-      |> String.split(" ")
-      |> execute_instruction(state, index)
-
-    {_run, lines} = Enum.split(input, index)
-    execute_instructions(lines, input, state, index)
-  end
-
   def execute_instruction(["inc", letter], state, index) do
     new_state = put_elem(state, register(letter), elem(state, register(letter)) + 1)
     {new_state, index + 1}
@@ -74,7 +71,13 @@ defmodule Y2016.Day12 do
     %{"a" => 0, "b" => 1, "c" => 2, "d" => 3}[key]
   end
 
-  defp parse_input(input), do: String.split(input, "\n", trim: true)
+  def parse_input(input) do
+    input
+    |> String.split("\n", trim: true)
+    |> Enum.map(&String.split(&1, " "))
+    |> Enum.with_index()
+    |> Map.new(fn {cmd, index} -> {index, cmd} end)
+  end
 
   def register_val(state, letter) when letter in ["a", "b", "c", "d"],
     do: elem(state, register(letter))
