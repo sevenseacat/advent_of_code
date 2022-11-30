@@ -112,4 +112,5 @@ defmodule Y2017.Day18 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
+  def part2_verify, do: Y2017.Day182.part2_verify()
 end

@@ -41,7 +41,7 @@ defmodule Y2018.Day19 do
     # for 10551350, it says the answer is 20108088. is it?
     # > That's the right answer! You are one gold star closer to fixing the time stream.
     # a winner is me.
-    # this function deliberately left blank
+    {:manually_solved, 20_108_088}
   end
 
   def run_commands(rs, ip, commands) do
@@ -80,4 +80,5 @@ defmodule Y2018.Day19 do
   end
 
   def part1_verify, do: input() |> part1() |> elem(0)
+  def part2_verify, do: input() |> part2() |> elem(1)
 end

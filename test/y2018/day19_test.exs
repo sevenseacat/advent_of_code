@@ -4,6 +4,7 @@ defmodule Y2018.Day19Test do
   doctest Day19
 
   test "verification, part 1", do: assert(Day19.part1_verify() == 1860)
+  test "verification, part 2", do: assert(Day19.part2_verify() == 20_108_088)
 
   describe "part 1" do
     test "it works with sample input" do

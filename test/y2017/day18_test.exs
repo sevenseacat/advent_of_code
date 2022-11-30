@@ -5,5 +5,5 @@ defmodule Y2017.Day18Test do
   doctest Day182
 
   test "verification, part 1", do: assert(Day18.part1_verify() == 8600)
-  test "verification, part 2", do: assert(Day182.part2_verify() == 7239)
+  test "verification, part 2", do: assert(Day18.part2_verify() == 7239)
 end
