@@ -5,7 +5,6 @@ defmodule Y2018.Day15 do
 
   def part1(input) do
     {units, graph} = parse_input(input)
-
     do_part1({units, graph}, count_elves(units), 0, &no_dead_elf_checker/2)
   end
 
@@ -15,17 +14,10 @@ defmodule Y2018.Day15 do
   end
 
   defp do_part1({units, graph}, elf_count, round_no, dead_elf_checker) do
-    {new_units, round_no} =
-      try do
-        {do_round({units, graph}), round_no + 1}
-      catch
-        new_units ->
-          {new_units |> Enum.filter(fn unit -> unit.alive end), round_no}
-      end
+    new_units = do_round({units, graph})
 
     cond do
       winner = battle_over?(new_units) ->
-        IO.puts("No shortcut exit...")
         hp_left = Enum.map(new_units, fn unit -> unit.hp end) |> Enum.sum()
 
         %{
@@ -36,11 +28,10 @@ defmodule Y2018.Day15 do
         }
 
       dead_elf_checker.(elf_count, new_units) ->
-        IO.puts("Shortcut exit at round #{round_no}!")
         %{winner: "G"}
 
       true ->
-        do_part1({new_units, graph}, elf_count, round_no, dead_elf_checker)
+        do_part1({new_units, graph}, elf_count, round_no + 1, dead_elf_checker)
     end
   end
 
@@ -142,10 +133,8 @@ defmodule Y2018.Day15 do
   end
 
   def new_position(unit, {units, graph}) do
-    if find_enemies(unit, units) == [], do: throw(units)
-
-    if enemy_adjacent(unit, units) do
-      # Don't move, stay and attack.
+    if find_enemies(unit, units) == [] || enemy_adjacent(unit, units) do
+      # Don't move, either nothing left to attack, or stay and attack.
       unit.position
     else
       # I like to move it move it
