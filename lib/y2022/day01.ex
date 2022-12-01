@@ -7,6 +7,14 @@ defmodule Y2022.Day01 do
     |> Enum.max()
   end
 
+  def part2(input) do
+    input
+    |> Enum.map(&Enum.sum/1)
+    |> Enum.sort(:desc)
+    |> Enum.take(3)
+    |> Enum.sum()
+  end
+
   def parse_input(input) do
     input
     |> String.split("\n\n", trim: true)
@@ -20,4 +28,5 @@ defmodule Y2022.Day01 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end

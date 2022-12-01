@@ -2,7 +2,7 @@
 
 My Elixir solutions for [Advent of Code 2022](https://adventofcode.com/2022).
 
-**Stars complete: 1/2 :star:**
+**Stars complete: 2/2 :star:**
 
 ## Benchmarks
 
@@ -14,5 +14,6 @@ You can check out the code yourself and run the benchmarks with `mix bench 2022`
 
 ```
 Name                     ips        average  deviation         median         99th %
-day 01, part 1        4.19 K      238.88 μs     ±9.43%      234.46 μs      290.46 μs
+day 01, part 1        4.12 K      242.53 μs    ±13.15%      238.29 μs      293.96 μs
+day 01, part 2        3.53 K      283.65 μs    ±18.62%      274.04 μs      338.45 μs
 ```
