@@ -146,28 +146,16 @@ defmodule Y2018.Day15 do
     paths =
       unit
       |> find_enemies(units)
-      |> Enum.flat_map(fn unit -> get_squares_in_range(unit, units, graph) end)
-      |> Enum.map(fn coord -> best_path_between(unit.position, coord, {units, graph}) end)
+      |> Enum.map(fn enemy -> best_path_between(unit.position, enemy.position, {units, graph}) end)
       |> Enum.filter(fn path -> path != nil end)
-      |> Enum.group_by(fn path -> length(path) end)
 
-    case map_size(paths) do
-      0 ->
-        unit.position
-
-      _yay ->
-        paths
-        |> Enum.min_by(fn {length, _} -> length end)
-        |> get_first_move_by_reading_order
+    if Enum.empty?(paths) do
+      unit.position
+    else
+      paths
+      |> Enum.min_by(fn [_from, next | _rest] = path -> {length(path), next} end)
+      |> Enum.at(1)
     end
-  end
-
-  defp get_squares_in_range(%Unit{position: {row, col}}, units, graph) do
-    [{row - 1, col}, {row + 1, col}, {row, col - 1}, {row, col + 1}]
-    |> Enum.filter(fn {row, col} ->
-      Graph.has_vertex?(graph, {row, col}) &&
-        !Enum.any?(units, fn unit -> unit.alive && unit.position == {row, col} end)
-    end)
   end
 
   def best_path_between({from_row, from_col} = from, to, {units, graph}) do
@@ -175,8 +163,9 @@ defmodule Y2018.Day15 do
       units
       |> Enum.filter(fn unit -> unit.alive end)
       |> Enum.map(fn unit -> unit.position end)
+      |> Enum.reject(fn coord -> coord == from || coord == to end)
 
-    open_coords = [from | Graph.vertices(graph)] -- other_unit_coords
+    open_coords = Graph.vertices(graph) -- other_unit_coords
 
     weights = %{
       {from_row - 1, from_col} => 0,
@@ -191,19 +180,6 @@ defmodule Y2018.Day15 do
       # Prefer the coordinates in reading order, for the first step.
       Map.get(weights, {row, col}, 0)
     end)
-  end
-
-  defp get_first_move_by_reading_order({_, paths}) do
-    {_, paths} =
-      paths
-      |> Enum.group_by(fn path -> Enum.reverse(path) |> hd end)
-      |> Enum.sort_by(fn {coord, _} -> coord end)
-      |> hd
-
-    paths
-    |> Enum.map(&tl/1)
-    |> Enum.map(&hd/1)
-    |> Enum.min()
   end
 
   defp find_enemies(unit, units) do
@@ -280,11 +256,6 @@ defmodule Y2018.Day15 do
     |> Enum.chunk_every(35)
     |> Enum.map(&List.to_string/1)
     |> Enum.map(&IO.puts/1)
-
-    units
-    |> Enum.each(fn unit ->
-      IO.puts("#{unit.type}: HP #{unit.hp}")
-    end)
   end
 
   # Only relevant for part 2 - escape hatch to stop running the game when an elf dies

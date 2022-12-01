@@ -42,8 +42,8 @@ day 13, part 1        100.29        9.97 ms     ±7.63%        9.61 ms       11.
 day 13, part 2         13.44       74.40 ms     ±1.16%       73.95 ms       76.40 ms
 day 14, part 1          4.96      201.76 ms     ±1.36%      201.76 ms      211.21 ms
 day 14, part 2        0.0718    13935.68 ms     ±0.00%    13935.68 ms    13935.68 ms
-day 15, part 1        0.0164       1.02 min     ±0.00%       1.02 min       1.02 min
-day 15, part 2       0.00127      13.12 min     ±0.00%      13.12 min      13.12 min
+day 15, part 1        0.0371       0.45 min     ±0.00%       0.45 min       0.45 min
+day 15, part 2       0.00336       4.96 min     ±0.00%       4.96 min       4.96 min
 day 16, part 1        211.67        4.72 ms     ±2.22%        4.72 ms        4.80 ms
 day 16, part 2        164.09        6.09 ms     ±1.91%        6.05 ms        6.31 ms
 day 17, part 1          5.15      194.14 ms     ±1.71%      192.75 ms      204.51 ms
