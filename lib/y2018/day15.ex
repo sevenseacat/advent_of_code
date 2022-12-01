@@ -6,14 +6,15 @@ defmodule Y2018.Day15 do
   def part1(input) do
     {units, graph} = parse_input(input)
 
-    do_part1({units, graph}, count_elves(units), 0)
+    do_part1({units, graph}, count_elves(units), 0, &no_dead_elf_checker/2)
   end
 
   def part2(input) do
-    do_part2(input, %{"E" => 4, "G" => 3})
+    {units, graph} = parse_input(input)
+    do_part2({units, graph}, count_elves(units), 4)
   end
 
-  defp do_part1({units, graph}, elf_count, round_no) do
+  defp do_part1({units, graph}, elf_count, round_no, dead_elf_checker) do
     {new_units, round_no} =
       try do
         {do_round({units, graph}), round_no + 1}
@@ -22,30 +23,44 @@ defmodule Y2018.Day15 do
           {new_units |> Enum.filter(fn unit -> unit.alive end), round_no}
       end
 
-    if winner = battle_over?(new_units) do
-      hp_left = Enum.map(new_units, fn unit -> unit.hp end) |> Enum.sum()
+    cond do
+      winner = battle_over?(new_units) ->
+        IO.puts("No shortcut exit...")
+        hp_left = Enum.map(new_units, fn unit -> unit.hp end) |> Enum.sum()
 
-      %{
-        winner: winner,
-        hp_left: hp_left,
-        rounds: round_no,
-        score: round_no * hp_left,
-        elves_dead: elf_count - count_elves(new_units)
-      }
-    else
-      do_part1({new_units, graph}, elf_count, round_no)
+        %{
+          winner: winner,
+          hp_left: hp_left,
+          rounds: round_no,
+          score: round_no * hp_left
+        }
+
+      dead_elf_checker.(elf_count, new_units) ->
+        IO.puts("Shortcut exit at round #{round_no}!")
+        %{winner: "G"}
+
+      true ->
+        do_part1({new_units, graph}, elf_count, round_no, dead_elf_checker)
     end
   end
 
-  defp do_part2(input, power) do
-    {units, graph} = parse_input(input, power)
-    result = do_part1({units, graph}, count_elves(units), 0)
+  defp do_part2({units, graph}, elf_count, elf_power) do
+    result = do_part1({units, graph}, elf_count, 0, &dead_elf_checker/2)
 
-    if result.elves_dead == 0 do
-      Map.put(result, :power, power["E"])
+    if result.winner == "E" do
+      Map.put(result, :power, elf_power)
     else
-      do_part2(input, %{power | "E" => power["E"] + 1})
+      elf_power = elf_power + 1
+      units = update_elf_power(units, elf_power)
+      do_part2({units, graph}, elf_count, elf_power)
     end
+  end
+
+  defp update_elf_power(units, power) do
+    Enum.map(units, fn
+      %{type: "E"} = elf -> %{elf | power: power}
+      goblin -> goblin
+    end)
   end
 
   defp count_elves(units) do
@@ -153,8 +168,7 @@ defmodule Y2018.Day15 do
 
       _yay ->
         paths
-        |> Enum.sort_by(fn {length, _} -> length end)
-        |> hd
+        |> Enum.min_by(fn {length, _} -> length end)
         |> get_first_move_by_reading_order
     end
   end
@@ -283,6 +297,10 @@ defmodule Y2018.Day15 do
       IO.puts("#{unit.type}: HP #{unit.hp}")
     end)
   end
+
+  # Only relevant for part 2 - escape hatch to stop running the game when an elf dies
+  defp no_dead_elf_checker(_elf_count, _units), do: false
+  defp dead_elf_checker(elf_count, units), do: elf_count != count_elves(units)
 
   def part1_verify, do: input() |> part1() |> Map.get(:score)
   def part2_verify, do: input() |> part2() |> Map.get(:score)

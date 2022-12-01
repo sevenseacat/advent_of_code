@@ -17,8 +17,7 @@ defmodule Y2018.Day15Test do
                winner: "G",
                rounds: 47,
                hp_left: 590,
-               score: 27730,
-               elves_dead: 2
+               score: 27730
              }
     end
 
@@ -29,8 +28,7 @@ defmodule Y2018.Day15Test do
                winner: "E",
                rounds: 37,
                hp_left: 982,
-               score: 36334,
-               elves_dead: 1
+               score: 36334
              }
     end
 
@@ -41,8 +39,7 @@ defmodule Y2018.Day15Test do
                winner: "E",
                rounds: 46,
                hp_left: 859,
-               score: 39514,
-               elves_dead: 1
+               score: 39514
              }
     end
 
@@ -53,8 +50,7 @@ defmodule Y2018.Day15Test do
                winner: "G",
                rounds: 35,
                hp_left: 793,
-               score: 27755,
-               elves_dead: 2
+               score: 27755
              }
     end
 
@@ -65,8 +61,7 @@ defmodule Y2018.Day15Test do
                winner: "G",
                rounds: 54,
                hp_left: 536,
-               score: 28944,
-               elves_dead: 2
+               score: 28944
              }
     end
 
@@ -77,8 +72,7 @@ defmodule Y2018.Day15Test do
                winner: "G",
                rounds: 20,
                hp_left: 937,
-               score: 18740,
-               elves_dead: 1
+               score: 18740
              }
     end
   end
@@ -92,7 +86,6 @@ defmodule Y2018.Day15Test do
                rounds: 29,
                hp_left: 172,
                score: 4988,
-               elves_dead: 0,
                power: 15
              }
     end
