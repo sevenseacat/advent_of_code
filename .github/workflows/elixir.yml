@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        event_year: [2015, 2016, 2017, 2018, 2019, 2020, 2021]
+        event_year: [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022]
     steps:
       - uses: actions/checkout@v2
       - name: Setup Elixir
