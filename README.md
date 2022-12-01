@@ -31,5 +31,5 @@ For the puzzles I completed prior to Advent of Code 2021, I've copied them from 
 * [2017 - 50/50 :star:](/lib/y2017/)
 * [2018 - 50/50 :star:](/lib/y2018/)
 * [2019 - 31/50 :star:](/lib/y2019/)
-* [2020 - 27/50 :star:](/lib/y2020/)
+* [2020 - 28/50 :star:](/lib/y2020/)
 * [2021 - 46/50 :star:](/lib/y2021/)
