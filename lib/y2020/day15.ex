@@ -4,46 +4,49 @@ defmodule Y2020.Day15 do
   @input "20,9,11,0,1,2"
 
   @doc """
-  iex> Day15.part1("0,3,6", 2020)
+  iex> Day15.part1("0,3,6")
   436
 
-  iex> Day15.part1("1,3,2", 2020)
+  iex> Day15.part1("1,3,2")
   1
 
-  iex> Day15.part1("2,1,3", 2020)
+  iex> Day15.part1("2,1,3")
   10
 
-  iex> Day15.part1("1,2,3", 2020)
+  iex> Day15.part1("1,2,3")
   27
 
-  iex> Day15.part1("2,3,1", 2020)
+  iex> Day15.part1("2,3,1")
   78
 
-  iex> Day15.part1("3,2,1", 2020)
+  iex> Day15.part1("3,2,1")
   438
 
-  iex> Day15.part1("3,1,2", 2020)
+  iex> Day15.part1("3,1,2")
   1836
   """
-  def part1(input, turns \\ 2020) do
+  def part1(input), do: parts(input, 2020)
+  def part2(input), do: parts(input, 30_000_000)
+
+  defp parts(input, turns) do
     cache = parse_input(input)
     last_turn = map_size(cache) - 1
     last_spoken = Enum.find(cache, fn {_k, v} -> v == [last_turn] end) |> elem(0)
-    do_part1(cache, last_spoken, last_turn + 1, turns)
+    do_parts(cache, last_spoken, last_turn + 1, turns)
   end
 
-  defp do_part1(_cache, last, max_turns, max_turns), do: last
+  defp do_parts(_cache, last, max_turns, max_turns), do: last
 
-  defp do_part1(cache, last, turn, max_turns) do
+  defp do_parts(cache, last, turn, max_turns) do
     spoken =
       case Map.get(cache, last) do
         # Existing number
-        [prev1, prev2 | _rest] -> prev1 - prev2
+        [prev1, prev2] -> prev1 - prev2
         # New number
         _ -> 0
       end
 
-    do_part1(Map.update(cache, spoken, [turn], &[turn | &1]), spoken, turn + 1, max_turns)
+    do_parts(Map.update(cache, spoken, [turn], &[turn, hd(&1)]), spoken, turn + 1, max_turns)
   end
 
   @doc """
@@ -59,4 +62,5 @@ defmodule Y2020.Day15 do
   end
 
   def part1_verify, do: part1(@input)
+  def part2_verify, do: part2(@input)
 end
