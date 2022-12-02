@@ -30,23 +30,38 @@ defmodule Y2020.Day15 do
 
   defp parts(input, turns) do
     cache = parse_input(input)
+
+    new_cache =
+      Enum.reduce(cache, :array.new(), fn {num, turns}, array ->
+        :array.set(num, turns, array)
+      end)
+
     last_turn = map_size(cache) - 1
     last_spoken = Enum.find(cache, fn {_k, v} -> v == [last_turn] end) |> elem(0)
-    do_parts(cache, last_spoken, last_turn + 1, turns)
+    do_parts(new_cache, last_spoken, last_turn + 1, turns)
   end
 
   defp do_parts(_cache, last, max_turns, max_turns), do: last
 
   defp do_parts(cache, last, turn, max_turns) do
     spoken =
-      case Map.get(cache, last) do
+      case :array.get(last, cache) do
         # Existing number
         [prev1, prev2] -> prev1 - prev2
         # New number
         _ -> 0
       end
 
-    do_parts(Map.update(cache, spoken, [turn], &[turn, hd(&1)]), spoken, turn + 1, max_turns)
+    last = :array.get(spoken, cache)
+
+    new_cache =
+      if last != :undefined do
+        :array.set(spoken, [turn, hd(last)], cache)
+      else
+        :array.set(spoken, [turn], cache)
+      end
+
+    do_parts(new_cache, spoken, turn + 1, max_turns)
   end
 
   @doc """
