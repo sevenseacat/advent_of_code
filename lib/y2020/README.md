@@ -2,7 +2,7 @@
 
 My Elixir solutions for [Advent of Code 2020](https://adventofcode.com/2020).
 
-**Stars complete: 28/50 :star:**
+**Stars complete: 29/50 :star:**
 
 ## Benchmarks
 
