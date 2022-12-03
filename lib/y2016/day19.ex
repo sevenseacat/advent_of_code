@@ -38,15 +38,13 @@ defmodule Y2016.Day19 do
     if rem(size, 10000) == 0, do: IO.inspect(size)
 
     opposite_position = opposite(position, size)
-    killer = Enum.at(list, position)
-    killed = Enum.at(list, opposite_position)
     list = List.delete_at(list, opposite_position)
 
     # IO.puts(
     #  "elf #{killer} (pos #{position}) takes from elf #{killed} (pos #{opposite_position}) (elves left: #{size})"
     # )
 
-    new_position = if killed < killer, do: position - 1, else: position
+    new_position = if opposite_position < position, do: position - 1, else: position
     position = if new_position + 1 == size - 1, do: 0, else: new_position + 1
     round_steal(list, position, size - 1)
   end

@@ -2,18 +2,20 @@ def part2(elf_count)
   elves = (1..elf_count).to_a
   position = 0
 
-  while elves.length > 1 do
-    puts elves.length if elves.length % 10000 == 0 
+  while elf_count > 1 do
+    puts elf_count if elf_count % 10000 == 0 
 
-    opposite_position = opposite(position, elves.length)
-    killer = elves[position]    
-    killed = elves.delete_at(opposite_position)
-    # puts "elf #{killer} (pos #{position}) takes from elf #{killed} (pos #{opposite_position}) (elves left: #{elves.length})"
+    opposite_position = opposite(position, elf_count)
+    # killer = elves[position]    
+    # killed = elves.delete_at(opposite_position)
+    elves.delete_at(opposite_position)
+    elf_count = elf_count - 1
+    # puts "elf #{killer} (pos #{position}) takes from elf #{killed} (pos #{opposite_position}) (elves left: #{elf_count})"
 
     # May be different from old position, if an elf lower in number has been killed
-    new_position = killed < killer ? position - 1 : position
+    new_position = opposite_position < position ? position - 1 : position
 
-    position = new_position + 1 == elves.length ? 0 : new_position + 1
+    position = new_position + 1 == elf_count ? 0 : new_position + 1
   end
 
   puts "ELVES! #{elves}"
