@@ -2,7 +2,7 @@
 
 My Elixir solutions for [Advent of Code 2016](https://adventofcode.com/2016).
 
-**Stars complete: 43/50 :star:**
+**Stars complete: 44/50 :star:**
 
 ## Benchmarks
 
@@ -55,4 +55,13 @@ day 21, part 1      10452.99      0.0957 ms    ±72.83%      0.0758 ms       0.1
 day 21, part 2      11103.77      0.0901 ms    ±24.83%      0.0838 ms       0.165 ms
 day 22, part 1         20.38       49.07 ms     ±1.95%       49.35 ms       51.57 ms
 day 22, part 2          3.42      291.99 ms     ±4.73%      287.93 ms      324.14 ms
+```
+
+
+```
+day 19 part 2, initial implementation (in Ruby):
+
+Executed in  369.41 secs    fish           external
+   usr time  368.03 secs    0.11 millis  368.03 secs
+   sys time    1.22 secs    1.95 millis    1.22 secs
 ```

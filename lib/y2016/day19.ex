@@ -15,6 +15,10 @@ defmodule Y2016.Day19 do
   @doc """
   iex> Day19.part2(5)
   2
+
+  # Extras grabbed from https://www.reddit.com/r/adventofcode/comments/5pczxh/2016_day_19_part_2_request_for_test_result/
+  iex> Day19.part2(65535)
+  6486
   """
   def part2(elf_count \\ @elf_count) do
     1..elf_count
@@ -25,17 +29,30 @@ defmodule Y2016.Day19 do
   defp round_steal([one], _, _), do: one
 
   defp round_steal(list, position, size) do
-    if rem(size, 1000) == 0, do: IO.inspect(size)
+    # This was never going to finish, without knowing if I had the algorithm right
+    # (and there were many off-by-one errors)
+    # So I wrote it in Ruby, which has mutable state.
+    # 3000000 array deletions and indexes are still slow as hell,
+    # but it runs and gave the answer.
+    # I've copied the algorithm back here, but it will still never finish.
+    if rem(size, 10000) == 0, do: IO.inspect(size)
 
     opposite_position = opposite(position, size)
+    killer = Enum.at(list, position)
+    killed = Enum.at(list, opposite_position)
     list = List.delete_at(list, opposite_position)
-    next_position = if(position + 1 >= size, do: 0, else: position + 1)
-    round_steal(list, next_position, size - 1)
+
+    # IO.puts(
+    #  "elf #{killer} (pos #{position}) takes from elf #{killed} (pos #{opposite_position}) (elves left: #{size})"
+    # )
+
+    new_position = if killed < killer, do: position - 1, else: position
+    position = if new_position + 1 == size - 1, do: 0, else: new_position + 1
+    round_steal(list, position, size - 1)
   end
 
   defp opposite(position, size) do
-    maybe = div(size, 2) + position
-    if maybe >= size, do: maybe - size, else: maybe
+    rem(div(size, 2) + position, size)
   end
 
   defp present_steal([], [elf]), do: elf
@@ -50,4 +67,5 @@ defmodule Y2016.Day19 do
   end
 
   def part1_verify, do: part1()
+  # def part2_verify, do: part2()
 end
