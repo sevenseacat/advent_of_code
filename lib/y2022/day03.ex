@@ -3,36 +3,46 @@ defmodule Y2022.Day03 do
 
   def part1(input) do
     input
-    |> Enum.map(fn rucksack -> common_priority(rucksack).value end)
+    |> Enum.map(fn string ->
+      halves = String.split_at(string, div(String.length(string), 2)) |> Tuple.to_list()
+      common_priority(halves).value
+    end)
+    |> Enum.sum()
+  end
+
+  def part2(input) do
+    input
+    |> Enum.chunk_every(3)
+    |> Enum.map(fn rucksacks -> common_priority(rucksacks).value end)
     |> Enum.sum()
   end
 
   @doc """
-  iex> Day03.common_priority({"vJrwpWtwJgWr", "hcsFMMfFFhFp"})
+  iex> Day03.common_priority(["vJrwpWtwJgWr", "hcsFMMfFFhFp"])
   %{item: "p", value: 16}
 
-  iex> Day03.common_priority({"jqHRNqRjqzjGDLGL", "rsFMfFZSrLrFZsSL"})
+  iex> Day03.common_priority(["jqHRNqRjqzjGDLGL", "rsFMfFZSrLrFZsSL"])
   %{item: "L", value: 38}
   """
-  def common_priority({a, b}) do
-    list_a = String.to_charlist(a)
-    list_b = String.to_charlist(b)
-    common_item = hd(list_a -- list_a -- list_b)
+  def common_priority(lists) do
+    common_item =
+      lists
+      |> Enum.map(&String.to_charlist/1)
+      |> common_elements()
+      |> hd()
 
     # 38 is ?A - priority of "A" (27), 96 is ?a - priority of "a" (1)
     value = if common_item in ?A..?Z, do: common_item - 38, else: common_item - 96
     %{item: to_string([common_item]), value: value}
   end
 
-  @doc """
-  iex> Day03.parse_input("vJrwpWtwJgWrhcsFMMfFFhFp\\njqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL")
-  [{"vJrwpWtwJgWr", "hcsFMMfFFhFp"}, {"jqHRNqRjqzjGDLGL", "rsFMfFZSrLrFZsSL"}]
-  """
+  defp common_elements([a, b]), do: a -- a -- b
+  defp common_elements([a, b | rest]), do: common_elements([a, common_elements([b | rest])])
+
   def parse_input(input) do
-    input
-    |> String.split("\n", trim: true)
-    |> Enum.map(fn string -> String.split_at(string, div(String.length(string), 2)) end)
+    String.split(input, "\n", trim: true)
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
