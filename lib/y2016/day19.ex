@@ -21,36 +21,30 @@ defmodule Y2016.Day19 do
   6486
   """
   def part2(elf_count \\ @elf_count) do
-    1..elf_count
-    |> Enum.to_list()
-    |> round_steal(0, elf_count)
+    # MORE REVERSE ENGINEERING YOOOOOO
+    # Once I had a formula that actually worked naively, I generated results for a whole bunch of
+    # incrementing numbers to see if I could spot a pattern - and I did.
+    # For all powers of 3, the winning elf is that number - ie. 9, 27, 81, 243, etc.
+    # (Pity @elf_count isn't a power of 3.)
+    # For numbers between powers of 3, the winning numbers start from 1 and increment for a time
+    # by 1s, and then the rest by 2s to get to the power.
+    # eg. 3 => 3, 4 => 1, 5 => 2, 6 => 3, 7 => 5, 8 => 7, 9 => 9
+    # Is there a pattern to where they start increasing by 2 instead of 1?
+    # YES - They start increasing by 2 after the previous power's result.
+    # eg. 6 -> 3, 3 is 3^1, so after 6 the answers start increasing by 2.
+
+    # So. The highest power of 3 lower than @elf_count is 1594323 (3^13).
+    # So 1594323 => 1594323, then 1594324 => 1, 1594325 => 2.... up to 3188650 => 1594323, then they
+    # will increase by twos.
+    # So the answer is... (@elf_count - 1594323) = 1424135
+    # AND IT IS. Verified by the Ruby version of the code I originally wrote that took 5 minutes to run,
+    # and the site accepted as correct. And my doctests for smaller values.
+    power = find_highest_power_of(3, 0, elf_count)
+    elf_count - 3 ** power
   end
 
-  defp round_steal([one], _, _), do: one
-
-  defp round_steal(list, position, size) do
-    # This was never going to finish, without knowing if I had the algorithm right
-    # (and there were many off-by-one errors)
-    # So I wrote it in Ruby, which has mutable state.
-    # 3000000 array deletions and indexes are still slow as hell,
-    # but it runs and gave the answer.
-    # I've copied the algorithm back here, but it will still never finish.
-    if rem(size, 10000) == 0, do: IO.inspect(size)
-
-    opposite_position = opposite(position, size)
-    list = List.delete_at(list, opposite_position)
-
-    # IO.puts(
-    #  "elf #{killer} (pos #{position}) takes from elf #{killed} (pos #{opposite_position}) (elves left: #{size})"
-    # )
-
-    new_position = if opposite_position < position, do: position - 1, else: position
-    position = if new_position + 1 == size - 1, do: 0, else: new_position + 1
-    round_steal(list, position, size - 1)
-  end
-
-  defp opposite(position, size) do
-    rem(div(size, 2) + position, size)
+  defp find_highest_power_of(x, y, cap) do
+    if x ** y > cap, do: y - 1, else: find_highest_power_of(x, y + 1, cap)
   end
 
   defp present_steal([], [elf]), do: elf
@@ -65,5 +59,5 @@ defmodule Y2016.Day19 do
   end
 
   def part1_verify, do: part1()
-  # def part2_verify, do: part2()
+  def part2_verify, do: part2()
 end

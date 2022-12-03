@@ -49,19 +49,11 @@ day 17, part 2          1.74      573.14 ms     ±0.12%      572.86 ms      574.
 day 18, part 1       1928.36        0.52 ms    ±12.95%        0.50 ms        0.64 ms
 day 18, part 2          0.30     3290.21 ms     ±2.65%     3290.21 ms     3351.78 ms
 day 19, part 1         11.46       87.28 ms    ±21.65%       85.77 ms      183.46 ms
+day 19, part 2    4112587.66     0.00024 ms  ±4079.84%     0.00025 ms     0.00038 ms
 day 20, part 1       2406.76        0.42 ms    ±23.19%        0.41 ms        0.54 ms
 day 20, part 2       1880.72        0.53 ms     ±7.62%        0.52 ms        0.63 ms
 day 21, part 1      10452.99      0.0957 ms    ±72.83%      0.0758 ms       0.192 ms
 day 21, part 2      11103.77      0.0901 ms    ±24.83%      0.0838 ms       0.165 ms
 day 22, part 1         20.38       49.07 ms     ±1.95%       49.35 ms       51.57 ms
 day 22, part 2          3.42      291.99 ms     ±4.73%      287.93 ms      324.14 ms
-```
-
-
-```
-day 19 part 2, initial implementation (in Ruby):
-
-Executed in  369.41 secs    fish           external
-   usr time  368.03 secs    0.11 millis  368.03 secs
-   sys time    1.22 secs    1.95 millis    1.22 secs
 ```
