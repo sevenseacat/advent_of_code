@@ -27,7 +27,7 @@ For the puzzles I completed prior to Advent of Code 2021, I've copied them from 
 ## My current stats
 
 * [2015 - 50/50 :star:](/lib/y2015/) 
-* [2016 - 44/50 :star:](/lib/y2016/)
+* [2016 - 45/50 :star:](/lib/y2016/)
 * [2017 - 50/50 :star:](/lib/y2017/)
 * [2018 - 50/50 :star:](/lib/y2018/)
 * [2019 - 31/50 :star:](/lib/y2019/)
