@@ -5,6 +5,9 @@ defmodule Y2016.Day23Test do
 
   test "verification, part 1", do: assert(Day23.part1_verify() == 13468)
 
+  @skip
+  test "verification, part 2", do: assert(Day23.part2_verify() == 479_010_028)
+
   describe "part1/1" do
     test "sample" do
       input = """
