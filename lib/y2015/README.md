@@ -2,9 +2,7 @@
 
 My Elixir solutions for [Advent of Code 2015](https://adventofcode.com/2015).
 
-**Stars complete: 48/50 :star:**
-
-(The only puzzle I haven't completed is day 19, part 2)
+**Stars complete: 50/50 :star:**
 
 ## Benchmarks
 
