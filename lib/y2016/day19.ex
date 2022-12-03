@@ -4,12 +4,38 @@ defmodule Y2016.Day19 do
   @elf_count 3_018_458
 
   @doc """
-  iex> Day19.last_elf_standing(5)
+  iex> Day19.part1(5)
   3
   """
-  def last_elf_standing(elf_count \\ @elf_count) do
+  def part1(elf_count \\ @elf_count) do
     Enum.to_list(1..elf_count)
     |> present_steal([])
+  end
+
+  @doc """
+  iex> Day19.part2(5)
+  2
+  """
+  def part2(elf_count \\ @elf_count) do
+    1..elf_count
+    |> Enum.to_list()
+    |> round_steal(0, elf_count)
+  end
+
+  defp round_steal([one], _, _), do: one
+
+  defp round_steal(list, position, size) do
+    if rem(size, 1000) == 0, do: IO.inspect(size)
+
+    opposite_position = opposite(position, size)
+    list = List.delete_at(list, opposite_position)
+    next_position = if(position + 1 >= size, do: 0, else: position + 1)
+    round_steal(list, next_position, size - 1)
+  end
+
+  defp opposite(position, size) do
+    maybe = div(size, 2) + position
+    if maybe >= size, do: maybe - size, else: maybe
   end
 
   defp present_steal([], [elf]), do: elf
@@ -23,5 +49,5 @@ defmodule Y2016.Day19 do
     present_steal(rest, [elf1 | waiting])
   end
 
-  def part1_verify, do: last_elf_standing()
+  def part1_verify, do: part1()
 end
