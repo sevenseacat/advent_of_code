@@ -50,6 +50,9 @@ defmodule Y2016.Day12 do
 
   iex> Day12.execute_instruction(["tgl", "a"], {0, 3, 4, 5}, 1, %{0 => ["inc", "b"], 1 => ["tgl", "a"]})
   {{0, 3, 4, 5}, 2, %{0 => ["inc", "b"], 1 => ["inc", "a"]}}
+
+  iex> Day12.execute_instruction(["out", "a"], {44, 3, 4, 5}, 2, nil)
+  [{{44, 3, 4, 5}, 3, nil}, 44]
   """
   def execute_instruction(["inc", letter], state, index, input) do
     new_state = put_elem(state, register(letter), elem(state, register(letter)) + 1)
@@ -72,6 +75,10 @@ defmodule Y2016.Day12 do
       0 -> {state, index + 1, input}
       _ -> {state, index + register_val(state, move), input}
     end
+  end
+
+  def execute_instruction(["out", letter], state, index, input) do
+    [{state, index + 1, input}, register_val(state, letter)]
   end
 
   def execute_instruction(["tgl", letter], state, index, input) do
