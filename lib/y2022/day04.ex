@@ -3,16 +3,26 @@ defmodule Y2022.Day04 do
 
   def part1(input) do
     input
-    |> Enum.filter(&overlapping?/1)
+    |> Enum.filter(fn row -> overlapping?(row, &fully_overlapping?/2) end)
     |> length
   end
 
-  defp overlapping?({one, two}) do
-    overlapping?(one, two) || overlapping?(two, one)
+  def part2(input) do
+    input
+    |> Enum.filter(fn row -> overlapping?(row, &partially_overlapping?/2) end)
+    |> length
   end
 
-  defp overlapping?({a, b}, {c, d}) do
+  defp overlapping?({one, two}, overlap_fn) do
+    overlap_fn.(one, two) || overlap_fn.(two, one)
+  end
+
+  defp fully_overlapping?({a, b}, {c, d}) do
     a <= c && b >= d
+  end
+
+  defp partially_overlapping?({a, b}, {c, d}) do
+    (a <= c && b >= c) || (a <= d && b >= d)
   end
 
   @doc """
@@ -32,4 +42,5 @@ defmodule Y2022.Day04 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
