@@ -2,6 +2,7 @@ defmodule Y2018.Day15 do
   use Advent.Day, no: 15
 
   alias Y2018.Day15.Unit
+  alias Advent.Grid
 
   def part1(input) do
     {units, graph} = parse_input(input)
@@ -196,62 +197,28 @@ defmodule Y2018.Day15 do
   end
 
   def parse_input(input, power \\ %{"G" => 3, "E" => 3}) do
-    {units, coords, _row} =
-      input
-      |> String.split("\n", trim: true)
-      |> Enum.reduce({[], Graph.new(), 1}, fn row, acc -> parse_row(row, acc, power) end)
+    %Grid{graph: graph, units: units} = Grid.new(input)
 
-    {sort_units(units), coords}
-  end
+    units =
+      units
+      |> Enum.map(fn unit -> convert_unit(unit, power) end)
+      |> sort_units()
 
-  defp parse_row(row, {units, graph, row_num}, power) do
-    {units, coords, _col_num} =
-      row
-      |> String.graphemes()
-      |> Enum.reduce({units, graph, 1}, fn char, {units, graph, col_num} ->
-        units = parse_unit(char, units, power, row_num, col_num)
-        graph = parse_coord(char, graph, row_num, col_num)
-        {units, graph, col_num + 1}
-      end)
-
-    {units, coords, row_num + 1}
+    {units, graph}
   end
 
   defp sort_units(units) do
     Enum.sort_by(units, fn unit -> unit.position end)
   end
 
-  defp parse_unit("#", units, _, _, _), do: units
-  defp parse_unit(".", units, _, _, _), do: units
-
-  defp parse_unit(unit, units, power, row, col) do
-    [
-      %Unit{
-        type: unit,
-        hp: 200,
-        position: {row, col},
-        alive: true,
-        power: power[unit]
-      }
-      | units
-    ]
-  end
-
-  defp parse_coord("#", graph, _, _), do: graph
-
-  defp parse_coord(_, graph, row, col) do
-    graph = Graph.add_vertex(graph, {row, col})
-
-    [{row - 1, col}, {row, col - 1}]
-    |> Enum.reduce(graph, fn neighbour, graph ->
-      if Graph.has_vertex?(graph, neighbour) do
-        graph
-        |> Graph.add_edge({row, col}, neighbour)
-        |> Graph.add_edge(neighbour, {row, col})
-      else
-        graph
-      end
-    end)
+  defp convert_unit(%{identifier: identifier, position: position}, power_levels) do
+    %Unit{
+      type: identifier,
+      hp: 200,
+      position: position,
+      alive: true,
+      power: power_levels[identifier]
+    }
   end
 
   def display_grid({units, graph}) do

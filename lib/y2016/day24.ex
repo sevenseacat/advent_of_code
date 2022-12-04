@@ -1,25 +1,30 @@
 defmodule Y2016.Day24 do
   use Advent.Day, no: 24
+  alias Advent.Grid
 
-  def part1({graph, units}) do
-    targets = Map.keys(units) -- [0]
-
-    targets
-    |> Advent.permutations(length(targets))
-    |> Enum.map(&[0 | &1])
-    |> min_distance({graph, units})
+  def part1(%Grid{} = grid) do
+    grid.units
+    |> find_targets()
+    |> Advent.full_permutations()
+    |> Enum.map(&["0" | &1])
+    |> min_distance(grid)
   end
 
-  def part2({graph, units}) do
-    targets = Map.keys(units) -- [0]
-
-    targets
-    |> Advent.permutations(length(targets))
-    |> Enum.map(&([0 | &1] ++ [0]))
-    |> min_distance({graph, units})
+  def part2(%Grid{} = grid) do
+    grid.units
+    |> find_targets()
+    |> Advent.full_permutations()
+    |> Enum.map(&(["0" | &1] ++ ["0"]))
+    |> min_distance(grid)
   end
 
-  defp min_distance(orders, {graph, units}) do
+  defp find_targets(units) when is_list(units) do
+    Enum.map(units, & &1.identifier) -- ["0"]
+  end
+
+  defp min_distance(orders, %Grid{graph: graph, units: units}) do
+    units = Map.new(units, &{&1.identifier, &1.position})
+
     orders
     |> Enum.reduce({[], %{}}, fn order, {data, cache} ->
       {distance, cache} = distance(graph, units, order, cache)
@@ -49,48 +54,7 @@ defmodule Y2016.Day24 do
     end)
   end
 
-  def parse_input(input) do
-    {graph, units, _row} =
-      input
-      |> String.split("\n", trim: true)
-      |> Enum.reduce({Graph.new(), %{}, 1}, &parse_row/2)
-
-    {graph, units}
-  end
-
-  defp parse_row(row, {graph, units, row_num}) do
-    {graph, units, _col_num} =
-      row
-      |> String.graphemes()
-      |> Enum.reduce({graph, units, 1}, fn char, {graph, units, col_num} ->
-        units = parse_unit(char, units, row_num, col_num)
-        graph = parse_coord(char, graph, row_num, col_num)
-        {graph, units, col_num + 1}
-      end)
-
-    {graph, units, row_num + 1}
-  end
-
-  defp parse_unit("#", units, _row, _col), do: units
-  defp parse_unit(".", units, _row, _col), do: units
-  defp parse_unit(unit, units, row, col), do: Map.put(units, String.to_integer(unit), {row, col})
-
-  defp parse_coord("#", graph, _, _), do: graph
-
-  defp parse_coord(_, graph, row, col) do
-    graph = Graph.add_vertex(graph, {row, col})
-
-    [{row - 1, col}, {row, col - 1}]
-    |> Enum.reduce(graph, fn neighbour, graph ->
-      if Graph.has_vertex?(graph, neighbour) do
-        graph
-        |> Graph.add_edge({row, col}, neighbour)
-        |> Graph.add_edge(neighbour, {row, col})
-      else
-        graph
-      end
-    end)
-  end
+  def parse_input(input), do: Grid.new(input)
 
   def part1_verify, do: input() |> parse_input() |> part1() |> elem(1)
   def part2_verify, do: input() |> parse_input() |> part2() |> elem(1)

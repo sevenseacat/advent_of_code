@@ -7,6 +7,10 @@ defmodule Advent do
     for head <- list, tail <- permutations(list -- [head], k - 1), do: [head | tail]
   end
 
+  def full_permutations(list) when is_list(list) do
+    permutations(list, length(list))
+  end
+
   # Combinations don't involve any kind of order.
   # https://stackoverflow.com/a/30587756/560215
   def combinations(_, 0), do: [[]]
