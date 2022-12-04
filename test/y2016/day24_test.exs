@@ -12,6 +12,7 @@ defmodule Y2016.Day24Test do
   """
 
   test "verification, part 1", do: assert(Day24.part1_verify() == 456)
+  test "verification, part 2", do: assert(Day24.part2_verify() == 704)
 
   test "part1/1" do
     result = Day24.parse_input(@sample_input) |> Day24.part1()

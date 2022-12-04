@@ -6,8 +6,22 @@ defmodule Y2016.Day24 do
 
     targets
     |> Advent.permutations(length(targets))
+    |> Enum.map(&[0 | &1])
+    |> min_distance({graph, units})
+  end
+
+  def part2({graph, units}) do
+    targets = Map.keys(units) -- [0]
+
+    targets
+    |> Advent.permutations(length(targets))
+    |> Enum.map(&([0 | &1] ++ [0]))
+    |> min_distance({graph, units})
+  end
+
+  defp min_distance(orders, {graph, units}) do
+    orders
     |> Enum.reduce({[], %{}}, fn order, {data, cache} ->
-      order = [0 | order]
       {distance, cache} = distance(graph, units, order, cache)
       {[{order, distance} | data], cache}
     end)
@@ -79,4 +93,5 @@ defmodule Y2016.Day24 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1() |> elem(1)
+  def part2_verify, do: input() |> parse_input() |> part2() |> elem(1)
 end
