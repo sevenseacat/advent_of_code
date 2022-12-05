@@ -1,0 +1,77 @@
+defmodule Y2022.Day05 do
+  use Advent.Day, no: 05
+
+  #             [M] [S] [S]
+  #         [M] [N] [L] [T] [Q]
+  # [G]     [P] [C] [F] [G] [T]
+  # [B]     [J] [D] [P] [V] [F] [F]
+  # [D]     [D] [G] [C] [Z] [H] [B] [G]
+  # [C] [G] [Q] [L] [N] [D] [M] [D] [Q]
+  # [P] [V] [S] [S] [B] [B] [Z] [M] [C]
+  # [R] [H] [N] [P] [J] [Q] [B] [C] [F]
+  #  1   2   3   4   5   6   7   8   9
+
+  @stacks %{
+    1 => 'RPCDBG',
+    2 => 'HVG',
+    3 => 'NSQDJPM',
+    4 => 'PSLGDCNM',
+    5 => 'JBNCPFLS',
+    6 => 'QBDZVGTS',
+    7 => 'BZMHFTQ',
+    8 => 'CMDBF',
+    9 => 'FCQG'
+  }
+
+  def part1(input, stacks \\ @stacks) do
+    stacks = build_queues(stacks)
+
+    stacks =
+      Enum.reduce(input, stacks, &move/2)
+      |> Enum.reduce(%{}, fn {num, stack}, acc -> Map.put(acc, num, :queue.to_list(stack)) end)
+
+    value = Enum.map(stacks, fn {_num, stack} -> List.last(stack) end)
+    {stacks, value}
+  end
+
+  def move(%{count: count, from: from_id, to: to_id}, stacks) do
+    from_stack = Map.fetch!(stacks, from_id)
+    to_stack = Map.fetch!(stacks, to_id)
+
+    {from_stack, to_stack} =
+      Enum.reduce(1..count, {from_stack, to_stack}, fn _x, {f, t} ->
+        {{:value, crate}, f} = :queue.out_r(f)
+        t = :queue.in(crate, t)
+        {f, t}
+      end)
+
+    %{stacks | from_id => from_stack, to_id => to_stack}
+  end
+
+  defp build_queues(stacks) do
+    Enum.reduce(stacks, %{}, fn {num, crates}, acc ->
+      Map.put(acc, num, :queue.from_list(crates))
+    end)
+  end
+
+  @doc """
+  iex> Day05.parse_input("move 1 from 7 to 4\\nmove 3 from 4 to 7\\n")
+  [%{count: 1, from: 7, to: 4}, %{count: 3, from: 4, to: 7}]
+  """
+  def parse_input(input) do
+    input
+    |> String.split("\n", trim: true)
+    |> Enum.map(fn string ->
+      [count, from, to] =
+        Regex.run(~r/move (\d+) from (\d+) to (\d+)/, string, capture: :all_but_first)
+
+      %{
+        count: String.to_integer(count),
+        from: String.to_integer(from),
+        to: String.to_integer(to)
+      }
+    end)
+  end
+
+  def part1_verify, do: input() |> parse_input() |> part1(@stacks) |> elem(1)
+end
