@@ -12,39 +12,20 @@ defmodule Mix.Tasks.UpdateReadmeStars do
     eg. `<!-- stars 2022 start --><!-- stars 2022 end -->`
   """
   use Mix.Task
+  alias Advent.Stats
 
   @years 2015..DateTime.utc_now().year
 
   def run([]) do
-    HTTPoison.start()
+    Mix.Shell.IO.info("Updating README stars...")
 
-    with {:ok, uid} <- System.fetch_env("AOC_UID"),
-         {:ok, session_token} <- System.fetch_env("AOC_SESSION") do
-      Mix.Shell.IO.info("Updating README stars...")
+    star_data =
+      Enum.reduce(@years, %{}, fn year, acc ->
+        Map.put(acc, year, Stats.count_complete_puzzles(year))
+      end)
 
-      star_data =
-        Enum.reduce(@years, %{}, fn year, acc ->
-          Map.put(acc, year, star_count(year, uid, session_token))
-        end)
-
-      Enum.each(readmes(), fn file -> add_stars_to_year_readme(file, star_data) end)
-      add_stars_to_main_readme("README.md", star_data)
-    else
-      :error -> Mix.Shell.IO.error("AOC_UID or AOC_SESSION not set in ENV")
-    end
-  end
-
-  defp star_count(year, uid, session_token) do
-    HTTPoison.get!(
-      "https://adventofcode.com/#{year}/leaderboard/private/view/#{uid}.json",
-      %{
-        "User-Agent" => "https://github.com/sevenseacat/advent_of_code by traybaby@gmail.com",
-        "Cookie" => "session=#{session_token}"
-      }
-    )
-    |> Map.get(:body)
-    |> Jason.decode!()
-    |> get_in(["members", uid, "stars"])
+    Enum.each(readmes(), fn file -> add_stars_to_year_readme(file, star_data) end)
+    add_stars_to_main_readme("README.md", star_data)
   end
 
   defp add_stars_to_main_readme(file, star_data) do
