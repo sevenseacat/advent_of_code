@@ -23,29 +23,50 @@ defmodule Y2022.Day05 do
     9 => 'FCQG'
   }
 
-  def part1(input, stacks \\ @stacks) do
+  def part1(input, stacks \\ @stacks), do: do_parts(input, stacks, &mover_9000/3)
+  def part2(input, stacks \\ @stacks), do: do_parts(input, stacks, &mover_9001/3)
+
+  defp do_parts(input, stacks, mover_fn) do
     stacks = build_queues(stacks)
 
     stacks =
-      Enum.reduce(input, stacks, &move/2)
+      input
+      |> Enum.reduce(stacks, fn move, stacks -> move(move, stacks, mover_fn) end)
       |> Enum.reduce(%{}, fn {num, stack}, acc -> Map.put(acc, num, :queue.to_list(stack)) end)
 
     value = Enum.map(stacks, fn {_num, stack} -> List.last(stack) end)
     {stacks, value}
   end
 
-  def move(%{count: count, from: from_id, to: to_id}, stacks) do
+  def move(%{count: count, from: from_id, to: to_id}, stacks, mover_fn) do
     from_stack = Map.fetch!(stacks, from_id)
     to_stack = Map.fetch!(stacks, to_id)
 
-    {from_stack, to_stack} =
-      Enum.reduce(1..count, {from_stack, to_stack}, fn _x, {f, t} ->
-        {{:value, crate}, f} = :queue.out_r(f)
-        t = :queue.in(crate, t)
-        {f, t}
-      end)
+    {from_stack, to_stack} = mover_fn.(from_stack, to_stack, count)
 
     %{stacks | from_id => from_stack, to_id => to_stack}
+  end
+
+  defp mover_9000(from, to, count) do
+    Enum.reduce(1..count, {from, to}, fn _x, {f, t} ->
+      {{:value, crate}, f} = :queue.out_r(f)
+      {f, :queue.in(crate, t)}
+    end)
+  end
+
+  defp mover_9001(from, to, count) do
+    {from, to_move} =
+      Enum.reduce(1..count, {from, []}, fn _x, {f, pile} ->
+        {{:value, crate}, f} = :queue.out_r(f)
+        {f, [crate | pile]}
+      end)
+
+    to =
+      Enum.reduce(to_move, to, fn crate, t ->
+        :queue.in(crate, t)
+      end)
+
+    {from, to}
   end
 
   defp build_queues(stacks) do
@@ -74,4 +95,5 @@ defmodule Y2022.Day05 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1(@stacks) |> elem(1)
+  def part2_verify, do: input() |> parse_input() |> part2(@stacks) |> elem(1)
 end
