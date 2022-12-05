@@ -2,7 +2,8 @@
 
 My Elixir solutions for [Advent of Code 2019](https://adventofcode.com/2019).
 
-**Stars complete: 31/50 :star:**
+<!-- stars 2019 start -->
+<!-- stars 2019 end -->
 
 ## Benchmarks
 

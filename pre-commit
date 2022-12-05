@@ -1,0 +1,2 @@
+mix update_readme_stars
+git add **/README.md

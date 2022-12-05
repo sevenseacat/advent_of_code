@@ -4,6 +4,17 @@
 
 My Elixir solutions for [Advent of Code](https://adventofcode.com/) (all years).
 
+<!-- stars start -->
+<img src="https://img.shields.io/badge/2015-%E2%AD%90%EF%B8%8F_50_stars_%E2%AD%90%EF%B8%8F-brightgreen?style=flat-square" alt="50 stars" />
+<img src="https://img.shields.io/badge/2016-%E2%AD%90%EF%B8%8F_50_stars_%E2%AD%90%EF%B8%8F-brightgreen?style=flat-square" alt="50 stars" />
+<img src="https://img.shields.io/badge/2017-%E2%AD%90%EF%B8%8F_50_stars_%E2%AD%90%EF%B8%8F-brightgreen?style=flat-square" alt="50 stars" />
+<img src="https://img.shields.io/badge/2018-%E2%AD%90%EF%B8%8F_50_stars_%E2%AD%90%EF%B8%8F-brightgreen?style=flat-square" alt="50 stars" />
+<img src="https://img.shields.io/badge/2019-31_stars-yellow?style=flat-square" alt="31 stars" />
+<img src="https://img.shields.io/badge/2020-30_stars-yellow?style=flat-square" alt="30 stars" />
+<img src="https://img.shields.io/badge/2021-46_stars-green?style=flat-square" alt="46 stars" />
+<img src="https://img.shields.io/badge/2022-10_stars-orange?style=flat-square" alt="10 stars" />
+<!-- stars end -->
+
 This repository is a work in progress - I haven't yet completed all puzzles, but I'm working on them!
 
 Each yearly event has:
@@ -23,14 +34,3 @@ Each day's solution follows a general formula:
 * The test module for each day's solution verifies that the code gives the correct answer as input on the site, by calling `part1_verify/0` or `part2_verify/0`.
 
 For the puzzles I completed prior to Advent of Code 2021, I've copied them from their original codebases into this repo commit by commit, modifying them to fit into my new universal structure. I've also kept the original author dates on those commits, some of them date back to 2016!
-
-## My current stats
-
-* [2015 - 50/50 :star:](/lib/y2015/) :tada:
-* [2016 - 50/50 :star:](/lib/y2016/) :tada:
-* [2017 - 50/50 :star:](/lib/y2017/) :tada:
-* [2018 - 50/50 :star:](/lib/y2018/) :tada:
-* [2019 - 31/50 :star:](/lib/y2019/)
-* [2020 - 30/50 :star:](/lib/y2020/)
-* [2021 - 46/50 :star:](/lib/y2021/)
-* [2022 - 10/10 :star:](/lib/y2022/)

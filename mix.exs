@@ -23,7 +23,8 @@ defmodule Advent.MixProject do
     [
       {:jason, "~> 1.2"},
       {:libgraph, "~> 0.13.3"},
-      {:benchee, "~> 1.0"}
+      {:benchee, "~> 1.0"},
+      {:httpoison, "~> 1.8.2", only: :dev}
     ]
   end
 end

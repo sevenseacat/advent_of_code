@@ -2,7 +2,7 @@
 
 My Elixir solutions for [Advent of Code 2018](https://adventofcode.com/2018).
 
-**Stars complete: 50/50 :star:**
+<!-- stars 2018 start --><img src="https://img.shields.io/badge/2018-%E2%AD%90%EF%B8%8F_50_stars_%E2%AD%90%EF%B8%8F-brightgreen?style=for-the-badge" alt="50 stars" /><!-- stars 2018 end -->
 
 ## Benchmarks
 
