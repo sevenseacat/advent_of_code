@@ -30,9 +30,9 @@ defmodule Mix.Tasks.UpdateReadmeStars do
 
   defp add_stars_to_main_readme(file, star_data) do
     with {:ok, contents} <- File.read(file) do
-      images =
+      links =
         Enum.map(star_data, fn {year, star_count} ->
-          badge_image(year, star_count, :small)
+          "<a href=\"./lib/y#{year}/\">#{badge_image(year, star_count, :small)}</a>"
         end)
         |> Enum.join("\n")
 
@@ -40,7 +40,7 @@ defmodule Mix.Tasks.UpdateReadmeStars do
         String.replace(
           contents,
           ~r/#{start_tag()}(.*)#{end_tag()}/s,
-          "#{start_tag()}\n#{images}\n#{end_tag()}"
+          "#{start_tag()}\n#{links}\n#{end_tag()}"
         )
 
       File.write!(file, contents)

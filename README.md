@@ -5,14 +5,14 @@
 My Elixir solutions for [Advent of Code](https://adventofcode.com/) (all years).
 
 <!-- stars start -->
-<img src="https://img.shields.io/badge/2015-%E2%AD%90%EF%B8%8F_50_stars_%E2%AD%90%EF%B8%8F-brightgreen?style=flat-square" alt="50 stars" />
-<img src="https://img.shields.io/badge/2016-%E2%AD%90%EF%B8%8F_50_stars_%E2%AD%90%EF%B8%8F-brightgreen?style=flat-square" alt="50 stars" />
-<img src="https://img.shields.io/badge/2017-%E2%AD%90%EF%B8%8F_50_stars_%E2%AD%90%EF%B8%8F-brightgreen?style=flat-square" alt="50 stars" />
-<img src="https://img.shields.io/badge/2018-%E2%AD%90%EF%B8%8F_50_stars_%E2%AD%90%EF%B8%8F-brightgreen?style=flat-square" alt="50 stars" />
-<img src="https://img.shields.io/badge/2019-31_stars-yellow?style=flat-square" alt="31 stars" />
-<img src="https://img.shields.io/badge/2020-30_stars-yellow?style=flat-square" alt="30 stars" />
-<img src="https://img.shields.io/badge/2021-46_stars-green?style=flat-square" alt="46 stars" />
-<img src="https://img.shields.io/badge/2022-10_stars-orange?style=flat-square" alt="10 stars" />
+<a href="./lib/y2015/"><img src="https://img.shields.io/badge/2015-%E2%AD%90%EF%B8%8F_50_stars_%E2%AD%90%EF%B8%8F-brightgreen?style=flat-square" alt="50 stars" /></a>
+<a href="./lib/y2016/"><img src="https://img.shields.io/badge/2016-%E2%AD%90%EF%B8%8F_50_stars_%E2%AD%90%EF%B8%8F-brightgreen?style=flat-square" alt="50 stars" /></a>
+<a href="./lib/y2017/"><img src="https://img.shields.io/badge/2017-%E2%AD%90%EF%B8%8F_50_stars_%E2%AD%90%EF%B8%8F-brightgreen?style=flat-square" alt="50 stars" /></a>
+<a href="./lib/y2018/"><img src="https://img.shields.io/badge/2018-%E2%AD%90%EF%B8%8F_50_stars_%E2%AD%90%EF%B8%8F-brightgreen?style=flat-square" alt="50 stars" /></a>
+<a href="./lib/y2019/"><img src="https://img.shields.io/badge/2019-31_stars-yellow?style=flat-square" alt="31 stars" /></a>
+<a href="./lib/y2020/"><img src="https://img.shields.io/badge/2020-30_stars-yellow?style=flat-square" alt="30 stars" /></a>
+<a href="./lib/y2021/"><img src="https://img.shields.io/badge/2021-46_stars-green?style=flat-square" alt="46 stars" /></a>
+<a href="./lib/y2022/"><img src="https://img.shields.io/badge/2022-10_stars-orange?style=flat-square" alt="10 stars" /></a>
 <!-- stars end -->
 
 This repository is a work in progress - I haven't yet completed all puzzles, but I'm working on them!
