@@ -15,6 +15,14 @@ defmodule Y2016.Day08 do
     |> Enum.reduce(blank_screen(width, height), &process_line/2)
   end
 
+  def part2(input) do
+    # Arranges the input and then displays it nicely.
+    input
+    |> final_arrangement
+    |> Enum.join("\n")
+    |> IO.puts()
+  end
+
   @doc """
   iex> Day08.lit_pixel_count([".#..#.#", "#.#....", ".#....."])
   6
@@ -120,4 +128,5 @@ defmodule Y2016.Day08 do
   end
 
   def part1_verify, do: parse_input() |> final_arrangement() |> lit_pixel_count()
+  def part2_verify, do: parse_input() |> part2()
 end

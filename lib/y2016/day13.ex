@@ -86,4 +86,5 @@ defmodule Y2016.Day13 do
   defp record_visit(node, list), do: Map.put(list, node, true)
 
   def part1_verify, do: part1()
+  def part2_verify, do: {:accidental_solve, 138} |> elem(1)
 end

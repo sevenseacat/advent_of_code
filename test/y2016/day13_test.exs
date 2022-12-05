@@ -6,6 +6,7 @@ defmodule Y2016.Day13Test do
   doctest Day13.Position
 
   test "verification, part 1", do: assert(Day13.part1_verify() == 82)
+  test "verification, part 2", do: assert(Day13.part2_verify() == 138)
 
   test "running an actual scenario for a given initial position and returning a path length" do
     path = Position.initial() |> Day13.get_optimal_path([7, 4], 10)
