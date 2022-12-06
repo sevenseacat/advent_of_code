@@ -20,10 +20,8 @@ defmodule Y2019.Day16.PatternKeeper do
       if Map.has_key?(state, digit) do
         state
       else
-        [h | t] =
-          @base_pattern |> Enum.map(fn i -> List.duplicate(i, digit + 1) end) |> Enum.concat()
-
-        Map.put(state, digit, t ++ [h])
+        pattern = Enum.flat_map(@base_pattern, fn i -> List.duplicate(i, digit + 1) end)
+        Map.put(state, digit, pattern)
       end
 
     {:reply, Map.get(state, digit), state}

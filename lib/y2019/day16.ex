@@ -47,10 +47,24 @@ defmodule Y2019.Day16 do
     pattern = PatternKeeper.get_pattern_for_digit(digit)
 
     input
-    |> Enum.zip(Stream.cycle(pattern))
-    |> Enum.reduce(0, fn {a, b}, acc -> acc + a * b end)
+    |> Enum.reduce({build_stream(pattern), 0}, fn digit, {stream, acc} ->
+      {val, stream} = next_in_stream(stream)
+      {stream, acc + digit * val}
+    end)
+    |> elem(1)
     |> rem(10)
     |> abs
+  end
+
+  # Build my own pseudo-stream, that can pop a value and keep cycling on demand.
+  # Initiate it with the very first item already popped, as per requirements
+  defp build_stream([h | t]), do: {t, [h]}
+
+  defp next_in_stream({[h | rest], used}), do: {h, {rest, [h | used]}}
+
+  defp next_in_stream({[], all}) do
+    [h | t] = Enum.reverse(all)
+    {h, {t, [h]}}
   end
 
   defp parse_input(input) do
