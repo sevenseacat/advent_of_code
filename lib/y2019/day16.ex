@@ -26,25 +26,23 @@ defmodule Y2019.Day16 do
   "52432133"
   """
   def part1(input, phase) do
-    PatternKeeper.start_link()
-
     input
     |> parse_input
-    |> do_parts(0, phase)
+    |> do_parts(0, phase, PatternKeeper.new())
     |> Enum.take(8)
     |> to_output
   end
 
-  defp do_parts(input, phase, phase), do: input
+  defp do_parts(input, phase, phase, _table), do: input
 
-  defp do_parts(input, phase, target_phase) do
+  defp do_parts(input, phase, target_phase, digit_store) do
     1..length(input)
-    |> Advent.pmap(fn i -> calculate_digit(input, i - 1) end)
-    |> do_parts(phase + 1, target_phase)
+    |> Advent.pmap(fn i -> calculate_digit(input, i - 1, digit_store) end)
+    |> do_parts(phase + 1, target_phase, digit_store)
   end
 
-  defp calculate_digit(input, digit) do
-    pattern = PatternKeeper.get_pattern_for_digit(digit)
+  defp calculate_digit(input, digit, digit_store) do
+    pattern = PatternKeeper.get_pattern_for_digit(digit_store, digit)
 
     input
     |> Enum.reduce({build_stream(pattern), 0}, fn digit, {stream, acc} ->
