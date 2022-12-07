@@ -1,30 +1,31 @@
 defmodule Y2022.Day07 do
   use Advent.Day, no: 07
 
+  @max_file_size 40_000_000
+
   def part1(input, max_size \\ 100_000) do
-    do_part1({"/", input}, max_size, [])
+    folder_sizes({"/", input}, [])
+    |> Enum.filter(fn {_name, size} -> size <= max_size end)
     |> Enum.map(&elem(&1, 1))
     |> Enum.sum()
   end
 
-  defp do_part1({_name, size}, _max_size, acc) when is_integer(size), do: acc
+  def part2(input) do
+    [{"/", root_size} | sizes] = folder_sizes({"/", input}, []) |> Enum.reverse()
+    needed = root_size - @max_file_size
 
-  defp do_part1({name, children}, max_size, acc) do
-    acc = maybe_add({name, children}, max_size, acc)
-
-    Enum.reduce(children, acc, fn child, acc ->
-      do_part1(child, max_size, acc)
-    end)
+    sizes
+    |> Enum.filter(fn {_name, size} -> size >= needed end)
+    |> Enum.min_by(fn {_name, size} -> size - needed end)
+    |> elem(1)
   end
 
-  defp maybe_add({name, children}, max_size, acc) do
-    dirsize = dirsize(children)
+  defp folder_sizes({_name, size}, acc) when is_integer(size), do: acc
 
-    if dirsize <= max_size do
-      [{name, dirsize} | acc]
-    else
-      acc
-    end
+  defp folder_sizes({name, children}, acc) do
+    Enum.reduce(children, [{name, dirsize(children)} | acc], fn child, acc ->
+      folder_sizes(child, acc)
+    end)
   end
 
   defp dirsize(int) when is_integer(int), do: int
@@ -71,4 +72,5 @@ defmodule Y2022.Day07 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end

@@ -12,7 +12,7 @@ My Elixir solutions for [Advent of Code](https://adventofcode.com/) (all years).
 <a href="./lib/y2019/"><img src="https://img.shields.io/badge/2019-32_stars-yellow?style=flat-square" alt="32 stars" /></a>
 <a href="./lib/y2020/"><img src="https://img.shields.io/badge/2020-30_stars-yellow?style=flat-square" alt="30 stars" /></a>
 <a href="./lib/y2021/"><img src="https://img.shields.io/badge/2021-46_stars-green?style=flat-square" alt="46 stars" /></a>
-<a href="./lib/y2022/"><img src="https://img.shields.io/badge/2022-13_stars-orange?style=flat-square" alt="13 stars" /></a>
+<a href="./lib/y2022/"><img src="https://img.shields.io/badge/2022-14_stars-orange?style=flat-square" alt="14 stars" /></a>
 <!-- stars end -->
 
 This repository is a work in progress - I haven't yet completed all puzzles, but I'm working on them!
