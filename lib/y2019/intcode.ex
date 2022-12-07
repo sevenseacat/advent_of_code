@@ -163,6 +163,10 @@ defmodule Y2019.Intcode do
     Map.update!(intcode, :inputs, fn i -> i ++ [input] end)
   end
 
+  def add_inputs(intcode, inputs) do
+    Map.update!(intcode, :inputs, fn i -> i ++ inputs end)
+  end
+
   defp add_output(intcode, output) do
     Map.update!(intcode, :outputs, fn o -> [output | o] end)
   end
