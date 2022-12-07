@@ -50,25 +50,17 @@ defmodule Y2022.Day07 do
     |> Map.get("/")
   end
 
-  defp parse_row("$ ls", {data, index}), do: {data, index}
+  defp parse_row("$ ls", {data, path}), do: {data, path}
+  defp parse_row(<<"$ cd ..">>, {data, path}), do: {data, Enum.drop(path, -1)}
+  defp parse_row(<<"$ cd ", name::binary>>, {data, path}), do: {data, path ++ [name]}
 
-  defp parse_row(<<"dir ", name::binary>>, {data, index}) do
-    {update_in(data, index, fn folder -> Map.put(folder, name, %{}) end), index}
+  defp parse_row(<<"dir ", name::binary>>, {data, path}) do
+    {update_in(data, path, &Map.put(&1, name, %{})), path}
   end
 
-  defp parse_row(<<"$ cd ..">>, {data, index}) do
-    {data, Enum.drop(index, -1)}
-  end
-
-  defp parse_row(<<"$ cd ", name::binary>>, {data, index}) do
-    {data, index ++ [name]}
-  end
-
-  defp parse_row(file, {data, index}) do
+  defp parse_row(file, {data, path}) do
     [size, name] = String.split(file, " ")
-
-    {update_in(data, index, fn folder -> Map.put(folder, name, String.to_integer(size)) end),
-     index}
+    {update_in(data, path, &Map.put(&1, name, String.to_integer(size))), path}
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
