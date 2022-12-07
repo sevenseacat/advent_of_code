@@ -10,11 +10,13 @@ defmodule Mix.Tasks.Day do
 
     test_path = Path.join([File.cwd!(), "test", "y#{year}", "day#{formatted_day}_test.exs"])
     copy_template("priv/templates/day_test.ex", test_path, year: year, day: formatted_day)
+
+    input_path = Path.join([File.cwd!(), "lib", "y#{year}", "input", "day#{formatted_day}.txt"])
+    copy_template("priv/templates/day.txt", input_path, year: year, day: formatted_day)
   end
 
   def run([]) do
-    Mix.Shell.IO.error(
-      "Please provide the day number to generate a template for, eg. `mix day 2021 7` for 2021 day 7"
-    )
+    "Please provide the day number to generate a template for, eg. `mix day 2021 7` for 2021 day 7"
+    |> Mix.Shell.IO.error()
   end
 end
