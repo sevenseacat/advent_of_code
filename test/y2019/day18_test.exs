@@ -8,7 +8,67 @@ defmodule Y2019.Day18Test do
 
   # test "verification, part 2", do: assert(Day18.part2_verify() == "update or delete me")
 
-  describe "part1/1" do
+  describe "parts/1 - multiple start points" do
+    test "small input" do
+      input = """
+      #######
+      #a.#Cd#
+      ##@#@##
+      #######
+      ##@#@##
+      #cB#.b#
+      #######
+      """
+
+      assert_answer(input, 8)
+    end
+
+    test "input 2" do
+      input = """
+      ###############
+      #d.ABC.#.....a#
+      ######@#@######
+      ###############
+      ######@#@######
+      #b.....#.....c#
+      ###############
+      """
+
+      assert_answer(input, 24)
+    end
+
+    test "input 3" do
+      input = """
+      #############
+      #DcBa.#.GhKl#
+      #.###@#@#I###
+      #e#d#####j#k#
+      ###C#@#@###J#
+      #fEbA.#.FgHi#
+      #############
+      """
+
+      assert_answer(input, 32)
+    end
+
+    test "input 4" do
+      input = """
+      #############
+      #g#f.D#..h#l#
+      #F###e#E###.#
+      #dCba@#@BcIJ#
+      #############
+      #nK.L@#@G...#
+      #M###N#H###.#
+      #o#m..#i#jk.#
+      #############
+      """
+
+      assert_answer(input, 72)
+    end
+  end
+
+  describe "parts/1 - single start point" do
     test "small input" do
       input = """
       #########
@@ -16,8 +76,7 @@ defmodule Y2019.Day18Test do
       #########
       """
 
-      result = Day18.parse_input(input) |> Day18.part1()
-      assert result == 8
+      assert_answer(input, 8)
     end
 
     test "input 2" do
@@ -29,8 +88,7 @@ defmodule Y2019.Day18Test do
       ########################
       """
 
-      result = Day18.parse_input(input) |> Day18.part1()
-      assert result == 86
+      assert_answer(input, 86)
     end
 
     test "input 3" do
@@ -42,8 +100,7 @@ defmodule Y2019.Day18Test do
       ########################
       """
 
-      result = Day18.parse_input(input) |> Day18.part1()
-      assert result == 132
+      assert_answer(input, 132)
     end
 
     @tag timeout: :infinity
@@ -60,8 +117,7 @@ defmodule Y2019.Day18Test do
       #################
       """
 
-      result = Day18.parse_input(input) |> Day18.part1()
-      assert result == 136
+      assert_answer(input, 136)
     end
 
     test "input 5" do
@@ -74,8 +130,11 @@ defmodule Y2019.Day18Test do
       ########################
       """
 
-      result = Day18.parse_input(input) |> Day18.part1()
-      assert result == 81
+      assert_answer(input, 81)
     end
+  end
+
+  def assert_answer(input, answer) do
+    assert answer == Day18.parse_input(input) |> Day18.parts()
   end
 end
