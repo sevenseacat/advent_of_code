@@ -6,51 +6,48 @@ defmodule Y2022.Day08 do
 
     invisible_count =
       input
-      |> Enum.reject(fn {{row, col}, _height} ->
-        row == 1 || row == max_row || col == 1 || col == max_col
-      end)
+      |> Enum.reject(&edge_of_grid?(&1, {max_row, max_col}))
       |> Enum.filter(fn {{row, col}, height} ->
-        Enum.any?(1..(col - 1), fn maybe_col ->
-          Map.get(input, {row, maybe_col}) >= height
-        end) &&
-          Enum.any?((col + 1)..max_col, fn maybe_col ->
-            Map.get(input, {row, maybe_col}) >= height
-          end) &&
-          Enum.any?(1..(row - 1), fn maybe_row ->
-            Map.get(input, {maybe_row, col}) >= height
-          end) &&
-          Enum.any?((row + 1)..max_row, fn maybe_row ->
-            Map.get(input, {maybe_row, col}) >= height
-          end)
+        Enum.any?(1..(col - 1), &taller?({row, &1}, height, input)) &&
+          Enum.any?((col + 1)..max_col, &taller?({row, &1}, height, input)) &&
+          Enum.any?(1..(row - 1), &taller?({&1, col}, height, input)) &&
+          Enum.any?((row + 1)..max_row, &taller?({&1, col}, height, input))
       end)
       |> length
 
     map_size(input) - invisible_count
   end
 
+  defp edge_of_grid?({{row, col}, _height}, {max_row, max_col}) do
+    row == 1 || row == max_row || col == 1 || col == max_col
+  end
+
+  defp taller?(coord, treehouse, map) do
+    Map.get(map, coord) >= treehouse
+  end
+
   def part2(input) do
+    max = Map.keys(input) |> Enum.max()
+
     input
-    |> Enum.map(&{&1, scenic_score(&1, input)})
+    |> Enum.map(&{&1, scenic_score(&1, input, max)})
     |> Enum.max_by(&elem(&1, 1))
     |> elem(1)
   end
 
-  def scenic_score({{row, col}, treehouse}, map) do
-    {max_row, max_col} = Map.keys(map) |> Enum.max()
-
-    up = Enum.map((row - 1)..1, &Map.get(map, {&1, col}))
-    down = Enum.map((row + 1)..max_row, &Map.get(map, {&1, col}))
-    left = Enum.map((col - 1)..1, &Map.get(map, {row, &1}))
-    right = Enum.map((col + 1)..max_col, &Map.get(map, {row, &1}))
+  def scenic_score({{row, col}, treehouse}, map, {max_row, max_col}) do
+    up = Enum.map((row - 1)..1, &{&1, col})
+    down = Enum.map((row + 1)..max_row, &{&1, col})
+    left = Enum.map((col - 1)..1, &{row, &1})
+    right = Enum.map((col + 1)..max_col, &{row, &1})
 
     [up, down, left, right]
-    |> Enum.map(fn heights ->
-      list = Enum.take_while(heights, fn maybe_height -> maybe_height < treehouse end)
-      length = length(list)
+    |> Enum.map(fn direction ->
+      shorter_count = Enum.take_while(direction, &(!taller?(&1, treehouse, map))) |> length
 
       # If there are more trees in that direction than are shorter than the treehouse,
       # then add one for the tree blocking the treehouse
-      if length == length(heights), do: length, else: length + 1
+      if shorter_count == length(direction), do: shorter_count, else: shorter_count + 1
     end)
     |> Enum.reduce(&Kernel.*/2)
   end

@@ -20,7 +20,7 @@ defmodule Y2022.Day08Test do
 
   test "scenic_score/2" do
     grid = Day08.parse_input(@input)
-    assert 4 == Day08.scenic_score({{2, 3}, 5}, grid)
-    assert 8 == Day08.scenic_score({{4, 3}, 5}, grid)
+    assert 4 == Day08.scenic_score({{2, 3}, 5}, grid, {5, 5})
+    assert 8 == Day08.scenic_score({{4, 3}, 5}, grid, {5, 5})
   end
 end
