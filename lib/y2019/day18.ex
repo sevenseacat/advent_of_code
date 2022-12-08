@@ -43,17 +43,15 @@ defmodule Y2019.Day18 do
     end
   end
 
-  defp search_done?(state), do: state.key_count == 0
+  defp search_done?(%{key_count: 0}), do: true
+  defp search_done?(_), do: false
 
   defp reachable_keys(state) do
-    passable_nodes = Graph.vertices(state.graph) -- Map.values(state.locks)
-    subgraph = Graph.subgraph(state.graph, passable_nodes)
-
     state.robots
     |> Enum.flat_map(fn {robot_id, robot_position} ->
       state.keys
       |> Map.get(robot_id)
-      |> reachable_keys(subgraph, robot_position)
+      |> reachable_keys(state.graph, robot_position)
       |> Enum.map(fn {key, path, distance} ->
         pick_up_key(state, robot_id, {key, hd(path), distance})
       end)
@@ -75,8 +73,31 @@ defmodule Y2019.Day18 do
   defp pick_up_key(state, robot_id, {key, position, length}) do
     new_keys = Map.update!(state.keys, robot_id, fn robot_keys -> Map.delete(robot_keys, key) end)
 
+    graph =
+      case Map.get(state.locks, String.upcase(key)) do
+        # No actual lock for this key
+        nil ->
+          state.graph
+
+        # Lock has been removed - add the lock node back to the graph
+        {row, col} ->
+          graph = Graph.add_vertex(state.graph, {row, col})
+
+          [{row - 1, col}, {row + 1, col}, {row, col - 1}, {row, col + 1}]
+          |> Enum.reduce(graph, fn coord, graph ->
+            if Graph.has_vertex?(graph, coord) do
+              graph
+              |> Graph.add_edge({row, col}, coord)
+              |> Graph.add_edge(coord, {row, col})
+            else
+              graph
+            end
+          end)
+      end
+
     state
     |> Map.merge(%{
+      graph: graph,
       locks: Map.delete(state.locks, String.upcase(key)),
       keys: new_keys,
       unlocked: MapSet.put(state.unlocked, key),
@@ -115,6 +136,12 @@ defmodule Y2019.Day18 do
       end
       |> Enum.map(fn {robot_id, keys} -> {robot_id, Map.new(keys)} end)
       |> Enum.into(%{})
+
+    # Delete the lock nodes from the graph. We'll put them back in when they are unlocked.
+    graph =
+      Enum.reduce(locks, graph, fn {_, coord}, graph ->
+        Graph.delete_vertex(graph, coord)
+      end)
 
     %{
       graph: graph,
