@@ -43,7 +43,7 @@ defmodule Y2019.Day18 do
     end
   end
 
-  defp search_done?(state), do: state.keys == %{}
+  defp search_done?(state), do: state.key_count == 0
 
   defp reachable_keys(state) do
     passable_nodes = Graph.vertices(state.graph) -- Map.values(state.locks)
@@ -51,7 +51,9 @@ defmodule Y2019.Day18 do
 
     state.robots
     |> Enum.flat_map(fn {robot_id, robot_position} ->
-      reachable_keys(state.keys, subgraph, robot_position)
+      state.keys
+      |> Map.get(robot_id)
+      |> reachable_keys(subgraph, robot_position)
       |> Enum.map(fn {key, path, distance} ->
         pick_up_key(state, robot_id, {key, hd(path), distance})
       end)
@@ -71,13 +73,16 @@ defmodule Y2019.Day18 do
   end
 
   defp pick_up_key(state, robot_id, {key, position, length}) do
+    new_keys = Map.update!(state.keys, robot_id, fn robot_keys -> Map.delete(robot_keys, key) end)
+
     state
     |> Map.merge(%{
       locks: Map.delete(state.locks, String.upcase(key)),
-      keys: Map.delete(state.keys, key),
+      keys: new_keys,
       unlocked: MapSet.put(state.unlocked, key),
       distance: state.distance + length,
-      robots: Map.put(state.robots, robot_id, position)
+      robots: Map.put(state.robots, robot_id, position),
+      key_count: state.key_count - 1
     })
   end
 
@@ -90,8 +95,26 @@ defmodule Y2019.Day18 do
       |> Enum.with_index()
       |> Enum.reduce(%{}, fn {robot, index}, acc -> Map.put(acc, index, elem(robot, 1)) end)
 
-    keys = Enum.filter(units, fn {u, _} -> u != "@" && String.downcase(u) == u end) |> Map.new()
+    keys = Enum.filter(units, fn {u, _} -> u != "@" && String.downcase(u) == u end)
+    key_count = length(keys)
     locks = Enum.filter(units, fn {u, _} -> u != "@" && String.upcase(u) == u end) |> Map.new()
+
+    # Split out the keys into only those that each robot will be able to reach
+    keys =
+      if map_size(robots) == 1 do
+        id = Map.keys(robots) |> List.first()
+        %{id => keys}
+      else
+        Enum.group_by(keys, fn {_key_id, key_position} ->
+          robots
+          |> Enum.find(robots, fn {_robot_id, robot_position} ->
+            Graph.Pathfinding.dijkstra(graph, key_position, robot_position)
+          end)
+          |> elem(0)
+        end)
+      end
+      |> Enum.map(fn {robot_id, keys} -> {robot_id, Map.new(keys)} end)
+      |> Enum.into(%{})
 
     %{
       graph: graph,
@@ -99,7 +122,8 @@ defmodule Y2019.Day18 do
       locks: locks,
       robots: robots,
       unlocked: MapSet.new(),
-      distance: 0
+      distance: 0,
+      key_count: key_count
     }
   end
 
