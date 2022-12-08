@@ -67,7 +67,7 @@ defmodule Y2019.Day18 do
     |> Enum.map(fn {key, path} -> {key, path, length(path) - 1} end)
     |> Enum.sort_by(fn {_key, _path, distance} -> distance end)
     # Let's assume we're not going to be skipping to far-away nodes on a shortest path
-    |> Enum.take(5)
+    |> Enum.take(4)
   end
 
   defp pick_up_key(state, robot_id, {key, position, length}) do
@@ -155,5 +155,5 @@ defmodule Y2019.Day18 do
   end
 
   def part1_verify, do: input() |> parse_input() |> parts()
-  # def part2_verify, do: input("day18-part2") |> parse_input() |> parts()
+  def part2_verify, do: input("day18-part2") |> parse_input() |> parts()
 end

@@ -9,7 +9,7 @@ My Elixir solutions for [Advent of Code](https://adventofcode.com/) (all years).
 <a href="./lib/y2016/"><img src="https://img.shields.io/badge/2016-%E2%AD%90%EF%B8%8F_50_stars_%E2%AD%90%EF%B8%8F-brightgreen?style=flat-square" alt="50 stars" /></a>
 <a href="./lib/y2017/"><img src="https://img.shields.io/badge/2017-%E2%AD%90%EF%B8%8F_50_stars_%E2%AD%90%EF%B8%8F-brightgreen?style=flat-square" alt="50 stars" /></a>
 <a href="./lib/y2018/"><img src="https://img.shields.io/badge/2018-%E2%AD%90%EF%B8%8F_50_stars_%E2%AD%90%EF%B8%8F-brightgreen?style=flat-square" alt="50 stars" /></a>
-<a href="./lib/y2019/"><img src="https://img.shields.io/badge/2019-34_stars-yellow?style=flat-square" alt="34 stars" /></a>
+<a href="./lib/y2019/"><img src="https://img.shields.io/badge/2019-35_stars-yellow?style=flat-square" alt="35 stars" /></a>
 <a href="./lib/y2020/"><img src="https://img.shields.io/badge/2020-30_stars-yellow?style=flat-square" alt="30 stars" /></a>
 <a href="./lib/y2021/"><img src="https://img.shields.io/badge/2021-46_stars-green?style=flat-square" alt="46 stars" /></a>
 <a href="./lib/y2022/"><img src="https://img.shields.io/badge/2022-16_stars-orange?style=flat-square" alt="16 stars" /></a>

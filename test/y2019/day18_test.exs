@@ -6,7 +6,8 @@ defmodule Y2019.Day18Test do
   @tag :skip
   test "verification, part 1", do: assert(Day18.part1_verify() == 7430)
 
-  # test "verification, part 2", do: assert(Day18.part2_verify() == "update or delete me")
+  @tag :skip
+  test "verification, part 2", do: assert(Day18.part2_verify() == 1864)
 
   describe "parts/1 - multiple start points" do
     test "small input" do
