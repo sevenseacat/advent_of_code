@@ -28,13 +28,32 @@ defmodule Y2022.Day08 do
     map_size(input) - invisible_count
   end
 
-  # @doc """
-  # iex> Day08.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
+  def part2(input) do
+    input
+    |> Enum.map(&{&1, scenic_score(&1, input)})
+    |> Enum.max_by(&elem(&1, 1))
+    |> elem(1)
+  end
+
+  def scenic_score({{row, col}, treehouse}, map) do
+    {max_row, max_col} = Map.keys(map) |> Enum.max()
+
+    up = Enum.map((row - 1)..1, &Map.get(map, {&1, col}))
+    down = Enum.map((row + 1)..max_row, &Map.get(map, {&1, col}))
+    left = Enum.map((col - 1)..1, &Map.get(map, {row, &1}))
+    right = Enum.map((col + 1)..max_col, &Map.get(map, {row, &1}))
+
+    [up, down, left, right]
+    |> Enum.map(fn heights ->
+      list = Enum.take_while(heights, fn maybe_height -> maybe_height < treehouse end)
+      length = length(list)
+
+      # If there are more trees in that direction than are shorter than the treehouse,
+      # then add one for the tree blocking the treehouse
+      if length == length(heights), do: length, else: length + 1
+    end)
+    |> Enum.reduce(&Kernel.*/2)
+  end
 
   def parse_input(input) do
     input
@@ -56,5 +75,5 @@ defmodule Y2022.Day08 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
