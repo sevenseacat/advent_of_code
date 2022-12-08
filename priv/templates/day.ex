@@ -10,7 +10,7 @@ defmodule Y<%= @year %>.Day<%= @day %> do
   end
 
   # @doc """
-  # iex> Day<%= @day %>.part1("update or delete me")
+  # iex> Day<%= @day %>.part2("update or delete me")
   # "update or delete me"
   # """
   # def part2(input) do
