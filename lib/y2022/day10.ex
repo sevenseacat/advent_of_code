@@ -3,12 +3,18 @@ defmodule Y2022.Day10 do
 
   def part1(input) do
     input
-    |> run_cmds([1])
-    |> Enum.reverse()
+    |> run_cmds()
     |> to_signal_strength()
   end
 
-  defp run_cmds([], state), do: state
+  def part2(input) do
+    input
+    |> run_cmds()
+    |> to_crt_display()
+  end
+
+  defp run_cmds(cmds, state \\ [1])
+  defp run_cmds([], state), do: Enum.reverse(tl(state))
 
   defp run_cmds([cmd | rest], state) do
     run_cmds(rest, run_cmd(cmd, state) ++ state)
@@ -37,13 +43,19 @@ defmodule Y2022.Day10 do
     first + rest
   end
 
-  # @doc """
-  # iex> Day10.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
+  defp to_crt_display(list) do
+    list
+    |> Enum.with_index()
+    |> Enum.map(&to_crt_char/1)
+    |> Enum.chunk_every(40)
+    |> Enum.map(&Enum.join(&1, ""))
+    |> Enum.join("\n")
+    |> IO.puts()
+  end
+
+  defp to_crt_char({x_val, index}) do
+    if rem(index, 40) in (x_val - 1)..(x_val + 1), do: "#", else: "."
+  end
 
   @doc """
   iex> Day10.parse_input("noop\\naddx 3\\naddx -5\\n")
@@ -60,5 +72,5 @@ defmodule Y2022.Day10 do
   defp parse_cmd(<<"addx "::binary, rest::binary>>), do: {{:add, String.to_integer(rest)}, 2}
 
   def part1_verify, do: input() |> parse_input() |> part1()
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
