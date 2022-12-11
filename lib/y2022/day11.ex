@@ -63,75 +63,38 @@ defmodule Y2022.Day11 do
     {data, first_two}
   end
 
-  def part1_verify, do: real_input() |> part1() |> elem(1)
-  def part2_verify, do: real_input() |> part2() |> elem(1)
-
-  def real_input() do
-    %{
-      0 => %{
-        items: [61],
-        operation: &(&1 * 11),
-        divisor: 5,
-        if_true: 7,
-        if_false: 4,
-        inspections: 0
-      },
-      1 => %{
-        items: [76, 92, 53, 93, 79, 86, 81],
-        operation: &(&1 + 4),
-        divisor: 2,
-        if_true: 2,
-        if_false: 6,
-        inspections: 0
-      },
-      2 => %{
-        items: [91, 99],
-        operation: &(&1 * 19),
-        divisor: 13,
-        if_true: 5,
-        if_false: 0,
-        inspections: 0
-      },
-      3 => %{
-        items: [58, 67, 66],
-        operation: &(&1 * &1),
-        divisor: 7,
-        if_true: 6,
-        if_false: 1,
-        inspections: 0
-      },
-      4 => %{
-        items: [94, 54, 62, 73],
-        operation: &(&1 + 1),
-        divisor: 19,
-        if_true: 3,
-        if_false: 7,
-        inspections: 0
-      },
-      5 => %{
-        items: [59, 95, 51, 58, 58],
-        operation: &(&1 + 3),
-        divisor: 11,
-        if_true: 0,
-        if_false: 4,
-        inspections: 0
-      },
-      6 => %{
-        items: [87, 69, 92, 56, 91, 93, 88, 73],
-        operation: &(&1 + 8),
-        divisor: 3,
-        if_true: 5,
-        if_false: 2,
-        inspections: 0
-      },
-      7 => %{
-        items: [71, 57, 86, 67, 96, 95],
-        operation: &(&1 + 7),
-        divisor: 17,
-        if_true: 3,
-        if_false: 1,
-        inspections: 0
-      }
-    }
+  def parse_input(input) do
+    input
+    |> String.split("\n\n", trim: true)
+    |> Enum.map(&parse_monkey/1)
+    |> Map.new()
   end
+
+  defp parse_monkey(string) do
+    raw =
+      ~r"Monkey (?P<id>\d):
+  Starting items: (?P<items>.*)
+  Operation: new = old (?<operator>\*|\+) (?P<operand>\d+|old)
+  Test: divisible by (?P<divisor>\d+)
+    If true: throw to monkey (?<if_true>\d+)
+    If false: throw to monkey (?<if_false>\d+)"
+      |> Regex.named_captures(string, capture: :all_but_first)
+
+    {String.to_integer(raw["id"]),
+     %{
+       items: String.split(raw["items"], ", ") |> Enum.map(&String.to_integer/1),
+       operation: build_operation(raw["operator"], raw["operand"]),
+       divisor: String.to_integer(raw["divisor"]),
+       if_true: String.to_integer(raw["if_true"]),
+       if_false: String.to_integer(raw["if_false"]),
+       inspections: 0
+     }}
+  end
+
+  defp build_operation("*", "old"), do: &(&1 * &1)
+  defp build_operation("*", num), do: &(&1 * String.to_integer(num))
+  defp build_operation("+", num), do: &(&1 + String.to_integer(num))
+
+  def part1_verify, do: input() |> parse_input() |> part1() |> elem(1)
+  def part2_verify, do: input() |> parse_input() |> part2() |> elem(1)
 end
