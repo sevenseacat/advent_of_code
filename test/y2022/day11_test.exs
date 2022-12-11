@@ -4,7 +4,7 @@ defmodule Y2022.Day11Test do
   doctest Day11
 
   test "verification, part 1", do: assert(Day11.part1_verify() == 76728)
-  # test "verification, part 2", do: assert(Day11.part2_verify() == "update or delete me")
+  test "verification, part 2", do: assert(Day11.part2_verify() == 21_553_910_156)
 
   describe "part1/1" do
     test "one round, items held" do
@@ -34,6 +34,12 @@ defmodule Y2022.Day11Test do
     end
   end
 
+  describe "part2/1" do
+    test "full game" do
+      assert 2_713_310_158 == Day11.part2(sample_input()) |> elem(1)
+    end
+  end
+
   def sample_input do
     %{
       # Monkey 0:
@@ -45,7 +51,7 @@ defmodule Y2022.Day11Test do
       0 => %{
         items: [79, 98],
         operation: fn val -> val * 19 end,
-        test: fn val -> rem(val, 23) == 0 end,
+        divisor: 23,
         if_true: 2,
         if_false: 3,
         inspections: 0
@@ -60,7 +66,7 @@ defmodule Y2022.Day11Test do
       1 => %{
         items: [54, 65, 75, 74],
         operation: fn val -> val + 6 end,
-        test: fn val -> rem(val, 19) == 0 end,
+        divisor: 19,
         if_true: 2,
         if_false: 0,
         inspections: 0
@@ -75,7 +81,7 @@ defmodule Y2022.Day11Test do
       2 => %{
         items: [79, 60, 97],
         operation: fn val -> val * val end,
-        test: fn val -> rem(val, 13) == 0 end,
+        divisor: 13,
         if_true: 1,
         if_false: 3,
         inspections: 0
@@ -90,7 +96,7 @@ defmodule Y2022.Day11Test do
       3 => %{
         items: [74],
         operation: fn val -> val + 3 end,
-        test: fn val -> rem(val, 17) == 0 end,
+        divisor: 17,
         if_true: 0,
         if_false: 1,
         inspections: 0
