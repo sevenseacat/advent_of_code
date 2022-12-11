@@ -63,14 +63,6 @@ defmodule Y2022.Day11 do
     {data, first_two}
   end
 
-  # @doc """
-  # iex> Day11.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
-
   def part1_verify, do: real_input() |> part1() |> elem(1)
   def part2_verify, do: real_input() |> part2() |> elem(1)
 
