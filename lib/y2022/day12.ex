@@ -2,19 +2,19 @@ defmodule Y2022.Day12 do
   use Advent.Day, no: 12
 
   def part1({graph, {from, to}}) do
-    graph
-    |> Graph.dijkstra(from, to)
-    |> length()
-    |> Kernel.-(1)
+    case Graph.Pathfinding.dijkstra(graph, from, to) do
+      nil -> nil
+      list -> length(list) - 1
+    end
   end
 
-  # @doc """
-  # iex> Day12.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
+  def part2({graph, {_, to}}) do
+    graph
+    |> Graph.vertices()
+    |> Enum.filter(fn vertex -> Graph.vertex_labels(graph, vertex) == [?a] end)
+    |> Enum.map(fn vertex -> part1({graph, {vertex, to}}) end)
+    |> Enum.min()
+  end
 
   def parse_input(input) do
     {graph, ends, _} =
@@ -75,5 +75,5 @@ defmodule Y2022.Day12 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end

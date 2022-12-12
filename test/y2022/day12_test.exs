@@ -4,17 +4,21 @@ defmodule Y2022.Day12Test do
   doctest Day12
 
   test "verification, part 1", do: assert(Day12.part1_verify() == 517)
-  # test "verification, part 2", do: assert(Day12.part2_verify() == "update or delete me")
+  test "verification, part 2", do: assert(Day12.part2_verify() == 512)
+
+  @sample_input """
+  Sabqponm
+  abcryxxl
+  accszExk
+  acctuvwj
+  abdefghi
+  """
 
   test "part1/1" do
-    input = """
-    Sabqponm
-    abcryxxl
-    accszExk
-    acctuvwj
-    abdefghi
-    """
+    assert 31 == Day12.parse_input(@sample_input) |> Day12.part1()
+  end
 
-    assert 31 == Day12.parse_input(input) |> Day12.part1()
+  test "part2/1" do
+    assert 29 == Day12.parse_input(@sample_input) |> Day12.part2()
   end
 end
