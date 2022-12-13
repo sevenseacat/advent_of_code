@@ -58,7 +58,7 @@ defmodule Y2022.Day11 do
       |> Enum.sort()
       |> Enum.reverse()
       |> Enum.take(2)
-      |> Enum.reduce(&Kernel.*/2)
+      |> Enum.product()
 
     {data, first_two}
   end

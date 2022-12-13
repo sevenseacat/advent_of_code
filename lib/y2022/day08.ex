@@ -49,7 +49,7 @@ defmodule Y2022.Day08 do
       # then add one for the tree blocking the treehouse
       if shorter_count == length(direction), do: shorter_count, else: shorter_count + 1
     end)
-    |> Enum.reduce(&Kernel.*/2)
+    |> Enum.product()
   end
 
   def parse_input(input) do
