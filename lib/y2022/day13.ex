@@ -60,7 +60,7 @@ defmodule Y2022.Day13 do
   defp parse_pair(pair) do
     pair
     |> String.split("\n", trim: true)
-    |> Enum.map(fn string -> string |> Code.eval_string() |> elem(0) end)
+    |> Enum.map(&Jason.decode!/1)
     |> List.to_tuple()
   end
 
