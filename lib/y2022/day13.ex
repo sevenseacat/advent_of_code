@@ -13,11 +13,11 @@ defmodule Y2022.Day13 do
     decoders = [[[2]], [[6]]]
 
     (decoders ++ Enum.flat_map(input, &Tuple.to_list/1))
-    |> Enum.sort_by(& &1, &correct_order?/2)
+    |> Enum.sort(&correct_order?/2)
     |> Enum.with_index()
     |> Enum.filter(fn {row, _index} -> row in decoders end)
     |> Enum.map(fn {_row, index} -> index + 1 end)
-    |> Enum.reduce(&Kernel.*/2)
+    |> Enum.product()
   end
 
   def correct_order?([left | l], [right | r]) when is_integer(left) and is_integer(right) do
