@@ -6,10 +6,14 @@ defmodule Y2022.Day14Test do
   @sample "498,4 -> 498,6 -> 496,6\n503,4 -> 502,4 -> 502,9 -> 494,9\n"
 
   test "verification, part 1", do: assert(Day14.part1_verify() == 805)
-  # test "verification, part 2", do: assert(Day14.part2_verify() == "update or delete me")
+  test "verification, part 2", do: assert(Day14.part2_verify() == 25161)
 
   test "part1/1" do
     assert 24 == Day14.parse_input(@sample) |> Day14.part1()
+  end
+
+  test "part2/1" do
+    assert 93 == Day14.parse_input(@sample) |> Day14.part2()
   end
 
   test "parse_input/1" do
