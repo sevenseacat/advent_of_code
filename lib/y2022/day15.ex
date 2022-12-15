@@ -2,86 +2,48 @@ defmodule Y2022.Day15 do
   use Advent.Day, no: 15
 
   def part1(input, row \\ 2_000_000) do
-    ranges =
-      input
-      |> Enum.map(&add_manhattan_distances/1)
-      |> Enum.map(&target_row_overlap(&1, row))
-      |> Enum.filter(& &1)
-      |> Enum.sort()
-      |> collapse_ranges
+    cols = sensed_cols(input, row)
 
-    beacons_in_row =
+    beacon_count =
       input
       |> Enum.filter(fn %{beacon: {beacon_row, _}} -> beacon_row == row end)
       |> Enum.map(&(&1.beacon |> elem(1)))
       |> Enum.uniq()
       |> Enum.filter(fn beacon ->
-        Enum.any?(ranges, fn {a, b} -> beacon >= a || beacon <= b end)
+        Enum.any?(cols, fn {min, max} -> beacon >= min || beacon <= max end)
       end)
       |> length
 
-    ranges
+    cols
     |> Enum.map(&range_size/1)
     |> Enum.sum()
-    |> Kernel.-(beacons_in_row)
+    |> Kernel.-(beacon_count)
   end
 
-  def part2(input, {max_row, max_col} \\ {4_000_000, 4_000_000}) do
-    input = Enum.map(input, &add_manhattan_distances/1)
+  def part2(input, max_row \\ 4_000_000) do
     # There's only going to be one square not covered by a sensor, in the entire dang grid.
-    # It has to be just outside one of the sensor's sense ranges, so iterate over them and find it?
+    # If there's a gap in any of the sensed columns of a row (eg. two ranges are returned)
+    # then that gap is the point we want.
     {row, col} =
-      Enum.find_value(input, fn record ->
-        look_for_uncovered_coord(record, {0, 0}, {max_row, max_col}, input)
+      Enum.find_value(0..max_row, fn row ->
+        case sensed_cols(input, row) do
+          [_one] -> nil
+          [{_, b}, {_, _}] -> {row, b + 1}
+        end
       end)
 
     {{row, col}, col * 4_000_000 + row}
   end
 
-  defp look_for_uncovered_coord(
-         %{sensor: {row, col}, distance: distance},
-         {min_row, min_col},
-         {max_row, max_col},
-         all
-       ) do
-    # Look *outside* the range - increase the distance
-    distance = distance + 1
-
-    Enum.find_value(0..distance, fn d ->
-      # These are all the coordinates sliding along the boundaries of the sensor range...
-      # These took me way too long to figure out
-      [
-        {row - d, col - distance + d},
-        {row + d, col - distance + d},
-        {row - d, col + distance - d},
-        {row + d, col + distance - d},
-        {row - distance + d, col - d},
-        {row - distance + d, col + d},
-        {row + distance - d, col - d},
-        {row + distance - d, col + d}
-      ]
-      |> Enum.find_value(fn {maybe_row, maybe_col} ->
-        cond do
-          # Outside our valid range, go away
-          maybe_row < min_row || maybe_row > max_row || maybe_col < min_col ||
-              maybe_col > max_col ->
-            nil
-
-          # There's a sensor here, go away
-          Enum.any?(all, fn record ->
-            overlapping?(record.sensor, {maybe_row, maybe_col}, record.distance)
-          end) ->
-            nil
-
-          # !!!!!!
-          true ->
-            {maybe_row, maybe_col}
-        end
-      end)
-    end)
+  defp sensed_cols(input, row) do
+    input
+    |> Enum.map(&target_row_overlap(&1, row))
+    |> Enum.filter(& &1)
+    |> Enum.sort()
+    |> collapse_ranges
   end
 
-  defp add_manhattan_distances(%{sensor: sensor, beacon: beacon} = state) do
+  defp add_manhattan_distance(%{sensor: sensor, beacon: beacon} = state) do
     Map.put(state, :distance, manhattan_distance(sensor, beacon))
   end
 
@@ -95,7 +57,7 @@ defmodule Y2022.Day15 do
        ) do
     if overlapping?({sensor_row, sensor_col}, {target_row, sensor_col}, distance) do
       # There is some overlap for this beacon.
-      distance_from_sensor = abs(abs(target_row) - abs(sensor_row))
+      distance_from_sensor = abs(target_row - sensor_row)
 
       range_start = sensor_col - distance + distance_from_sensor
       range_end = sensor_col + distance - distance_from_sensor
@@ -128,7 +90,9 @@ defmodule Y2022.Day15 do
     )
     |> Enum.map(fn record ->
       [sensor_col, sensor_row, beacon_col, beacon_row] = Enum.map(record, &String.to_integer/1)
+
       %{sensor: {sensor_row, sensor_col}, beacon: {beacon_row, beacon_col}}
+      |> add_manhattan_distance()
     end)
   end
 
