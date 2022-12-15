@@ -4,7 +4,9 @@ defmodule Y2022.Day15Test do
   doctest Day15
 
   test "verification, part 1", do: assert(Day15.part1_verify() == 4_961_647)
-  # test "verification, part 2", do: assert(Day15.part2_verify() == "update or delete me")
+
+  @tag timeout: :infinity
+  test "verification, part 2", do: assert(Day15.part2_verify() == 12_274_327_017_867)
 
   @sample_input """
   Sensor at x=2, y=18: closest beacon is at x=-2, y=15
@@ -25,6 +27,10 @@ defmodule Y2022.Day15Test do
 
   test "part1/1" do
     assert 26 == Day15.parse_input(@sample_input) |> Day15.part1(10)
+  end
+
+  test "part2/1" do
+    assert {{11, 14}, 56_000_011} == Day15.parse_input(@sample_input) |> Day15.part2({20, 20})
   end
 
   test "parse_input/1" do
