@@ -2,15 +2,20 @@ defmodule Y2022.Day15 do
   use Advent.Day, no: 15
 
   def part1(input, row \\ 2_000_000) do
-    beacons = Enum.map(input, & &1.beacon) |> MapSet.new()
+    beacons =
+      input
+      |> Enum.filter(fn %{beacon: {beacon_row, _}} -> beacon_row == row end)
+      |> Enum.map(&(&1.beacon |> elem(0)))
+      |> MapSet.new()
 
     input
-    |> Enum.map(&no_beacon_coords/1)
-    |> Enum.reduce(MapSet.new(), &MapSet.union/2)
+    |> Enum.map(&add_manhattan_distances/1)
+    |> Enum.map(&target_row_overlap(&1, row))
+    |> Enum.filter(& &1)
+    |> Enum.map(&MapSet.new/1)
+    |> Enum.reduce(&MapSet.union/2)
     |> MapSet.difference(beacons)
-    # |> draw_grid(input, row)
-    |> Enum.filter(fn {coord_row, _coord_col} -> coord_row == row end)
-    |> length
+    |> MapSet.size()
   end
 
   # @doc """
@@ -21,18 +26,22 @@ defmodule Y2022.Day15 do
   #   input
   # end
 
-  def no_beacon_coords(%{sensor: {s_row, s_col}, beacon: {b_row, b_col}}) do
+  defp add_manhattan_distances(%{sensor: {s_row, s_col}, beacon: {b_row, b_col}} = state) do
     distance = abs(s_row - b_row) + abs(s_col - b_col)
-
-    for(
-      row <- -distance..distance,
-      col <- -diff(distance, row)..diff(distance, row),
-      do: {s_row + row, s_col + col}
-    )
-    |> MapSet.new()
+    Map.put(state, :distance, distance)
   end
 
-  defp diff(a, b), do: abs(abs(a) - abs(b))
+  defp target_row_overlap(%{sensor: {sensor_row, sensor_col}, distance: distance}, target_row) do
+    if sensor_row - distance <= target_row && sensor_row + distance >= target_row do
+      # There is some overlap for this beacon.
+      distance_from_sensor = abs(abs(target_row) - abs(sensor_row))
+
+      range_start = sensor_col - distance + distance_from_sensor
+      range_end = sensor_col + distance - distance_from_sensor
+
+      range_start..range_end
+    end
+  end
 
   def parse_input(input) do
     Regex.scan(
@@ -46,29 +55,6 @@ defmodule Y2022.Day15 do
     end)
   end
 
-  def draw_grid(no_beacons, inputs, row) do
-    beacons = Enum.map(inputs, & &1.beacon)
-    sensors = Enum.map(inputs, & &1.sensor)
-
-    for(col <- -12..35, do: {row, col})
-    |> Enum.map(fn coord ->
-      cond do
-        coord in beacons -> "B"
-        coord in sensors -> "S"
-        coord in no_beacons -> "#"
-        true -> " "
-      end
-    end)
-    |> Enum.chunk_every(48)
-    |> Enum.map(fn row ->
-      row
-      |> Enum.join("")
-      |> IO.puts()
-    end)
-
-    no_beacons
-  end
-
-  # def part1_verify, do: input() |> parse_input() |> part1()
+  def part1_verify, do: input() |> parse_input() |> part1()
   # def part2_verify, do: input() |> parse_input() |> part2()
 end

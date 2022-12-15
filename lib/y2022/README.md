@@ -2,7 +2,7 @@
 
 My Elixir solutions for [Advent of Code 2022](https://adventofcode.com/2022).
 
-<!-- stars 2022 start --><img src="https://img.shields.io/badge/2022-28_stars-yellow?style=for-the-badge" alt="28 stars" /><!-- stars 2022 end -->
+<!-- stars 2022 start --><img src="https://img.shields.io/badge/2022-29_stars-yellow?style=for-the-badge" alt="29 stars" /><!-- stars 2022 end -->
 
 ## Benchmarks
 
@@ -42,4 +42,5 @@ day 13, part 1        997.79        1.00 ms     ±7.78%        1.00 ms        1.
 day 13, part 2        840.14        1.19 ms     ±6.67%        1.19 ms        1.36 ms
 day 14, part 1         53.03       18.86 ms     ±2.84%       18.72 ms       21.01 ms
 day 14, part 2          1.43      700.20 ms     ±1.11%      697.14 ms      718.20 ms
+day 15, part 1          0.34         2.94 s     ±5.17%         2.94 s         3.05 s
 ```
