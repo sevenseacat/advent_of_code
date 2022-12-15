@@ -2,20 +2,28 @@ defmodule Y2022.Day15 do
   use Advent.Day, no: 15
 
   def part1(input, row \\ 2_000_000) do
-    beacons =
+    ranges =
+      input
+      |> Enum.map(&add_manhattan_distances/1)
+      |> Enum.map(&target_row_overlap(&1, row))
+      |> Enum.filter(& &1)
+      |> Enum.sort()
+      |> collapse_ranges
+
+    beacons_in_row =
       input
       |> Enum.filter(fn %{beacon: {beacon_row, _}} -> beacon_row == row end)
-      |> Enum.map(&(&1.beacon |> elem(0)))
-      |> MapSet.new()
+      |> Enum.map(&(&1.beacon |> elem(1)))
+      |> Enum.uniq()
+      |> Enum.filter(fn beacon ->
+        Enum.any?(ranges, fn {a, b} -> beacon >= a || beacon <= b end)
+      end)
+      |> length
 
-    input
-    |> Enum.map(&add_manhattan_distances/1)
-    |> Enum.map(&target_row_overlap(&1, row))
-    |> Enum.filter(& &1)
-    |> Enum.map(&MapSet.new/1)
-    |> Enum.reduce(&MapSet.union/2)
-    |> MapSet.difference(beacons)
-    |> MapSet.size()
+    ranges
+    |> Enum.map(&range_size/1)
+    |> Enum.sum()
+    |> Kernel.-(beacons_in_row)
   end
 
   def part2(input, {max_row, max_col} \\ {4_000_000, 4_000_000}) do
@@ -92,9 +100,23 @@ defmodule Y2022.Day15 do
       range_start = sensor_col - distance + distance_from_sensor
       range_end = sensor_col + distance - distance_from_sensor
 
-      range_start..range_end
+      {range_start, range_end}
     end
   end
+
+  defp collapse_ranges([one]), do: [one]
+
+  defp collapse_ranges([{a, b}, {c, d} | rest]) do
+    cond do
+      # Completely overlapping
+      d <= b -> collapse_ranges([{a, b} | rest])
+      # Partially overlapping
+      c <= b -> collapse_ranges([{a, d} | rest])
+      true -> [{a, b} | collapse_ranges([{c, d} | rest])]
+    end
+  end
+
+  defp range_size({a, b}), do: b - a + 1
 
   defp overlapping?(sensor, target, distance), do: manhattan_distance(sensor, target) <= distance
 
