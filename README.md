@@ -1,6 +1,6 @@
 # Advent of Code
 
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/sevenseacat/advent_of_code/Elixir%20CI?style=flat-square)](https://github.com/sevenseacat/advent_of_code/actions/workflows/elixir.yml)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/sevenseacat/advent_of_code/elixir.yml?branch=main&style=flat-square)](https://github.com/sevenseacat/advent_of_code/actions/workflows/elixir.yml)
 
 My Elixir solutions for [Advent of Code](https://adventofcode.com/) (all years).
 
