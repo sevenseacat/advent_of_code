@@ -25,15 +25,17 @@ defmodule Y2022.Day16 do
 
   def get_maximum_pressure_release(openable_valves, paths, max_time, players) do
     initial_state = %{
-      at: @start,
+      at: List.duplicate(@start, players),
       openable: openable_valves,
       open: [],
+      closed_valve_count: length(openable_valves),
       time: 0,
       released_amount: 0,
       release_rate: 0,
-      moves: [],
+      moves: List.duplicate([], players),
       next: List.duplicate([], players),
       targets: List.duplicate(nil, players),
+      players: players,
       max_time: max_time
     }
 
@@ -43,7 +45,7 @@ defmodule Y2022.Day16 do
   defp do_search([], [], _paths, best), do: best
 
   defp do_search([], next_level_states, paths, best) do
-    # level = next_level_states |> hd |> hd |> Map.fetch!(:open) |> length
+    # level = next_level_states |> hd |> hd |> Map.fetch!(:time)
     # IO.puts("* Level #{level}: #{length(next_level_states)} states to check.")
     do_search(next_level_states, [], paths, best)
   end
@@ -54,15 +56,15 @@ defmodule Y2022.Day16 do
 
   defp do_search([[state | rest1] | rest2], next_level_states, paths, best) do
     state =
-      if Enum.any?(state.openable) || state.time >= 30 do
+      if state.closed_valve_count > 0 || state.time >= state.max_time do
         state
       else
         # Fast forward to @max_time, we've done all we can
-        extra_release = (@max_time - state.time) * state.release_rate
-        %{state | time: @max_time, released_amount: state.released_amount + extra_release}
+        extra_release = (state.max_time - state.time) * state.release_rate
+        %{state | time: state.max_time, released_amount: state.released_amount + extra_release}
       end
 
-    if state.time >= @max_time do
+    if state.time >= state.max_time do
       best = if state.released_amount >= best.released_amount, do: state, else: best
       do_search([rest1 | rest2], next_level_states, paths, best)
     else
@@ -97,32 +99,65 @@ defmodule Y2022.Day16 do
         time: state.time + 1
     }
 
-    case {state.next, state.targets} do
+    state
+    |> maybe_make_move(paths, 1)
+    |> Enum.map(&maybe_make_move(&1, paths, 2))
+    |> List.flatten()
+  end
+
+  defp maybe_make_move(%{players: players} = state, paths, turn) when turn <= players do
+    turn = turn - 1
+
+    case {Enum.at(state.next, turn), Enum.at(state.targets, turn)} do
       # Nothing to do, find a new move
-      {[[]], [nil]} ->
-        Enum.reduce(state.openable, [], fn valve, acc ->
-          [at | next] = Map.get(paths, [state.at, valve.id])
-          new_state = %{state | at: at, next: [next], targets: [valve]}
-          [new_state | acc]
-        end)
+      {[], nil} ->
+        # For a second player, the next move depends on every possible move of the first
+        if Enum.empty?(state.openable) do
+          # If there's nothing openable, there's always the option to do nothing
+          [state]
+        else
+          Enum.map(state.openable, fn valve ->
+            [at | next] = Map.get(paths, [Enum.at(state.at, turn), valve.id])
+
+            %{
+              state
+              | at: List.replace_at(state.at, turn, at),
+                next: List.replace_at(state.next, turn, next),
+                targets: List.replace_at(state.targets, turn, valve),
+                moves: List.update_at(state.moves, turn, &[{at, state.time} | &1]),
+                openable: List.delete(state.openable, valve)
+            }
+          end)
+        end
 
       # At a closed valve, open it
-      {[[]], [valve]} ->
+      {[], valve} ->
         [
           %{
             state
-            | openable: List.delete(state.openable, valve),
-              open: [valve | state.open],
-              targets: [nil],
-              release_rate: state.release_rate + valve.flow
+            | open: [valve | state.open],
+              targets: List.replace_at(state.targets, turn, nil),
+              release_rate: state.release_rate + valve.flow,
+              closed_valve_count: state.closed_valve_count - 1,
+              moves: List.update_at(state.moves, turn, &[{:open, state.time} | &1])
           }
         ]
 
       # Keep walking towards the next valve
-      {[[move | rest]], _targets} ->
-        [%{state | at: move, next: [rest]}]
+      {[move | rest], _target} ->
+        [
+          %{
+            state
+            | at: List.replace_at(state.at, turn, move),
+              next: List.replace_at(state.next, turn, rest),
+              moves: List.update_at(state.moves, turn, &[{move, state.time} | &1])
+          }
+        ]
     end
   end
+
+  # If trying to take turn 2 in a 1-player event
+  defp maybe_make_move(state, _paths, _turn), do: state
 
   @doc """
   iex> Day16.parse_input("Valve GG has flow rate=0; tunnels lead to valves FF, HH\\nValve HH has flow rate=22; tunnel leads to valve GG\\n")
