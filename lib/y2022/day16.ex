@@ -4,7 +4,10 @@ defmodule Y2022.Day16 do
   @start "AA"
   @max_time 30
 
-  def part1(input) do
+  def part1(input, max_time \\ @max_time), do: do_parts(input, max_time, 1)
+  def part2(input), do: do_parts(input, 26, 2)
+
+  defp do_parts(input, max_time, players) do
     graph = build_graph(input)
 
     openable_valves = Enum.filter(input, fn %{flow: flow} -> flow > 0 end)
@@ -16,19 +19,11 @@ defmodule Y2022.Day16 do
         Map.put(acc, [from, to], tl(Graph.dijkstra(graph, from, to)))
       end)
 
-    get_maximum_pressure_release(openable_valves, paths)
+    get_maximum_pressure_release(openable_valves, paths, max_time, players)
     |> Map.get(:released_amount)
   end
 
-  # @doc """
-  # iex> Day16.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
-
-  def get_maximum_pressure_release(openable_valves, paths) do
+  def get_maximum_pressure_release(openable_valves, paths, max_time, players) do
     initial_state = %{
       at: @start,
       openable: openable_valves,
@@ -36,10 +31,13 @@ defmodule Y2022.Day16 do
       time: 0,
       released_amount: 0,
       release_rate: 0,
-      moves: []
+      moves: [],
+      next: List.duplicate([], players),
+      targets: List.duplicate(nil, players),
+      max_time: max_time
     }
 
-    do_search([open_next_valve(initial_state, paths)], [], paths, %{released_amount: 0})
+    do_search([next_move(initial_state, paths)], [], paths, %{released_amount: 0})
   end
 
   defp do_search([], [], _paths, best), do: best
@@ -69,7 +67,7 @@ defmodule Y2022.Day16 do
       do_search([rest1 | rest2], next_level_states, paths, best)
     else
       # There's still more time, keep moving!
-      moves = open_next_valve(state, paths)
+      moves = next_move(state, paths)
 
       if Enum.empty?(moves) do
         do_search([rest1 | rest2], next_level_states, paths, best)
@@ -91,29 +89,39 @@ defmodule Y2022.Day16 do
     end)
   end
 
-  defp open_next_valve(state, paths) do
-    Enum.reduce(state.openable, [], fn valve, acc ->
-      # Add one to account for the opening of the valve
-      time_to_move = (Map.get(paths, [state.at, valve.id]) |> length()) + 1
-      new_time = state.time + time_to_move
+  defp next_move(state, paths) do
+    # This always ticks with each move
+    state = %{
+      state
+      | released_amount: state.released_amount + state.release_rate,
+        time: state.time + 1
+    }
 
-      # The new time might be more than the max time, but stop counting the release amount at that time
-      released_amount =
-        state.release_rate * min(time_to_move, @max_time - state.time) + state.released_amount
+    case {state.next, state.targets} do
+      # Nothing to do, find a new move
+      {[[]], [nil]} ->
+        Enum.reduce(state.openable, [], fn valve, acc ->
+          [at | next] = Map.get(paths, [state.at, valve.id])
+          new_state = %{state | at: at, next: [next], targets: [valve]}
+          [new_state | acc]
+        end)
 
-      new_state = %{
-        state
-        | at: valve.id,
-          time: new_time,
-          openable: List.delete(state.openable, valve),
-          open: [valve | state.open],
-          released_amount: released_amount,
-          release_rate: state.release_rate + valve.flow,
-          moves: [{valve.id, new_time, released_amount} | state.moves]
-      }
+      # At a closed valve, open it
+      {[[]], [valve]} ->
+        [
+          %{
+            state
+            | openable: List.delete(state.openable, valve),
+              open: [valve | state.open],
+              targets: [nil],
+              release_rate: state.release_rate + valve.flow
+          }
+        ]
 
-      [new_state | acc]
-    end)
+      # Keep walking towards the next valve
+      {[[move | rest]], _targets} ->
+        [%{state | at: move, next: [rest]}]
+    end
   end
 
   @doc """

@@ -22,4 +22,8 @@ defmodule Y2022.Day16Test do
   test "part1/1" do
     assert 1651 == Day16.parse_input(@sample_input) |> Day16.part1()
   end
+
+  test "part2/1" do
+    assert 1707 == Day16.parse_input(@sample_input) |> Day16.part2()
+  end
 end
