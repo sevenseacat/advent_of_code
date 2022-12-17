@@ -41,4 +41,12 @@ defmodule Advent do
     |> Task.async_stream(&func.(&1))
     |> Enum.map(fn {:ok, result} -> result end)
   end
+
+  # https://kmrakibulislam.wordpress.com/2015/10/25/find-common-items-in-two-lists-in-elixir/
+  def common_elements([one]), do: one
+
+  def common_elements([one | rest]) do
+    two = common_elements(rest)
+    one -- one -- two
+  end
 end

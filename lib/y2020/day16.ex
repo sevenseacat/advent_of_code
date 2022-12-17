@@ -7,13 +7,62 @@ defmodule Y2020.Day16 do
     |> Enum.sum()
   end
 
-  # @doc """
-  # iex> Day16.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
+  def part2(input, field_filter) do
+    input
+    |> reject_invalid_tickets()
+    |> determine_fields()
+    |> Enum.filter(fn {name, _index} -> String.starts_with?(name, field_filter) end)
+    |> Enum.map(fn {_name, index} -> Enum.at(input.me, index) end)
+    |> Enum.product()
+  end
+
+  defp reject_invalid_tickets(input) do
+    Map.update!(input, :nearby, fn nearby ->
+      nearby
+      |> Enum.filter(fn vals ->
+        Enum.all?(vals, &valid_value?(&1, input.fields))
+      end)
+    end)
+  end
+
+  def determine_fields(input) do
+    do_determine_fields([input.me | input.nearby], input.fields, [], length(input.fields))
+  end
+
+  defp do_determine_fields(_tickets, _fields, determined, field_count)
+       when field_count == length(determined) do
+    determined
+  end
+
+  defp do_determine_fields(tickets, undetermined_fields, determined, field_count) do
+    undetermined_indexes =
+      Enum.to_list(0..(field_count - 1)) -- Enum.map(determined, &elem(&1, 1))
+
+    determination =
+      Enum.map(undetermined_indexes, fn index ->
+        {index,
+         Enum.map(tickets, fn ticket ->
+           valid_fields(Enum.at(ticket, index), undetermined_fields)
+         end)}
+      end)
+      |> Enum.map(fn {index, set} -> {index, Advent.common_elements(set)} end)
+      |> Enum.find(fn {_index, set} -> length(set) == 1 end)
+
+    case determination do
+      nil ->
+        raise "Could not determine any fields! Determined so far: #{inspect(determined)}"
+
+      {index, [field]} ->
+        fields = Enum.reject(undetermined_fields, fn {name, _} -> name == field end)
+        do_determine_fields(tickets, fields, [{field, index} | determined], field_count)
+    end
+  end
+
+  defp valid_fields(value, fields) do
+    fields
+    |> Enum.filter(&valid_for_field?(&1, value))
+    |> Enum.map(&elem(&1, 0))
+  end
 
   defp find_invalid_values(nearby, fields) do
     nearby
@@ -25,9 +74,11 @@ defmodule Y2020.Day16 do
   end
 
   defp valid_value?(val, fields) do
-    Enum.any?(fields, fn {_, [range1, range2]} ->
-      in_range?(range1, val) || in_range?(range2, val)
-    end)
+    Enum.any?(fields, &valid_for_field?(&1, val))
+  end
+
+  defp valid_for_field?({_name, [range1, range2]}, value) do
+    in_range?(range1, value) || in_range?(range2, value)
   end
 
   defp in_range?({from, to}, val), do: val >= from && val <= to
@@ -45,17 +96,18 @@ defmodule Y2020.Day16 do
   defp parse_fields(fields) do
     fields
     |> String.split("\n", trim: true)
-    |> Enum.reduce(%{}, fn field, acc ->
+    |> Enum.reduce([], fn field, acc ->
       [name | numbers] =
-        Regex.run(~r/(\w+): (\d+)-(\d+) or (\d+)-(\d+)/, field, capture: :all_but_first)
+        Regex.run(~r/^([\w|\s]+): (\d+)-(\d+) or (\d+)-(\d+)/, field, capture: :all_but_first)
 
       numbers =
         Enum.map(numbers, &String.to_integer/1)
         |> Enum.chunk_every(2)
         |> Enum.map(&List.to_tuple/1)
 
-      Map.put(acc, String.to_atom(name), numbers)
+      [{name, numbers} | acc]
     end)
+    |> Enum.reverse()
   end
 
   defp numbers(string) do
@@ -65,5 +117,5 @@ defmodule Y2020.Day16 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: input() |> parse_input() |> part2("departure")
 end
