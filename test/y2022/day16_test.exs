@@ -4,7 +4,7 @@ defmodule Y2022.Day16Test do
   doctest Day16
 
   test "verification, part 1", do: assert(Day16.part1_verify() == 2330)
-  # test "verification, part 2", do: assert(Day16.part2_verify() == "update or delete me")
+  test "verification, part 2", do: assert(Day16.part2_verify() == 2675)
 
   @sample_input """
   Valve AA has flow rate=0; tunnels lead to valves DD, II, BB

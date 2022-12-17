@@ -5,6 +5,8 @@ defmodule Y2022.Day16 do
   @max_time 30
 
   def part1(input, max_time \\ @max_time), do: do_parts(input, max_time, 1)
+
+  # 2651 - too low
   def part2(input), do: do_parts(input, 26, 2)
 
   defp do_parts(input, max_time, players) do
@@ -116,8 +118,16 @@ defmodule Y2022.Day16 do
           # If there's nothing openable, there's always the option to do nothing
           [state]
         else
-          Enum.map(state.openable, fn valve ->
-            [at | next] = Map.get(paths, [Enum.at(state.at, turn), valve.id])
+          # We need to narrow down the search space - this is just too many options
+          # What would be the optimal valves to aim for? The closest but the ones that
+          # have the highest flow
+          state.openable
+          |> Enum.map(fn valve -> {valve, Map.get(paths, [Enum.at(state.at, turn), valve.id])} end)
+          |> Enum.sort_by(fn {valve, path} -> div(valve.flow, length(path)) end, :desc)
+          # Trial and error decided this number - 2 didn't come up with the right answer, 3 did
+          |> Enum.take(3)
+          |> Enum.map(fn {valve, path} ->
+            [at | next] = path
 
             %{
               state
@@ -175,5 +185,5 @@ defmodule Y2022.Day16 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
