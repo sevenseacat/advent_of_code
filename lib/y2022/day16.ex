@@ -6,7 +6,6 @@ defmodule Y2022.Day16 do
 
   def part1(input, max_time \\ @max_time), do: do_parts(input, max_time, 1)
 
-  # 2651 - too low
   def part2(input), do: do_parts(input, 26, 2)
 
   defp do_parts(input, max_time, players) do
