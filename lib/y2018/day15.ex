@@ -2,7 +2,7 @@ defmodule Y2018.Day15 do
   use Advent.Day, no: 15
 
   alias Y2018.Day15.Unit
-  alias Advent.Grid
+  alias Advent.PathGrid
 
   def part1(input) do
     {units, graph} = parse_input(input)
@@ -197,7 +197,7 @@ defmodule Y2018.Day15 do
   end
 
   def parse_input(input, power \\ %{"G" => 3, "E" => 3}) do
-    %Grid{graph: graph, units: units} = Grid.new(input)
+    %PathGrid{graph: graph, units: units} = PathGrid.new(input)
 
     units =
       units

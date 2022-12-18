@@ -1,11 +1,11 @@
-defmodule Advent.Grid.Unit do
+defmodule Advent.PathGrid.Unit do
   defstruct identifier: nil, position: nil
 end
 
-defmodule Advent.Grid do
+defmodule Advent.PathGrid do
   defstruct graph: nil, units: []
 
-  alias Advent.Grid.Unit
+  alias Advent.PathGrid.Unit
 
   @doc """
   Parses the raw input as read from the input text file, eg.

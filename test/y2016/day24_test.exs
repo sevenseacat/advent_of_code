@@ -1,7 +1,7 @@
 defmodule Y2016.Day24Test do
   use ExUnit.Case, async: true
   alias Y2016.Day24
-  alias Advent.Grid
+  alias Advent.PathGrid
   doctest Day24
 
   @sample_input """
@@ -22,14 +22,14 @@ defmodule Y2016.Day24Test do
 
   test "parse_input/1" do
     units = [
-      %Grid.Unit{identifier: "0", position: {2, 2}},
-      %Grid.Unit{identifier: "1", position: {2, 4}},
-      %Grid.Unit{identifier: "2", position: {2, 10}},
-      %Grid.Unit{identifier: "3", position: {4, 10}},
-      %Grid.Unit{identifier: "4", position: {4, 2}}
+      %PathGrid.Unit{identifier: "0", position: {2, 2}},
+      %PathGrid.Unit{identifier: "1", position: {2, 4}},
+      %PathGrid.Unit{identifier: "2", position: {2, 10}},
+      %PathGrid.Unit{identifier: "3", position: {4, 10}},
+      %PathGrid.Unit{identifier: "4", position: {4, 2}}
     ]
 
-    assert %Grid{graph: %Graph{}, units: parsed_units} = Day24.parse_input(@sample_input)
+    assert %PathGrid{graph: %Graph{}, units: parsed_units} = Day24.parse_input(@sample_input)
     assert Enum.sort(units) == Enum.sort(parsed_units)
   end
 end

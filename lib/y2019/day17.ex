@@ -1,7 +1,7 @@
 defmodule Y2019.Day17 do
   use Advent.Day, no: 17
 
-  alias Advent.Grid
+  alias Advent.PathGrid
   alias Y2019.Intcode
 
   def part1(input) do
@@ -83,7 +83,7 @@ defmodule Y2019.Day17 do
     end
   end
 
-  def find_path(%Grid{graph: graph, units: [unit]}) do
+  def find_path(%PathGrid{graph: graph, units: [unit]}) do
     move(graph, unit.position, :up, [0, :up])
     |> Enum.reverse()
     |> Enum.drop(2)
@@ -166,10 +166,10 @@ defmodule Y2019.Day17 do
     input
     |> to_string()
     |> flip_symbols
-    |> Grid.new()
+    |> PathGrid.new()
   end
 
-  def find_intersections(%Grid{graph: graph}) do
+  def find_intersections(%PathGrid{graph: graph}) do
     graph
     |> Graph.vertices()
     |> Enum.filter(fn coord -> length(adjacent_coords(graph, coord)) == 4 end)

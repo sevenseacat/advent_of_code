@@ -1,8 +1,8 @@
 defmodule Y2016.Day24 do
   use Advent.Day, no: 24
-  alias Advent.Grid
+  alias Advent.PathGrid
 
-  def part1(%Grid{} = grid) do
+  def part1(grid) do
     grid.units
     |> find_targets()
     |> Advent.full_permutations()
@@ -10,7 +10,7 @@ defmodule Y2016.Day24 do
     |> min_distance(grid)
   end
 
-  def part2(%Grid{} = grid) do
+  def part2(grid) do
     grid.units
     |> find_targets()
     |> Advent.full_permutations()
@@ -22,7 +22,7 @@ defmodule Y2016.Day24 do
     Enum.map(units, & &1.identifier) -- ["0"]
   end
 
-  defp min_distance(orders, %Grid{graph: graph, units: units}) do
+  defp min_distance(orders, %PathGrid{graph: graph, units: units}) do
     units = Map.new(units, &{&1.identifier, &1.position})
 
     orders
@@ -54,7 +54,7 @@ defmodule Y2016.Day24 do
     end)
   end
 
-  def parse_input(input), do: Grid.new(input)
+  def parse_input(input), do: PathGrid.new(input)
 
   def part1_verify, do: input() |> parse_input() |> part1() |> elem(1)
   def part2_verify, do: input() |> parse_input() |> part2() |> elem(1)

@@ -1,6 +1,6 @@
 defmodule Y2019.Day18 do
   use Advent.Day, no: 18
-  alias Advent.Grid
+  alias Advent.PathGrid
 
   def parts(state) do
     state
@@ -108,7 +108,7 @@ defmodule Y2019.Day18 do
   end
 
   def parse_input(input) do
-    %Grid{graph: graph, units: units} = Grid.new(input)
+    %PathGrid{graph: graph, units: units} = PathGrid.new(input)
     units = Enum.map(units, &{&1.identifier, &1.position})
 
     robots =
