@@ -3,7 +3,8 @@ defmodule Y2022.Day19Test do
   alias Y2022.Day19
   doctest Day19
 
-  test "verification, part 1", do: assert(Day19.part1_verify() == "update or delete me")
+  @tag :skip
+  test "verification, part 1", do: assert(Day19.part1_verify() == 1306)
   # test "verification, part 2", do: assert(Day19.part2_verify() == "update or delete me")
 
   @sample_input """
