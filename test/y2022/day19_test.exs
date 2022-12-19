@@ -3,7 +3,6 @@ defmodule Y2022.Day19Test do
   alias Y2022.Day19
   doctest Day19
 
-  @tag :skip
   test "verification, part 1", do: assert(Day19.part1_verify() == 1306)
   test "verification, part 2", do: assert(Day19.part2_verify() == 37604)
 
@@ -33,6 +32,20 @@ defmodule Y2022.Day19Test do
       }
 
       assert 9 == Day19.run_geode_cracker(blueprint, 24)
+    end
+
+    test "sample blueprint 2" do
+      blueprint = %{
+        id: 1,
+        costs: [
+          {:geode, %{ore: 3, obsidian: 12}},
+          {:obsidian, %{ore: 3, clay: 8}},
+          {:clay, %{ore: 3}},
+          {:ore, %{ore: 2}}
+        ]
+      }
+
+      assert 12 == Day19.run_geode_cracker(blueprint, 24)
     end
 
     test "blueprint 7" do

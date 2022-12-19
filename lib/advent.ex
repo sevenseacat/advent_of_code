@@ -36,9 +36,9 @@ defmodule Advent do
     lowest_common_multiple([one, lowest_common_multiple(rest)])
   end
 
-  def pmap(collection, func) do
+  def pmap(collection, func, opts \\ []) do
     collection
-    |> Task.async_stream(&func.(&1))
+    |> Task.async_stream(&func.(&1), opts)
     |> Enum.map(fn {:ok, result} -> result end)
   end
 
