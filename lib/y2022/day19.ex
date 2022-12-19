@@ -1,38 +1,35 @@
 defmodule Y2022.Day19 do
   use Advent.Day, no: 19
 
-  @max_time 24
-
-  def part1(input) do
+  def part1(input, time \\ 24) do
     input
-    |> Enum.map(&quality_level/1)
+    |> Enum.map(&quality_level(&1, time))
     |> Enum.sum()
   end
 
-  # @doc """
-  # iex> Day19.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
+  def part2(input, time \\ 32) do
+    input
+    |> Enum.take(3)
+    |> Enum.map(&run_geode_cracker(&1, time))
+    |> Enum.product()
+  end
 
-  defp quality_level(blueprint) do
-    geode_count = run_geode_cracker(blueprint)
+  defp quality_level(blueprint, time) do
+    geode_count = run_geode_cracker(blueprint, time)
     # dbg({blueprint.id, geode_count})
     blueprint.id * geode_count
   end
 
-  def run_geode_cracker(blueprint) do
+  def run_geode_cracker(blueprint, time) do
     initial_state = %{costs: blueprint.costs, inventory: %{}, robots: %{ore: 1}}
-    do_search([tick(initial_state)], [], 2, 0, MapSet.new())
+    do_search([tick(initial_state)], [], time - 1, 0, MapSet.new())
   end
 
   defp do_search([], [], _time, best, _cache), do: best
 
   defp do_search([], next_level_states, time, best, cache) do
-    IO.puts("* Level #{time + 1}")
-    do_search(next_level_states, [], time + 1, best, cache)
+    IO.puts("* Level #{time - 1}")
+    do_search(next_level_states, [], time - 1, best, cache)
   end
 
   defp do_search([[] | rest], next_level_states, time, best, cache) do
@@ -40,7 +37,7 @@ defmodule Y2022.Day19 do
   end
 
   defp do_search([[state | rest1] | rest2], next_level_states, time, best, cache) do
-    if time > @max_time do
+    if time == 0 do
       new_best = max(best, Map.get(state.inventory, :geode, 0))
       do_search([rest1 | rest2], next_level_states, time, new_best, cache)
     else
@@ -129,5 +126,5 @@ defmodule Y2022.Day19 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
