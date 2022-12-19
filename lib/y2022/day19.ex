@@ -3,6 +3,7 @@ defmodule Y2022.Day19 do
 
   @max_time 24
 
+  # 1299 - too low
   def part1(input) do
     input
     |> Enum.map(&quality_level/1)
@@ -18,61 +19,74 @@ defmodule Y2022.Day19 do
   # end
 
   defp quality_level(blueprint) do
-    blueprint.id * run_geode_cracker(blueprint)
+    geode_count = run_geode_cracker(blueprint)
+    # dbg({blueprint.id, geode_count})
+    blueprint.id * geode_count
   end
 
   def run_geode_cracker(blueprint) do
-    tick(blueprint, %{ore: 1}, %{}, @max_time)
+    initial_state = %{costs: blueprint.costs, inventory: %{}, robots: %{ore: 1}}
+    do_search([tick(initial_state)], [], 2, 0)
   end
 
-  defp tick(_blueprint, _robots, inventory, 0) do
-    Map.get(inventory, :geode, 0)
+  defp do_search([], [], _time, best), do: best
+
+  defp do_search([], next_level_states, time, best) do
+    IO.puts("* Level #{time + 1}")
+    do_search(next_level_states, [], time + 1, best)
   end
 
-  defp tick(blueprint, robots, inventory, time) do
-    IO.puts("Time: #{@max_time - time + 1}")
-    # Start building robots from inventory
-    {to_build, inventory} =
-      Enum.reduce(blueprint.costs, {%{}, inventory}, fn robot_cost, state ->
-        build_robot(robot_cost, state)
-      end)
-
-    IO.inspect(to_build, label: "Can build")
-
-    # Collect resources from robots
-    inventory =
-      Enum.reduce(robots, inventory, fn {type, count}, acc ->
-        Map.update(acc, type, count, &(&1 + count))
-      end)
-      |> IO.inspect(label: "Inventory")
-
-    # Add built robots to robot list
-    robots =
-      Enum.reduce(to_build, robots, fn {type, num}, robots ->
-        Map.update(robots, type, num, &(&1 + num))
-      end)
-
-    IO.inspect(robots, label: "Robots")
-
-    IO.puts("-----")
-    tick(blueprint, robots, inventory, time - 1)
+  defp do_search([[] | rest], next_level_states, time, best) do
+    do_search(rest, next_level_states, time, best)
   end
 
-  defp build_robot({robot_type, robot_cost}, {robots, inventory}) do
-    case buildable_count(robot_cost, inventory) do
-      0 ->
-        {robots, inventory}
-
-      n ->
-        actual_cost = Enum.map(robot_cost, fn {component, cost} -> {component, cost * n} end)
-
-        {
-          Map.put(robots, robot_type, n),
-          Enum.reduce(actual_cost, inventory, fn {component, cost}, inventory ->
-            Map.update!(inventory, component, &(&1 - cost))
-          end)
-        }
+  defp do_search([[state | rest1] | rest2], next_level_states, time, best) do
+    if time > @max_time do
+      new_best = max(best, Map.get(state.inventory, :geode, 0))
+      do_search([rest1 | rest2], next_level_states, time, new_best)
+    else
+      do_search([rest1 | rest2], [tick(state) | next_level_states], time, best)
     end
+  end
+
+  defp tick(%{costs: costs, robots: robots, inventory: inventory}) do
+    costs
+    # Start building robots from inventory
+    |> possible_builds(inventory)
+    |> Enum.take(3)
+    |> Enum.map(fn {to_build, new_inventory} ->
+      # Collect resources from robots
+      new_inventory =
+        Enum.reduce(robots, new_inventory, fn {type, count}, acc ->
+          Map.update(acc, type, count, &(&1 + count))
+        end)
+
+      # Add built robots to robot list
+      robots =
+        Enum.reduce(to_build, robots, fn {type, num}, robots ->
+          Map.update(robots, type, num, &(&1 + num))
+        end)
+
+      %{costs: costs, robots: robots, inventory: new_inventory}
+    end)
+  end
+
+  defp possible_builds([], inventory), do: [{%{}, inventory}]
+
+  defp possible_builds([{type, cost} | rest], inventory) do
+    if buildable_count(cost, inventory) > 0 do
+      [{%{type => 1}, build_robot({type, 1}, cost, inventory)} | possible_builds(rest, inventory)]
+    else
+      possible_builds(rest, inventory)
+    end
+  end
+
+  defp build_robot({_type, num}, cost_per_robot, inventory) do
+    actual_cost = Enum.map(cost_per_robot, fn {component, cost} -> {component, cost * num} end)
+
+    Enum.reduce(actual_cost, inventory, fn {component, cost}, inventory ->
+      Map.update!(inventory, component, &(&1 - cost))
+    end)
   end
 
   defp buildable_count(robot_cost, inventory) do
