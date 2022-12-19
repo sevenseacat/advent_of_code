@@ -3,7 +3,10 @@ defmodule Y2022.Day19Test do
   alias Y2022.Day19
   doctest Day19
 
+  @moduletag timeout: :infinity
+
   test "verification, part 1", do: assert(Day19.part1_verify() == 1306)
+
   test "verification, part 2", do: assert(Day19.part2_verify() == 37604)
 
   @sample_input """
@@ -32,6 +35,7 @@ defmodule Y2022.Day19Test do
       }
 
       assert 9 == Day19.run_geode_cracker(blueprint, 24)
+      assert 56 == Day19.run_geode_cracker(blueprint, 32)
     end
 
     test "sample blueprint 2" do
@@ -46,6 +50,7 @@ defmodule Y2022.Day19Test do
       }
 
       assert 12 == Day19.run_geode_cracker(blueprint, 24)
+      assert 62 == Day19.run_geode_cracker(blueprint, 32)
     end
 
     test "blueprint 7" do
@@ -60,7 +65,6 @@ defmodule Y2022.Day19Test do
         ]
       }
 
-      # Using |> Enum.take(2) instead of 3 gives 3, instead of 4.
       assert 4 == Day19.run_geode_cracker(blueprint, 24)
     end
   end
