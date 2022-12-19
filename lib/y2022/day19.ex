@@ -22,39 +22,33 @@ defmodule Y2022.Day19 do
 
   def run_geode_cracker(blueprint, time) do
     initial_state = %{costs: blueprint.costs, inventory: %{}, robots: %{ore: 1}}
-    do_search([tick(initial_state)], [], time - 1, 0, MapSet.new())
+    do_search(tick(initial_state), [], time - 1, 0, MapSet.new())
   end
 
   defp do_search([], [], _time, best, _cache), do: best
 
-  defp do_search([], next_level_states, time, best, cache) do
+  defp do_search([], queue, time, best, cache) do
     IO.puts("* Level #{time - 1}")
-    do_search(next_level_states, [], time - 1, best, cache)
+    do_search(queue, [], time - 1, best, cache)
   end
 
-  defp do_search([[] | rest], next_level_states, time, best, cache) do
-    do_search(rest, next_level_states, time, best, cache)
-  end
-
-  defp do_search([[state | rest1] | rest2], next_level_states, time, best, cache) do
+  defp do_search([state | rest], queue, time, best, cache) do
     if time == 0 do
       new_best = max(best, Map.get(state.inventory, :geode, 0))
-      do_search([rest1 | rest2], next_level_states, time, new_best, cache)
+      do_search(rest, queue, time, new_best, cache)
     else
       cache_key = %{inventory: state.inventory, robots: state.robots}
 
       if MapSet.member?(cache, cache_key) do
-        do_search([rest1 | rest2], next_level_states, time, best, cache)
+        do_search(rest, queue, time, best, cache)
       else
-        do_search(
-          [rest1 | rest2],
-          [tick(state) | next_level_states],
-          time,
-          best,
-          MapSet.put(cache, cache_key)
-        )
+        do_search(rest, enqueue(queue, tick(state)), time, best, MapSet.put(cache, cache_key))
       end
     end
+  end
+
+  defp enqueue(queue, states) do
+    Enum.reduce(states, queue, fn state, queue -> [state | queue] end)
   end
 
   defp tick(%{costs: costs, robots: robots, inventory: inventory}) do
