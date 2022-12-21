@@ -4,7 +4,7 @@ defmodule Y2022.Day21Test do
   doctest Day21
 
   test "verification, part 1", do: assert(Day21.part1_verify() == 49_288_254_556_480)
-  # test "verification, part 2", do: assert(Day21.part2_verify() == "update or delete me")
+  test "verification, part 2", do: assert(Day21.part2_verify() == 3_558_714_869_436)
 
   @sample_input """
   root: pppw + sjmn
@@ -26,6 +26,10 @@ defmodule Y2022.Day21Test do
 
   test "part1/1" do
     assert 152 == Day21.parse_input(@sample_input) |> Day21.part1()
+  end
+
+  test "part2/1" do
+    assert 301 == Day21.parse_input(@sample_input) |> Day21.part2()
   end
 
   test "parse_input/1" do
