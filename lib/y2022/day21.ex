@@ -2,23 +2,17 @@ defmodule Y2022.Day21 do
   use Advent.Day, no: 21
 
   def part1(input) do
-    value_for_monkey("root", input, &do_operation/1)
+    monkey_value("root", input, &evaluate/1)
   end
 
   # 7010269744524 - too high
   def part2(input) do
     input =
       input
+      |> Map.update!("root", fn [a, _op, b] -> [a, "=", b] end)
       |> Map.put("humn", "???")
 
-    [left, right] = value_for_monkey("root", input, & &1) |> tl()
-
-    if can_evaluate?(left) do
-      {do_operation(left), right}
-    else
-      {do_operation(right), left}
-    end
-    |> run_inversion()
+    run_inversion({0, monkey_value("root", input, & &1)})
   end
 
   defp can_evaluate?(list) when is_list(list), do: !Enum.member?(List.flatten(list), "???")
@@ -26,46 +20,33 @@ defmodule Y2022.Day21 do
 
   defp run_inversion({num, "???"}), do: num
 
-  defp run_inversion({val, ["/", left, right]}) do
-    if can_evaluate?(left) do
-      run_inversion({div(do_operation(left), val), right})
-    else
-      run_inversion({val * do_operation(right), left})
-    end
+  defp run_inversion({current, ["=", left, right]}) do
+    replace_val = fn _, val -> evaluate(val) end
+    left_or_right(current, [left, right], replace_val, replace_val)
   end
 
-  defp run_inversion({val, ["+", left, right]}) do
-    if can_evaluate?(left) do
-      run_inversion({val - do_operation(left), right})
-    else
-      run_inversion({val - do_operation(right), left})
-    end
+  defp run_inversion({current, ["/", left, right]}) do
+    left_or_right(current, [left, right], &div(evaluate(&2), &1), &(&1 * evaluate(&2)))
   end
 
-  defp run_inversion({val, ["-", left, right]}) do
-    if can_evaluate?(left) do
-      run_inversion({do_operation(left) - val, right})
-    else
-      run_inversion({val + do_operation(right), left})
-    end
+  defp run_inversion({current, ["+", left, right]}) do
+    subtract_fn = fn current, val -> current - evaluate(val) end
+    left_or_right(current, [left, right], subtract_fn, subtract_fn)
   end
 
-  defp run_inversion({val, ["*", left, right]}) do
-    if can_evaluate?(left) do
-      run_inversion({div(val, do_operation(left)), right})
-    else
-      run_inversion({div(val, do_operation(right)), left})
-    end
+  defp run_inversion({current, ["-", left, right]}) do
+    left_or_right(current, [left, right], &(evaluate(&2) - &1), &(&1 + evaluate(&2)))
   end
 
-  defp value_for_monkey(monkey, input, runner) do
+  defp run_inversion({current, ["*", left, right]}) do
+    division_fn = fn current, val -> div(current, evaluate(val)) end
+    left_or_right(current, [left, right], division_fn, division_fn)
+  end
+
+  defp monkey_value(monkey, input, runner) do
     case Map.get(input, monkey) do
       [monkey1, op, monkey2] ->
-        runner.([
-          op,
-          value_for_monkey(monkey1, input, runner),
-          value_for_monkey(monkey2, input, runner)
-        ])
+        runner.([op, monkey_value(monkey1, input, runner), monkey_value(monkey2, input, runner)])
 
       nil ->
         raise "Can't find value for monkey #{monkey} in #{inspect(input)}"
@@ -75,11 +56,20 @@ defmodule Y2022.Day21 do
     end
   end
 
-  defp do_operation(num) when is_integer(num), do: num
-  defp do_operation(["+", one, two]), do: do_operation(one) + do_operation(two)
-  defp do_operation(["*", one, two]), do: do_operation(one) * do_operation(two)
-  defp do_operation(["-", one, two]), do: do_operation(one) - do_operation(two)
-  defp do_operation(["/", one, two]), do: div(do_operation(one), do_operation(two))
+  defp evaluate(num) when is_integer(num), do: num
+  defp evaluate(["+", one, two]), do: evaluate(one) + evaluate(two)
+  defp evaluate(["*", one, two]), do: evaluate(one) * evaluate(two)
+  defp evaluate(["-", one, two]), do: evaluate(one) - evaluate(two)
+  defp evaluate(["/", one, two]), do: div(evaluate(one), evaluate(two))
+
+  def left_or_right(current, [left, right], left_fn, right_fn) do
+    if can_evaluate?(left) do
+      {left_fn.(current, left), right}
+    else
+      {right_fn.(current, right), left}
+    end
+    |> run_inversion()
+  end
 
   def parse_input(input) do
     input
