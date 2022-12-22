@@ -6,44 +6,46 @@ defmodule Y2022.Day22 do
     vertices = Graph.vertices(graph)
     start = Enum.min(vertices)
 
-    traverse_grid({graph, boundaries(vertices)}, moves, {start, :right})
+    boundaries = boundaries(vertices)
+
+    transfer_fn = fn {_old_pos, facing}, {new_pos, facing} ->
+      {maybe_wrap(new_pos, facing, boundaries), facing}
+    end
+
+    traverse_grid(graph, moves, {start, :right}, transfer_fn)
     |> calculate_password()
   end
 
-  # @doc """
-  # iex> Day22.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
-
-  defp traverse_grid(_graph_data, [], current), do: current
-
-  defp traverse_grid(graph_data, [move | moves], current) do
-    traverse_grid(graph_data, moves, move(graph_data, current, move))
+  def part2(input) do
+    input
   end
 
-  defp move(_graph_data, {position, facing}, dir) when dir in ["L", "R"] do
+  defp traverse_grid(_graph_data, [], current, _transfer_fn), do: current
+
+  defp traverse_grid(graph_data, [move | moves], current, transfer_fn) do
+    traverse_grid(graph_data, moves, move(graph_data, current, move, transfer_fn), transfer_fn)
+  end
+
+  defp move(_graph_data, {position, facing}, dir, _transfer_fn) when dir in ["L", "R"] do
     {position, turn(facing, dir)}
   end
 
-  defp move(_graph_data, current, 0), do: current
+  defp move(_graph_data, current, 0, _transfer_fn), do: current
 
-  defp move({graph, boundaries}, {position, facing}, num) do
-    next_position = forward({position, facing}) |> maybe_wrap(facing, boundaries)
+  defp move(graph, current, num, transfer_fn) do
+    {next_position, facing} = transfer_fn.(current, forward(current))
 
     if PathGrid.wall?(graph, next_position) do
-      {position, facing}
+      current
     else
-      move({graph, boundaries}, {next_position, facing}, num - 1)
+      move(graph, {next_position, facing}, num - 1, transfer_fn)
     end
   end
 
-  defp forward({{row, col}, :up}), do: {row - 1, col}
-  defp forward({{row, col}, :down}), do: {row + 1, col}
-  defp forward({{row, col}, :left}), do: {row, col - 1}
-  defp forward({{row, col}, :right}), do: {row, col + 1}
+  defp forward({{row, col}, :up}), do: {{row - 1, col}, :up}
+  defp forward({{row, col}, :down}), do: {{row + 1, col}, :down}
+  defp forward({{row, col}, :left}), do: {{row, col - 1}, :left}
+  defp forward({{row, col}, :right}), do: {{row, col + 1}, :right}
 
   defp turn(:left, "L"), do: :down
   defp turn(:left, "R"), do: :up
