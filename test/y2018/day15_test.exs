@@ -105,27 +105,8 @@ defmodule Y2018.Day15Test do
         %Unit{type: "E", hp: 200, position: {4, 5}, alive: true, power: 3}
       ]
 
-      expected_vertices = [
-        {2, 2},
-        {2, 3},
-        {2, 4},
-        {2, 5},
-        {2, 6},
-        {3, 2},
-        {3, 3},
-        {3, 4},
-        {3, 5},
-        {3, 6},
-        {4, 2},
-        {4, 3},
-        {4, 5},
-        {4, 6}
-      ]
-
-      {units, graph} = Day15.parse_input(input)
-
+      {units, _graph} = Day15.parse_input(input)
       assert expected_units == units
-      assert expected_vertices == Graph.vertices(graph) |> Enum.sort()
     end
   end
 

@@ -106,7 +106,7 @@ defmodule Y2019.Day17 do
 
   defp valid_forward_coord(graph, position, facing) do
     forward_coord = forward_coord(position, facing)
-    if Graph.has_vertex?(graph, forward_coord), do: forward_coord, else: nil
+    if PathGrid.floor?(graph, forward_coord), do: forward_coord, else: nil
   end
 
   defp forward_coord({row, col}, facing) do
@@ -172,12 +172,14 @@ defmodule Y2019.Day17 do
   def find_intersections(%PathGrid{graph: graph}) do
     graph
     |> Graph.vertices()
-    |> Enum.filter(fn coord -> length(adjacent_coords(graph, coord)) == 4 end)
+    |> Enum.filter(fn coord ->
+      PathGrid.floor?(graph, coord) && length(adjacent_coords(graph, coord)) == 4
+    end)
   end
 
   defp adjacent_coords(graph, {x, y}) do
     [{x - 1, y}, {x, y - 1}, {x + 1, y}, {x, y + 1}]
-    |> Enum.filter(fn coord -> Graph.has_vertex?(graph, coord) end)
+    |> Enum.filter(fn coord -> PathGrid.floor?(graph, coord) end)
   end
 
   defp to_alignment_parameter(list) do

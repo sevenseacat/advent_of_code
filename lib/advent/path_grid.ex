@@ -55,12 +55,12 @@ defmodule Advent.PathGrid do
   defp parse_coord(" ", graph, _, _), do: graph
 
   defp parse_coord(char, graph, row, col) do
-    coord_type = if char == ".", do: :floor, else: :wall
+    coord_type = if char == "#", do: :wall, else: :floor
     graph = Graph.add_vertex(graph, {row, col}, coord_type)
 
     [{row - 1, col}, {row, col - 1}]
     |> Enum.reduce(graph, fn neighbour, graph ->
-      if Graph.has_vertex?(graph, neighbour) && !wall?(graph, neighbour) do
+      if floor?(graph, neighbour) do
         graph
         |> Graph.add_edge({row, col}, neighbour)
         |> Graph.add_edge(neighbour, {row, col})
@@ -70,7 +70,39 @@ defmodule Advent.PathGrid do
     end)
   end
 
+  def display(graph, units \\ []) do
+    vertices = Graph.vertices(graph)
+    {{min_row, _}, {max_row, _}} = Enum.min_max_by(vertices, fn {row, _} -> row end) |> dbg
+    {{_, min_col}, {_, max_col}} = Enum.min_max_by(vertices, fn {_, col} -> col end) |> dbg
+
+    for row <- min_row..max_row, col <- min_col..max_col do
+      if unit = Enum.find(units, fn unit -> unit.position == {row, col} end) do
+        unit.type
+      else
+        cond do
+          floor?(graph, {row, col}) -> "."
+          wall?(graph, {row, col}) -> "#"
+          true -> " "
+        end
+      end
+    end
+    |> Enum.chunk_every(max_col - min_col + 1)
+    |> Enum.map(&List.to_string/1)
+    |> Enum.map(&IO.puts/1)
+
+    graph
+  end
+
   def wall?(graph, coordinate) do
-    Graph.vertex_labels(graph, coordinate) == [:wall]
+    Graph.has_vertex?(graph, coordinate) && Graph.vertex_labels(graph, coordinate) == [:wall]
+  end
+
+  def floor?(graph, coordinate) do
+    Graph.has_vertex?(graph, coordinate) && Graph.vertex_labels(graph, coordinate) == [:floor]
+  end
+
+  def floor_spaces(graph) do
+    Graph.vertices(graph)
+    |> Enum.filter(fn v -> Graph.vertex_labels(graph, v) == [:floor] end)
   end
 end

@@ -175,7 +175,7 @@ defmodule Y2018.Day15 do
       |> Enum.map(fn unit -> unit.position end)
       |> Enum.reject(fn coord -> coord == from || coord == to end)
 
-    open_coords = Graph.vertices(graph) -- other_unit_coords
+    open_coords = PathGrid.floor_spaces(graph) -- other_unit_coords
 
     weights = %{
       {from_row - 1, from_col} => 0,
@@ -226,7 +226,7 @@ defmodule Y2018.Day15 do
       if unit = Enum.find(units, fn unit -> unit.position == {row, col} end) do
         unit.type
       else
-        if Graph.has_vertex?(graph, {row, col}), do: ".", else: "#"
+        if PathGrid.floor?(graph, {row, col}), do: ".", else: "#"
       end
     end
     |> Enum.chunk_every(35)

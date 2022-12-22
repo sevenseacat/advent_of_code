@@ -81,11 +81,11 @@ defmodule Y2019.Day18 do
 
         # Lock has been removed - add the lock node back to the graph
         {row, col} ->
-          graph = Graph.add_vertex(state.graph, {row, col})
+          graph = Graph.add_vertex(state.graph, {row, col}, :floor)
 
           [{row - 1, col}, {row + 1, col}, {row, col - 1}, {row, col + 1}]
           |> Enum.reduce(graph, fn coord, graph ->
-            if Graph.has_vertex?(graph, coord) do
+            if PathGrid.floor?(graph, coord) do
               graph
               |> Graph.add_edge({row, col}, coord)
               |> Graph.add_edge(coord, {row, col})
