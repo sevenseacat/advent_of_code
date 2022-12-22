@@ -27,7 +27,7 @@ defmodule Advent.PathGrid do
   def new(input) do
     {graph, units, _row} =
       input
-      |> String.split("\n", trim: true)
+      |> String.split("\n")
       |> Enum.reduce({Graph.new(), [], 1}, &parse_row/2)
 
     %__MODULE__{graph: graph, units: units}
@@ -46,21 +46,21 @@ defmodule Advent.PathGrid do
     {graph, units, row_num + 1}
   end
 
-  defp parse_unit("#", units, _row, _col), do: units
-  defp parse_unit(".", units, _row, _col), do: units
+  defp parse_unit(unit, units, _row, _col) when unit in ["#", ".", " "], do: units
 
   defp parse_unit(unit, units, row, col) do
     [%Unit{identifier: unit, position: {row, col}} | units]
   end
 
-  defp parse_coord("#", graph, _, _), do: graph
+  defp parse_coord(" ", graph, _, _), do: graph
 
-  defp parse_coord(_, graph, row, col) do
-    graph = Graph.add_vertex(graph, {row, col})
+  defp parse_coord(char, graph, row, col) do
+    coord_type = if char == ".", do: :floor, else: :wall
+    graph = Graph.add_vertex(graph, {row, col}, coord_type)
 
     [{row - 1, col}, {row, col - 1}]
     |> Enum.reduce(graph, fn neighbour, graph ->
-      if Graph.has_vertex?(graph, neighbour) do
+      if Graph.has_vertex?(graph, neighbour) && !wall?(graph, neighbour) do
         graph
         |> Graph.add_edge({row, col}, neighbour)
         |> Graph.add_edge(neighbour, {row, col})
@@ -68,5 +68,9 @@ defmodule Advent.PathGrid do
         graph
       end
     end)
+  end
+
+  def wall?(graph, coordinate) do
+    Graph.vertex_labels(graph, coordinate) == [:wall]
   end
 end
