@@ -11,7 +11,7 @@ defmodule Advent.Grid do
     |> String.graphemes()
     |> Enum.with_index()
     |> Enum.reduce(map, fn {col, col_no}, map ->
-      Map.put(map, {row_no, col_no}, col)
+      Map.put(map, {row_no + 1, col_no + 1}, col)
     end)
   end
 end
