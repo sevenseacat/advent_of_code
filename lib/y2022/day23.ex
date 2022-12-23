@@ -4,37 +4,42 @@ defmodule Y2022.Day23 do
 
   def part1(input, rounds \\ 10) do
     input
-    |> do_rounds(rounds, 0)
+    |> do_rounds(1, rounds + 1, 0)
     |> empty_square_count()
   end
 
-  # @doc """
-  # iex> Day23.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
+  def part2(input, rounds \\ 10000) do
+    input
+    |> do_rounds(1, rounds + 1, 0)
+  end
 
-  defp do_rounds(set, 0, _offset), do: set
+  defp do_rounds(set, round, round, _offset), do: set
 
-  defp do_rounds(set, round, offset) do
+  defp do_rounds(set, round, max_round, offset) do
     proposed_moves =
-      Enum.reduce(set, %{}, fn coord, moves ->
-        Map.put(moves, coord, next_position(coord, set, offset))
+      Enum.reduce(set, [], fn coord, moves ->
+        [{coord, next_position(coord, set, offset)} | moves]
       end)
+      |> Enum.reject(fn {from, to} -> from == to end)
 
     grouped_moves = Enum.group_by(proposed_moves, fn {_, to} -> to end)
 
-    Enum.filter(proposed_moves, fn {_coord, to} ->
-      length(Map.fetch!(grouped_moves, to)) == 1
-    end)
-    |> Enum.reduce(set, fn {from, to}, set ->
-      set
-      |> MapSet.delete(from)
-      |> MapSet.put(to)
-    end)
-    |> do_rounds(round - 1, rem(offset + 1, 4))
+    actual_moves =
+      Enum.filter(proposed_moves, fn {_coord, to} ->
+        length(Map.fetch!(grouped_moves, to)) == 1
+      end)
+
+    if Enum.empty?(actual_moves) do
+      round
+    else
+      actual_moves
+      |> Enum.reduce(set, fn {from, to}, set ->
+        set
+        |> MapSet.delete(from)
+        |> MapSet.put(to)
+      end)
+      |> do_rounds(round + 1, max_round, rem(offset + 1, 4))
+    end
   end
 
   defp next_position({row, col}, set, offset) do
@@ -113,5 +118,5 @@ defmodule Y2022.Day23 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end

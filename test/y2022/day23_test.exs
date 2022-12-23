@@ -4,7 +4,7 @@ defmodule Y2022.Day23Test do
   doctest Day23
 
   test "verification, part 1", do: assert(Day23.part1_verify() == 3788)
-  # test "verification, part 2", do: assert(Day23.part2_verify() == "update or delete me")
+  test "verification, part 2", do: assert(Day23.part2_verify() == 921)
 
   @sample_small """
   .....
@@ -35,6 +35,10 @@ defmodule Y2022.Day23Test do
     assert 15 == Day23.parse_input(@sample_small) |> Day23.part1(2)
     assert 25 == Day23.parse_input(@sample_small) |> Day23.part1(3)
     assert 110 == Day23.parse_input(@sample_large) |> Day23.part1(10)
+  end
+
+  test "part2/1" do
+    assert 20 == Day23.parse_input(@sample_large) |> Day23.part2()
   end
 
   test "parse_input/1" do
