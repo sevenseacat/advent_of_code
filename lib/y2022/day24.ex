@@ -52,7 +52,7 @@ defmodule Y2022.Day24 do
   end
 
   defp do_search({{:value, {position, turn}}, queue}, destination, cache, blizzard_paths) do
-    hash = hash(position, turn, blizzard_paths)
+    hash = [position, turn]
 
     if MapSet.member?(cache, hash) do
       # Seen a better version of this state, scrap this one
@@ -68,10 +68,6 @@ defmodule Y2022.Day24 do
         blizzard_paths
       )
     end
-  end
-
-  defp hash(position, turn, {blizzard_paths, _max_coord}) do
-    :erlang.phash2({position, Map.fetch!(blizzard_paths, turn)})
   end
 
   defp legal_moves({blizzard_paths, max_coord}, {row, col}, turn) do

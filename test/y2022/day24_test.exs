@@ -3,10 +3,7 @@ defmodule Y2022.Day24Test do
   alias Y2022.Day24
   doctest Day24
 
-  @tag timeout: :infinity
   test "verification, part 1", do: assert(Day24.part1_verify() == 249)
-
-  @tag timeout: :infinity
   test "verification, part 2", do: assert(Day24.part2_verify() == 735)
 
   @sample_input """
