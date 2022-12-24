@@ -2,7 +2,7 @@
 
 My Elixir solutions for [Advent of Code 2022](https://adventofcode.com/2022).
 
-<!-- stars 2022 start --><img src="https://img.shields.io/badge/2022-47_stars-green?style=for-the-badge" alt="47 stars" /><!-- stars 2022 end -->
+<!-- stars 2022 start --><img src="https://img.shields.io/badge/2022-48_stars-green?style=for-the-badge" alt="48 stars" /><!-- stars 2022 end -->
 
 ## Benchmarks
 

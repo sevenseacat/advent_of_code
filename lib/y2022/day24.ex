@@ -4,16 +4,22 @@ defmodule Y2022.Day24 do
 
   def part1(input) do
     {{max_row, max_col} = max_coord, _val} = Enum.max_by(input, fn {coord, _val} -> coord end)
+
     get_shortest_path(input, max_coord, {{1, 2}, {max_row, max_col - 1}})
+    |> elem(0)
   end
 
-  # @doc """
-  # iex> Day24.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
+  def part2(input) do
+    {{max_row, max_col} = max_coord, _val} = Enum.max_by(input, fn {coord, _val} -> coord end)
+
+    from = {1, 2}
+    to = {max_row, max_col - 1}
+    {lap1, blizzards} = get_shortest_path(input, max_coord, {from, to})
+    {lap2, blizzards} = get_shortest_path(blizzards, max_coord, {to, from})
+    {lap3, _blizzards} = get_shortest_path(blizzards, max_coord, {from, to})
+
+    lap1 + lap2 + lap3
+  end
 
   defp get_shortest_path(input, max_coord, {source, destination}) do
     {moves, blizzard_paths} = legal_moves({%{0 => input}, max_coord}, source, 1)
@@ -40,15 +46,15 @@ defmodule Y2022.Day24 do
     raise("No winning states!")
   end
 
-  defp do_search({{:value, {position, turn}}, _queue}, position, _cache, _blizzard_paths) do
+  defp do_search({{:value, {position, turn}}, _queue}, position, _cache, {blizzard_paths, _}) do
     # Winner winner chicken dinner.
-    turn
+    {turn, Map.fetch!(blizzard_paths, turn)}
   end
 
   defp do_search({{:value, {position, turn}}, queue}, destination, cache, blizzard_paths) do
     hash = hash(position, turn, blizzard_paths)
 
-    if hash in cache do
+    if MapSet.member?(cache, hash) do
       # Seen a better version of this state, scrap this one
       search(queue, destination, cache, blizzard_paths)
     else
@@ -65,7 +71,7 @@ defmodule Y2022.Day24 do
   end
 
   defp hash(position, turn, {blizzard_paths, _max_coord}) do
-    {position, Map.fetch!(blizzard_paths, turn)}
+    :erlang.phash2({position, Map.fetch!(blizzard_paths, turn)})
   end
 
   defp legal_moves({blizzard_paths, max_coord}, {row, col}, turn) do
@@ -134,5 +140,5 @@ defmodule Y2022.Day24 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
