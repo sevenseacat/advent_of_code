@@ -14,4 +14,23 @@ defmodule Advent.Grid do
       Map.put(map, {row_no + 1, col_no + 1}, col)
     end)
   end
+
+  def display(grid, highlight \\ nil) do
+    vertices = Map.keys(grid)
+    {{min_row, min_col}, {max_row, max_col}} = Enum.min_max(vertices)
+
+    for row <- min_row..max_row, col <- min_col..max_col do
+      if {row, col} == highlight do
+        "E"
+      else
+        list = Map.fetch!(grid, {row, col})
+        if(length(list) > 1, do: "#{length(list)}", else: hd(list))
+      end
+    end
+    |> Enum.chunk_every(max_col - min_col + 1)
+    |> Enum.map(&List.to_string/1)
+    |> Enum.map(&IO.puts/1)
+
+    grid
+  end
 end
