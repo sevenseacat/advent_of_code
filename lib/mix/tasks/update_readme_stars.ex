@@ -14,13 +14,23 @@ defmodule Mix.Tasks.UpdateReadmeStars do
   use Mix.Task
   alias Advent.Stats
 
-  @years 2015..DateTime.utc_now().year
+  @start_year 2015
+
+  def years do
+    {:ok, now} = DateTime.now("America/New_York")
+
+    if now.month != 12 do
+      @start_year..(now.year - 1)
+    else
+      @start_year..now.year
+    end
+  end
 
   def run([]) do
     Mix.Shell.IO.info("Updating README stars...")
 
     star_data =
-      Enum.reduce(@years, %{}, fn year, acc ->
+      Enum.reduce(years(), %{}, fn year, acc ->
         Map.put(acc, year, Stats.count_complete_puzzles(year))
       end)
 
@@ -95,6 +105,6 @@ defmodule Mix.Tasks.UpdateReadmeStars do
   end
 
   defp readmes() do
-    Enum.map(@years, fn year -> "lib/y#{year}/README.md" end)
+    Enum.map(years(), fn year -> "lib/y#{year}/README.md" end)
   end
 end
