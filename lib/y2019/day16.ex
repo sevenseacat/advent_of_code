@@ -1,8 +1,6 @@
 defmodule Y2019.Day16 do
   use Advent.Day, no: 16
 
-  alias Y2019.Day16.PatternKeeper
-
   @doc """
   iex> Day16.part1("12345678", 1)
   "48226158"
@@ -28,46 +26,34 @@ defmodule Y2019.Day16 do
   def part1(input, phase) do
     input
     |> parse_input
-    |> do_parts(0, phase, PatternKeeper.new())
+    |> do_parts(0, phase)
     |> Enum.take(8)
     |> to_output
   end
 
-  defp do_parts(input, phase, phase, _table), do: input
+  defp do_parts(input, phase, phase), do: input
 
-  defp do_parts(input, phase, target_phase, digit_store) do
+  defp do_parts(input, phase, target_phase) do
+    # Add a zero to simulate dropping the first value of the pattern
+    input = [0 | input]
+
     1..length(input)
-    |> Advent.pmap(fn i -> calculate_digit(input, i - 1, digit_store) end)
-    |> do_parts(phase + 1, target_phase, digit_store)
+    |> Enum.map(fn i -> calculate_digit(input, i - 1) end)
+    |> do_parts(phase + 1, target_phase)
   end
 
-  defp calculate_digit(input, digit, digit_store) do
-    pattern = PatternKeeper.get_pattern_for_digit(digit_store, digit)
-
+  defp calculate_digit(input, digit) do
     input
-    |> Enum.reduce({build_stream(pattern), 0}, fn digit, {stream, acc} ->
-      {val, stream} = next_in_stream(stream)
-
-      case val do
-        0 -> {stream, acc}
-        1 -> {stream, acc + digit}
-        -1 -> {stream, acc - digit}
-      end
+    |> Stream.chunk_every(digit + 1)
+    |> Stream.drop(1)
+    |> Stream.take_every(2)
+    |> Enum.reduce({0, true}, fn list, {acc, add?} ->
+      list_sum = Enum.sum(list)
+      if add?, do: {acc + list_sum, false}, else: {acc - list_sum, true}
     end)
-    |> elem(1)
+    |> elem(0)
     |> rem(10)
-    |> abs
-  end
-
-  # Build my own pseudo-stream, that can pop a value and keep cycling on demand.
-  # Initiate it with the very first item already popped, as per requirements
-  defp build_stream([h | t]), do: {t, [h]}
-
-  defp next_in_stream({[h | rest], used}), do: {h, {rest, [h | used]}}
-
-  defp next_in_stream({[], all}) do
-    [h | t] = Enum.reverse(all)
-    {h, {t, [h]}}
+    |> abs()
   end
 
   defp parse_input(input) do
