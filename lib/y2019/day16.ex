@@ -47,7 +47,12 @@ defmodule Y2019.Day16 do
     input
     |> Enum.reduce({build_stream(pattern), 0}, fn digit, {stream, acc} ->
       {val, stream} = next_in_stream(stream)
-      {stream, acc + digit * val}
+
+      case val do
+        0 -> {stream, acc}
+        1 -> {stream, acc + digit}
+        -1 -> {stream, acc - digit}
+      end
     end)
     |> elem(1)
     |> rem(10)
