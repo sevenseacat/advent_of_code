@@ -2,7 +2,7 @@
 
 My Elixir solutions for [Advent of Code 2017](https://adventofcode.com/2017).
 
-<!-- stars 2017 start --><img src="https://img.shields.io/badge/2017-%E2%AD%90%EF%B8%8F_50_stars_%E2%AD%90%EF%B8%8F-brightgreen?style=for-the-badge" alt="50 stars" /><!-- stars 2017 end -->
+<!-- stars 2017 start --><img src="https://img.shields.io/static/v1?label=2017&message=%E2%AD%90%EF%B8%8F%2050%20stars%20%E2%AD%90%EF%B8%8F&style=for-the-badge&color=brightgreen" alt="50 stars" /><!-- stars 2017 end -->
 
 ## Benchmarks
 

@@ -5,15 +5,14 @@
 My Elixir solutions for [Advent of Code](https://adventofcode.com/) (all years).
 
 <!-- stars start -->
-<a href="./lib/y2015/"><img src="https://img.shields.io/badge/2015-%E2%AD%90%EF%B8%8F_50_stars_%E2%AD%90%EF%B8%8F-brightgreen?style=flat-square" alt="50 stars" /></a>
-<a href="./lib/y2016/"><img src="https://img.shields.io/badge/2016-%E2%AD%90%EF%B8%8F_50_stars_%E2%AD%90%EF%B8%8F-brightgreen?style=flat-square" alt="50 stars" /></a>
-<a href="./lib/y2017/"><img src="https://img.shields.io/badge/2017-%E2%AD%90%EF%B8%8F_50_stars_%E2%AD%90%EF%B8%8F-brightgreen?style=flat-square" alt="50 stars" /></a>
-<a href="./lib/y2018/"><img src="https://img.shields.io/badge/2018-%E2%AD%90%EF%B8%8F_50_stars_%E2%AD%90%EF%B8%8F-brightgreen?style=flat-square" alt="50 stars" /></a>
-<a href="./lib/y2019/"><img src="https://img.shields.io/badge/2019-35_stars-yellow?style=flat-square" alt="35 stars" /></a>
-<a href="./lib/y2020/"><img src="https://img.shields.io/badge/2020-36_stars-yellow?style=flat-square" alt="36 stars" /></a>
-<a href="./lib/y2021/"><img src="https://img.shields.io/badge/2021-46_stars-green?style=flat-square" alt="46 stars" /></a>
-<a href="./lib/y2022/"><img src="https://img.shields.io/badge/2022-%E2%AD%90%EF%B8%8F_50_stars_%E2%AD%90%EF%B8%8F-brightgreen?style=flat-square" alt="50 stars" /></a>
-<!-- stars end -->
+<p><a href="./lib/y2022/"><img src="https://img.shields.io/static/v1?label=2022&message=%E2%AD%90%EF%B8%8F%2050%20stars%20%E2%AD%90%EF%B8%8F&style=for-the-badge&color=brightgreen" alt="50 stars" /></a><br />
+<a href="./lib/y2021/"><img src="https://img.shields.io/static/v1?label=2021&message=46%20stars&style=for-the-badge&color=green" alt="46 stars" /></a><br />
+<a href="./lib/y2020/"><img src="https://img.shields.io/static/v1?label=2020&message=36%20stars&style=for-the-badge&color=yellow" alt="36 stars" /></a><br />
+<a href="./lib/y2019/"><img src="https://img.shields.io/static/v1?label=2019&message=35%20stars&style=for-the-badge&color=yellow" alt="35 stars" /></a><br />
+<a href="./lib/y2018/"><img src="https://img.shields.io/static/v1?label=2018&message=%E2%AD%90%EF%B8%8F%2050%20stars%20%E2%AD%90%EF%B8%8F&style=for-the-badge&color=brightgreen" alt="50 stars" /></a><br />
+<a href="./lib/y2017/"><img src="https://img.shields.io/static/v1?label=2017&message=%E2%AD%90%EF%B8%8F%2050%20stars%20%E2%AD%90%EF%B8%8F&style=for-the-badge&color=brightgreen" alt="50 stars" /></a><br />
+<a href="./lib/y2016/"><img src="https://img.shields.io/static/v1?label=2016&message=%E2%AD%90%EF%B8%8F%2050%20stars%20%E2%AD%90%EF%B8%8F&style=for-the-badge&color=brightgreen" alt="50 stars" /></a><br />
+<a href="./lib/y2015/"><img src="https://img.shields.io/static/v1?label=2015&message=%E2%AD%90%EF%B8%8F%2050%20stars%20%E2%AD%90%EF%B8%8F&style=for-the-badge&color=brightgreen" alt="50 stars" /></a></p><!-- stars end -->
 
 This repository is a work in progress - I haven't yet completed all puzzles, but I'm working on them!
 

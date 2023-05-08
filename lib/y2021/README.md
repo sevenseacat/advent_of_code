@@ -2,7 +2,7 @@
 
 My Elixir solutions for [Advent of Code 2021](https://adventofcode.com/2021).
 
-<!-- stars 2021 start --><img src="https://img.shields.io/badge/2021-46_stars-green?style=for-the-badge" alt="46 stars" /><!-- stars 2021 end -->
+<!-- stars 2021 start --><img src="https://img.shields.io/static/v1?label=2021&message=46%20stars&style=for-the-badge&color=green" alt="46 stars" /><!-- stars 2021 end -->
 
 ## Benchmarks
 

@@ -30,8 +30,8 @@ defmodule Mix.Tasks.UpdateReadmeStars do
     Mix.Shell.IO.info("Updating README stars...")
 
     star_data =
-      Enum.reduce(years(), %{}, fn year, acc ->
-        Map.put(acc, year, Stats.count_complete_puzzles(year))
+      Enum.reduce(years(), [], fn year, acc ->
+        [{year, Stats.count_complete_puzzles(year)} | acc]
       end)
 
     Enum.each(readmes(), fn file -> add_stars_to_year_readme(file, star_data) end)
@@ -44,13 +44,13 @@ defmodule Mix.Tasks.UpdateReadmeStars do
         Enum.map(star_data, fn {year, star_count} ->
           "<a href=\"./lib/y#{year}/\">#{badge_image(year, star_count, :small)}</a>"
         end)
-        |> Enum.join("\n")
+        |> Enum.join("<br />\n")
 
       contents =
         String.replace(
           contents,
           ~r/#{start_tag()}(.*)#{end_tag()}/s,
-          "#{start_tag()}\n#{links}\n#{end_tag()}"
+          "#{start_tag()}\n<p>#{links}</p>#{end_tag()}"
         )
 
       File.write!(file, contents)
@@ -85,12 +85,11 @@ defmodule Mix.Tasks.UpdateReadmeStars do
     "<img src=\"#{badge_url(year, star_count, size)}\" alt=\"#{star_count} stars\" />"
   end
 
-  defp badge_url(year, star_count, size) do
-    style = if size == :small, do: "flat-square", else: "for-the-badge"
-    string = if star_count == 50, do: "⭐️_50_stars_⭐️", else: "#{star_count}_stars"
+  defp badge_url(year, star_count, _size) do
+    string = if star_count == 50, do: "⭐️ 50 stars ⭐️", else: "#{star_count} stars"
 
     URI.encode(
-      "https://img.shields.io/badge/#{year}-#{string}-#{colour(star_count)}?style=#{style}"
+      "https://img.shields.io/static/v1?label=#{year}&message=#{string}&style=for-the-badge&color=#{colour(star_count)}"
     )
   end
 

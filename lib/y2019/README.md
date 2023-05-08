@@ -2,7 +2,7 @@
 
 My Elixir solutions for [Advent of Code 2019](https://adventofcode.com/2019).
 
-<!-- stars 2019 start --><img src="https://img.shields.io/badge/2019-35_stars-yellow?style=for-the-badge" alt="35 stars" /><!-- stars 2019 end -->
+<!-- stars 2019 start --><img src="https://img.shields.io/static/v1?label=2019&message=35%20stars&style=for-the-badge&color=yellow" alt="35 stars" /><!-- stars 2019 end -->
 
 ## Benchmarks
 
