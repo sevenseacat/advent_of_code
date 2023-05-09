@@ -10,24 +10,7 @@ jobs:
         event_year: [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022]
     steps:
       - uses: actions/checkout@v3
-      - name: Setup Elixir
-        uses: team-alembic/staple-actions/actions/install-elixir@sevenseacat-patch-1
-      - name: Setup deps cache
-        uses: actions/cache@v3
-        with:
-          path: deps
-          key: ${{ runner.os }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
-          restore-keys: ${{ runner.os }}-mix-
-      - name: Setup build cache
-        uses: actions/cache@v3
-        id: build-cache
-        with:
-          path: _build
-          key: ${{ runner.os }}-build-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
-      - name: Install Dependencies
-        run: |
-          mix local.rebar --force
-          mix local.hex --force
-          mix deps.get
+      - name: Setup Elixir & install deps
+        uses: sevenseacat/staple-actions/actions/mix-deps-get@test/dependent-actions
       - name: Run Tests
         run: mix test test/y${{ matrix.event_year }}
