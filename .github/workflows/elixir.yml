@@ -1,6 +1,6 @@
 name: Elixir CI
 
-on: 
+on:
   push:
     branches:
       - main
@@ -16,8 +16,8 @@ jobs:
       - name: Setup Elixir
         uses: erlef/setup-beam@v1
         with:
-          otp-version: 25.0.4
-          elixir-version: 1.14.0
+          version-file: .tool-versions
+          version-type: strict
       - name: Setup deps cache
         uses: actions/cache@v3
         with:
