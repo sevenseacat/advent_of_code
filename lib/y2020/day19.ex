@@ -10,6 +10,14 @@ defmodule Y2020.Day19 do
     end)
   end
 
+  def part2(%{rules: rules, messages: messages}, rule \\ @rule) do
+    rules =
+      rules
+      |> Map.merge(%{8 => [[42], [42, 8]], 11 => [[42, 31], [42, 11, 31]]})
+
+    part1(%{rules: rules, messages: messages}, rule)
+  end
+
   def depth_first_search_for_match([], _rules), do: false
   def depth_first_search_for_match([{[], []} | _rest], _rules), do: true
 
@@ -36,14 +44,6 @@ defmodule Y2020.Day19 do
   def depth_first_search_for_match([{_, _} | rest], rules) do
     depth_first_search_for_match(rest, rules)
   end
-
-  # @doc """
-  # iex> Day19.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
 
   def parse_input(input) do
     [rules, messages] = String.split(input, "\n\n", trim: true)
@@ -83,5 +83,5 @@ defmodule Y2020.Day19 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end

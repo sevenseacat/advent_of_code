@@ -4,7 +4,7 @@ defmodule Y2020.Day19Test do
   doctest Day19
 
   test "verification, part 1", do: assert(Day19.part1_verify() == 115)
-  # test "verification, part 2", do: assert(Day19.part2_verify() == "update or delete me")
+  test "verification, part 2", do: assert(Day19.part2_verify() == 237)
 
   @sample_input """
   0: 4 1 5
@@ -32,6 +32,13 @@ defmodule Y2020.Day19Test do
 
   test "part1/1" do
     assert 2 == Day19.parse_input(@sample_input) |> Day19.part1()
+  end
+
+  test "part2/1" do
+    input = test_data("19/part2") |> Day19.parse_input()
+
+    assert 3 == Day19.part1(input)
+    assert 12 == Day19.part2(input)
   end
 
   describe "depth_first_search_for_match?/3" do
@@ -88,4 +95,6 @@ defmodule Y2020.Day19Test do
 
     assert expected == Day19.parse_input(@sample_input)
   end
+
+  def test_data(name), do: Day19.input("../../../test/y2020/input/day#{name}")
 end
