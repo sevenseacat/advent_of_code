@@ -14,13 +14,17 @@ defmodule Y2023.Day02 do
     |> Enum.sum()
   end
 
-  # @doc """
-  # iex> Day02.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
+  def part2(input) do
+    input
+    |> Enum.map(fn {_num, turns} ->
+      red = Enum.max_by(turns, fn {r, _, _} -> r end) |> elem(0)
+      green = Enum.max_by(turns, fn {_, g, _} -> g end) |> elem(1)
+      blue = Enum.max_by(turns, fn {_, _, b} -> b end) |> elem(2)
+
+      red * green * blue
+    end)
+    |> Enum.sum()
+  end
 
   @doc """
   iex> Day02.parse_input("Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green")
@@ -59,5 +63,5 @@ defmodule Y2023.Day02 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
