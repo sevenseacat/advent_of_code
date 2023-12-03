@@ -16,7 +16,19 @@ defmodule Y2023.Day03 do
     |> Enum.any?(&Enum.member?(symbol_positions, &1))
   end
 
-  defp calculate_surrounding_positions({row, col}, length) do
+  # 27998156 - too low
+  def part2(%{numbers: numbers, symbols: symbols}) do
+    number_positions = invert_numbers(numbers)
+
+    symbols
+    |> Enum.filter(fn {_position, symbol} -> symbol == "*" end)
+    |> Enum.map(&elem(&1, 0))
+    |> Enum.map(&adjacent_numbers(&1, number_positions))
+    |> Enum.filter(fn list -> length(list) == 2 end)
+    |> Enum.reduce(0, fn [a, b], acc -> acc + a * b end)
+  end
+
+  defp calculate_surrounding_positions({row, col}, length \\ 1) do
     [{row, col - 1}, {row, col + length}] ++
       row_positions(row + 1, col, length) ++ row_positions(row - 1, col, length)
   end
@@ -25,13 +37,25 @@ defmodule Y2023.Day03 do
     Enum.map((col - 1)..(col + length), &{row, &1})
   end
 
-  # @doc """
-  # iex> Day03.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
+  # For part 1, numbers were useful to store as `%{position -> %{number, length}}`
+  # But for part 2, we want the set of positions each number covers
+  defp invert_numbers(numbers) do
+    numbers
+    |> Enum.reduce([], fn {{row, col}, %{number: number, length: length}}, acc ->
+      positions = Enum.map(col..(col + length - 1), fn col -> {row, col} end) |> MapSet.new()
+      [{number, positions} | acc]
+    end)
+  end
+
+  defp adjacent_numbers(position, numbers) do
+    surrounding_positions = MapSet.new(calculate_surrounding_positions(position))
+
+    numbers
+    |> Enum.reject(fn {_number, positions} ->
+      MapSet.disjoint?(positions, surrounding_positions)
+    end)
+    |> Enum.map(&elem(&1, 0))
+  end
 
   def parse_input(input) do
     input
@@ -74,5 +98,5 @@ defmodule Y2023.Day03 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end

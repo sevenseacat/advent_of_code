@@ -4,7 +4,7 @@ defmodule Y2023.Day03Test do
   doctest Day03
 
   test "verification, part 1", do: assert(Day03.part1_verify() == 536_202)
-  # test "verification, part 2", do: assert(Day03.part2_verify() == "update or delete me")
+  test "verification, part 2", do: assert(Day03.part2_verify() == 78_272_573)
 
   @sample_input """
   467..114..
@@ -22,6 +22,13 @@ defmodule Y2023.Day03Test do
   test "part 1" do
     actual = @sample_input |> Day03.parse_input() |> Day03.part1()
     expected = 4361
+
+    assert actual == expected
+  end
+
+  test "part 2" do
+    actual = @sample_input |> Day03.parse_input() |> Day03.part2()
+    expected = 467_835
 
     assert actual == expected
   end
