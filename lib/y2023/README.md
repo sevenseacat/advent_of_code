@@ -2,7 +2,7 @@
 
 My Elixir solutions for [Advent of Code 2023](https://adventofcode.com/2023).
 
-<!-- stars 2023 start --><img src="https://img.shields.io/static/v1?label=2023&message=4%20stars&style=for-the-badge&color=red" alt="4 stars" /><!-- stars 2023 end -->
+<!-- stars 2023 start --><img src="https://img.shields.io/static/v1?label=2023&message=5%20stars&style=for-the-badge&color=red" alt="5 stars" /><!-- stars 2023 end -->
 
 ## Benchmarks
 
