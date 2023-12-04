@@ -5,7 +5,7 @@
 My Elixir solutions for [Advent of Code](https://adventofcode.com/) (all years).
 
 <!-- stars start -->
-<p><a href="./lib/y2023/"><img src="https://img.shields.io/static/v1?label=2023&message=6%20stars&style=for-the-badge&color=red" alt="6 stars" /></a><br />
+<p><a href="./lib/y2023/"><img src="https://img.shields.io/static/v1?label=2023&message=8%20stars&style=for-the-badge&color=red" alt="8 stars" /></a><br />
 <a href="./lib/y2022/"><img src="https://img.shields.io/static/v1?label=2022&message=%E2%AD%90%EF%B8%8F%2050%20stars%20%E2%AD%90%EF%B8%8F&style=for-the-badge&color=brightgreen" alt="50 stars" /></a><br />
 <a href="./lib/y2021/"><img src="https://img.shields.io/static/v1?label=2021&message=46%20stars&style=for-the-badge&color=green" alt="46 stars" /></a><br />
 <a href="./lib/y2020/"><img src="https://img.shields.io/static/v1?label=2020&message=38%20stars&style=for-the-badge&color=yellow" alt="38 stars" /></a><br />
