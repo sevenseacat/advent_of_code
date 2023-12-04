@@ -4,7 +4,7 @@ defmodule Y2023.Day04Test do
   doctest Day04
 
   test "verification, part 1", do: assert(Day04.part1_verify() == 15268)
-  # test "verification, part 2", do: assert(Day04.part2_verify() == "update or delete me")
+  test "verification, part 2", do: assert(Day04.part2_verify() == 6_283_755)
 
   @sample_input """
   Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
@@ -17,5 +17,9 @@ defmodule Y2023.Day04Test do
 
   test "part 1" do
     assert 13 == Day04.parse_input(@sample_input) |> Day04.part1()
+  end
+
+  test "part 2" do
+    assert 30 == Day04.parse_input(@sample_input) |> Day04.part2()
   end
 end

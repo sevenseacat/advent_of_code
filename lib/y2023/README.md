@@ -14,10 +14,12 @@ You can check out the code yourself and run the benchmarks with `mix bench 2023`
 
 ```
 Name                     ips        average  deviation         median         99th %
-day 01, part 1        110.07        9.09 ms     ±1.38%        9.07 ms        9.69 ms
-day 01, part 2         85.23       11.73 ms     ±0.77%       11.71 ms       11.96 ms
-day 02, part 1        1.17 K        0.86 ms    ±75.22%        0.77 ms        4.03 ms
-day 02, part 2        1.17 K        0.85 ms    ±67.69%        0.79 ms        2.49 ms
-day 03, part 1         30.82       32.45 ms     ±2.29%       32.36 ms       36.61 ms
-day 03, part 2         13.71       72.96 ms     ±0.50%       72.89 ms       73.86 ms
+day 01, part 1        116.93        8.55 ms     ±0.41%        8.55 ms        8.71 ms
+day 01, part 2         85.22       11.73 ms     ±1.09%       11.68 ms       12.32 ms
+day 02, part 1       1516.23        0.66 ms     ±2.63%        0.66 ms        0.72 ms
+day 02, part 2       1463.31        0.68 ms     ±2.75%        0.68 ms        0.75 ms
+day 03, part 1         31.96       31.29 ms     ±1.09%       31.26 ms       33.59 ms
+day 03, part 2         14.31       69.90 ms     ±0.36%       69.88 ms       70.44 ms
+day 04, part 1        290.58        3.44 ms     ±1.11%        3.42 ms        3.54 ms
+day 04, part 2        280.02        3.57 ms     ±1.29%        3.58 ms        3.71 ms
 ```
