@@ -4,8 +4,6 @@ defmodule Y2023.Day05Test do
   doctest Day05
 
   test "verification, part 1", do: assert(Day05.part1_verify() == 551_761_867)
-
-  @tag timeout: :infinity
   test "verification, part 2", do: assert(Day05.part2_verify() == 57_451_709)
 
   @sample_input """
@@ -50,7 +48,7 @@ defmodule Y2023.Day05Test do
   end
 
   test "part 2" do
-    actual = @sample_input |> Day05.parse_input() |> Day05.part2()
+    actual = @sample_input |> Day05.parse_input() |> Day05.part2(1)
     assert actual == 46
   end
 

@@ -1,32 +1,46 @@
 defmodule Y2023.Day05 do
   use Advent.Day, no: 05
 
-  @operation_order [:soil, :fertilizer, :water, :light, :temperature, :humidity, :location]
+  @operation_order [:seed, :soil, :fertilizer, :water, :light, :temperature, :humidity, :location]
+
+  @block_size 1000
 
   def part1(input) do
     conversion_rules = generate_conversion_rules(input)
 
     input.seeds
-    |> Enum.map(&convert(conversion_rules, &1))
+    |> Enum.map(&convert(conversion_rules, &1, tl(@operation_order)))
     |> Enum.min()
   end
 
-  def part2(input) do
+  def part2(input, block_size \\ @block_size) do
     seed_ranges =
       input.seeds
       |> Enum.chunk_every(2)
       |> Enum.map(fn [min, range] -> %{min: min, max: min + range - 1} end)
 
-    order = [:seed | @operation_order]
+    # Run the conversion in reverse, from location 0 until we find a valid seed.
+    inverted_order =
+      @operation_order
+      |> Enum.reverse()
+      |> tl()
 
-    data = invert_data(input, order, %{})
+    data = invert_data(input, @operation_order, %{})
 
-    # Run the translation in reverse, from location 0 until we find a valid seed.
-    check_valid_location(0, data, seed_ranges, tl(Enum.reverse(order)))
+    # Break down the location space - there will be a looooooooooot of invalid locations
+    # before we find a valid one
+    block = check_valid_location(0, block_size, data, seed_ranges, inverted_order)
+    # But once we do find one, it may not be the first valid one - there may be others in
+    # the space between the last check and this one
+    # This makes some assumptions - that there won't be a block of valid locations and
+    # then more invalid ones - but given the seven-digit sizes of the ranges in the input,
+    # it should be okay
+    check_valid_location(block - block_size, 1, data, seed_ranges, inverted_order)
   end
 
   defp generate_conversion_rules(input) do
     @operation_order
+    |> tl()
     |> Enum.reduce(%{}, fn key, acc ->
       data =
         input
@@ -61,17 +75,17 @@ defmodule Y2023.Day05 do
     invert_data(input, [next | rest], data)
   end
 
-  defp check_valid_location(location, input, seed_ranges, order) do
+  defp check_valid_location(location, offset, input, seed_ranges, order) do
     seed = convert(input, location, order)
 
     if Enum.find(seed_ranges, fn range -> seed >= range.min && seed <= range.max end) do
       location
     else
-      check_valid_location(location + 1, input, seed_ranges, order)
+      check_valid_location(location + offset, offset, input, seed_ranges, order)
     end
   end
 
-  defp convert(input, val, order \\ @operation_order) do
+  defp convert(input, val, order) do
     Enum.reduce(order, val, fn operation, current ->
       do_convert(input, operation, current)
     end)
