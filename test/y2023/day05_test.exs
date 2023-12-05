@@ -4,7 +4,9 @@ defmodule Y2023.Day05Test do
   doctest Day05
 
   test "verification, part 1", do: assert(Day05.part1_verify() == 551_761_867)
-  # test "verification, part 2", do: assert(Day05.part2_verify() == "update or delete me")
+
+  @tag timeout: :infinity
+  test "verification, part 2", do: assert(Day05.part2_verify() == 57_451_709)
 
   @sample_input """
   seeds: 79 14 55 13
@@ -89,6 +91,11 @@ defmodule Y2023.Day05Test do
     ]
 
     assert Enum.sort(actual) == Enum.sort(expected)
+  end
+
+  test "part 2" do
+    actual = @sample_input |> Day05.parse_input() |> Day05.part2()
+    assert actual == 46
   end
 
   test "parse_input" do

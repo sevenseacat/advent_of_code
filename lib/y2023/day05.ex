@@ -5,28 +5,63 @@ defmodule Y2023.Day05 do
 
   def part1(input) do
     input.seeds
-    |> Enum.map(fn seed ->
-      Enum.reduce(@operation_order, {%{seed: seed}, seed}, fn operation, {acc, current} ->
-        translation = translate(input, operation, current)
-        {Map.put(acc, operation, translation), translation}
-      end)
-      |> elem(0)
-    end)
+    |> Enum.map(&run_translation_list(input, &1, :seed))
   end
 
-  # @doc """
-  # iex> Day05.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
+  # 57451710 - too high
+  def part2(input) do
+    seed_ranges =
+      input.seeds
+      |> Enum.chunk_every(2)
+      |> Enum.map(fn [start, range] -> start..(start + range - 1) end)
+
+    order = [:seed | @operation_order]
+
+    data =
+      invert_data(input, order, %{})
+
+    # Run the translation in reverse, from location 0 until we find a valid seed.
+    check_valid_location(0, data, seed_ranges, tl(Enum.reverse(order)))
+  end
+
+  defp invert_data(_input, [:location], data), do: data
+
+  defp invert_data(input, [prev, next | rest], data) do
+    rules = Map.fetch!(input, next)
+
+    inverted_rules =
+      Enum.map(rules, fn rule ->
+        %{source: rule.destination, destination: rule.source, size: rule.size}
+      end)
+
+    data = Map.put(data, prev, inverted_rules)
+    invert_data(input, [next | rest], data)
+  end
+
+  defp check_valid_location(location, input, seed_ranges, order) do
+    response = run_translation_list(input, location, :location, order)
+    seed = Map.fetch!(response, :seed)
+
+    if Enum.find(seed_ranges, fn range -> seed in range end) do
+      location
+    else
+      check_valid_location(location + 1, input, seed_ranges, order)
+    end
+  end
+
+  defp run_translation_list(input, val, start_key, order \\ @operation_order) do
+    Enum.reduce(order, {%{start_key => val}, val}, fn operation, {acc, current} ->
+      translation = translate(input, operation, current)
+      {Map.put(acc, operation, translation), translation}
+    end)
+    |> elem(0)
+  end
 
   defp translate(input, operation, current) do
     key =
       input
       |> Map.fetch!(operation)
-      |> Enum.find(fn rule -> current >= rule.source && current <= rule.source + rule.size end)
+      |> Enum.find(fn rule -> current >= rule.source && current < rule.source + rule.size end)
 
     case key do
       nil -> current
@@ -68,5 +103,5 @@ defmodule Y2023.Day05 do
     input() |> parse_input() |> part1() |> Enum.min_by(& &1.location) |> Map.fetch!(:location)
   end
 
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
