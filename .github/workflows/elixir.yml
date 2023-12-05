@@ -35,5 +35,9 @@ jobs:
           mix local.rebar --force
           mix local.hex --force
           mix deps.get
+      - name: Unlock secrets
+        uses: sliteteam/github-action-git-crypt-unlock@1.2.0
+        env:
+          GIT_CRYPT_KEY: ${{ secrets.GIT_CRYPT_KEY }}
       - name: Run Tests
         run: mix test test/y${{ matrix.event_year }}
