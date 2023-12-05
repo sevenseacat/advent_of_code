@@ -4,24 +4,43 @@ defmodule Y2023.Day05 do
   @operation_order [:soil, :fertilizer, :water, :light, :temperature, :humidity, :location]
 
   def part1(input) do
+    conversion_rules = generate_conversion_rules(input)
+
     input.seeds
-    |> Enum.map(&run_translation_list(input, &1, :seed))
+    |> Enum.map(&convert(conversion_rules, &1))
+    |> Enum.min()
   end
 
-  # 57451710 - too high
   def part2(input) do
     seed_ranges =
       input.seeds
       |> Enum.chunk_every(2)
-      |> Enum.map(fn [start, range] -> start..(start + range - 1) end)
+      |> Enum.map(fn [min, range] -> %{min: min, max: min + range - 1} end)
 
     order = [:seed | @operation_order]
 
-    data =
-      invert_data(input, order, %{})
+    data = invert_data(input, order, %{})
 
     # Run the translation in reverse, from location 0 until we find a valid seed.
     check_valid_location(0, data, seed_ranges, tl(Enum.reverse(order)))
+  end
+
+  defp generate_conversion_rules(input) do
+    @operation_order
+    |> Enum.reduce(%{}, fn key, acc ->
+      data =
+        input
+        |> Map.fetch!(key)
+        |> Enum.map(fn rule ->
+          %{
+            min: rule.source,
+            max: rule.source + rule.size - 1,
+            offset: rule.destination - rule.source
+          }
+        end)
+
+      Map.put(acc, key, data)
+    end)
   end
 
   defp invert_data(_input, [:location], data), do: data
@@ -31,7 +50,11 @@ defmodule Y2023.Day05 do
 
     inverted_rules =
       Enum.map(rules, fn rule ->
-        %{source: rule.destination, destination: rule.source, size: rule.size}
+        %{
+          min: rule.destination,
+          max: rule.destination + rule.size - 1,
+          offset: rule.source - rule.destination
+        }
       end)
 
     data = Map.put(data, prev, inverted_rules)
@@ -39,33 +62,30 @@ defmodule Y2023.Day05 do
   end
 
   defp check_valid_location(location, input, seed_ranges, order) do
-    response = run_translation_list(input, location, :location, order)
-    seed = Map.fetch!(response, :seed)
+    seed = convert(input, location, order)
 
-    if Enum.find(seed_ranges, fn range -> seed in range end) do
+    if Enum.find(seed_ranges, fn range -> seed >= range.min && seed <= range.max end) do
       location
     else
       check_valid_location(location + 1, input, seed_ranges, order)
     end
   end
 
-  defp run_translation_list(input, val, start_key, order \\ @operation_order) do
-    Enum.reduce(order, {%{start_key => val}, val}, fn operation, {acc, current} ->
-      translation = translate(input, operation, current)
-      {Map.put(acc, operation, translation), translation}
+  defp convert(input, val, order \\ @operation_order) do
+    Enum.reduce(order, val, fn operation, current ->
+      do_convert(input, operation, current)
     end)
-    |> elem(0)
   end
 
-  defp translate(input, operation, current) do
+  defp do_convert(input, operation, current) do
     key =
       input
       |> Map.fetch!(operation)
-      |> Enum.find(fn rule -> current >= rule.source && current < rule.source + rule.size end)
+      |> Enum.find(fn rule -> current >= rule.min && current <= rule.max end)
 
     case key do
       nil -> current
-      %{source: source, destination: destination} -> destination + (current - source)
+      %{offset: offset} -> offset + current
     end
   end
 
@@ -99,9 +119,6 @@ defmodule Y2023.Day05 do
     {name, data}
   end
 
-  def part1_verify do
-    input() |> parse_input() |> part1() |> Enum.min_by(& &1.location) |> Map.fetch!(:location)
-  end
-
+  def part1_verify, do: input() |> parse_input() |> part1()
   def part2_verify, do: input() |> parse_input() |> part2()
 end
