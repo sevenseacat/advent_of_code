@@ -10,18 +10,19 @@ defmodule Y2023.Day06 do
 
   def part1(input) do
     input
-    |> dbg
     |> Enum.map(&winnings_per_race/1)
     |> Enum.product()
   end
 
-  # @doc """
-  # iex> Day06.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
+  def part2(input) do
+    # Combine all the input together into one time/distance map
+    {time, distance} =
+      Enum.reduce(input, {"", ""}, fn %{time: t, distance: d}, {time, distance} ->
+        {"#{time}#{t}", "#{distance}#{d}"}
+      end)
+
+    winnings_per_race(%{time: String.to_integer(time), distance: String.to_integer(distance)})
+  end
 
   @doc """
   iex> Day06.winnings_per_race(%{time: 7, distance: 9})
@@ -38,5 +39,5 @@ defmodule Y2023.Day06 do
   end
 
   def part1_verify, do: part1(@mapping)
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: part2(@mapping)
 end
