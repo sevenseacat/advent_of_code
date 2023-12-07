@@ -11,6 +11,9 @@ defmodule Y2023.Day07 do
     :five_of_a_kind
   ]
 
+  @card_order ~w(2 3 4 5 6 7 8 9 T J Q K A)
+  @joker_card_order ~w(J 2 3 4 5 6 7 8 9 T Q K A)
+
   def part1(input) do
     input
     |> Enum.sort_by(&hand_strength/1)
@@ -20,13 +23,15 @@ defmodule Y2023.Day07 do
     end)
   end
 
-  # @doc """
-  # iex> Day07.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
+  def part2(input) do
+    input
+    |> Enum.map(&joker_replacement/1)
+    |> Enum.sort_by(&elem(&1, 1))
+    |> Enum.with_index()
+    |> Enum.reduce(0, fn {{%{bid: bid}, _strength}, index}, acc ->
+      acc + (index + 1) * bid
+    end)
+  end
 
   @doc """
   iex> Day07.parse_input("32T3K 765\\nT55J5 684")
@@ -46,12 +51,31 @@ defmodule Y2023.Day07 do
     end
   end
 
-  defp hand_strength(%{cards: cards, type: type}) do
-    [Enum.find_index(@hand_order, &(&1 == type)) | Enum.map(cards, &card_strength/1)]
+  defp hand_strength(%{cards: cards, type: type}, order \\ @card_order) do
+    [Enum.find_index(@hand_order, &(&1 == type)) | Enum.map(cards, &card_strength(&1, order))]
   end
 
-  defp card_strength(card) do
-    Enum.find_index(~w(2 3 4 5 6 7 8 9 T J Q K A), &(&1 == card))
+  defp joker_replacement(%{cards: cards} = hand) do
+    if "J" in cards do
+      @joker_card_order
+      |> Enum.map(fn card ->
+        cards = replace(cards, {"J", card})
+        hand = Map.put(hand, :type, hand_type(cards))
+
+        {hand, hand_strength(hand, @joker_card_order)}
+      end)
+      |> Enum.max_by(&elem(&1, 1))
+    else
+      {hand, hand_strength(hand, @joker_card_order)}
+    end
+  end
+
+  defp replace([], _), do: []
+  defp replace([from | rest], {from, to}), do: [to | replace(rest, {from, to})]
+  defp replace([card | rest], {from, to}), do: [card | replace(rest, {from, to})]
+
+  defp card_strength(card, order) do
+    Enum.find_index(order, &(&1 == card))
   end
 
   defp hand_type(cards) do
@@ -69,5 +93,5 @@ defmodule Y2023.Day07 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
