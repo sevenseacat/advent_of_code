@@ -7,13 +7,11 @@ defmodule Y2023.Day09 do
     |> Enum.sum()
   end
 
-  # @doc """
-  # iex> Day09.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
+  def part2(input) do
+    input
+    |> Enum.map(&previous_value_in_sequence/1)
+    |> Enum.sum()
+  end
 
   @doc """
   iex> Day09.next_value_in_sequence([0, 3, 6, 9, 12, 15])
@@ -25,8 +23,8 @@ defmodule Y2023.Day09 do
   iex> Day09.next_value_in_sequence([10, 13, 16, 21, 30, 45])
   68
   """
-  def next_value_in_sequence(list, acc \\ 0) do
-    acc = acc + List.last(list)
+  def next_value_in_sequence(list, acc \\ 0, acc_fn \\ &(&1 + &2)) do
+    acc = acc_fn.(acc, List.last(list))
 
     if Enum.all?(list, &(&1 == 0)) do
       acc
@@ -34,6 +32,16 @@ defmodule Y2023.Day09 do
       new_list = differences_in_sequence(list)
       next_value_in_sequence(new_list, acc)
     end
+  end
+
+  @doc """
+  iex> Day09.previous_value_in_sequence([10, 13, 16, 21, 30, 45])
+  5
+  """
+  def previous_value_in_sequence(list) do
+    list
+    |> Enum.reverse()
+    |> next_value_in_sequence(0, &(&2 - &1))
   end
 
   defp differences_in_sequence(list, new_list \\ [])
@@ -52,5 +60,5 @@ defmodule Y2023.Day09 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
