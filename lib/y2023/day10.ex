@@ -17,8 +17,12 @@ defmodule Y2023.Day10 do
     {_, max_col} = Enum.max_by(vertices, &elem(&1, 1))
     max_col = ceil(max_col) + 1
 
+    dbg({max_row, max_col})
+
     is_int? = fn val -> trunc(val) == val end
     set = Enum.map(path, fn {row, col} -> {row * 1.0, col * 1.0} end) |> MapSet.new()
+
+    dbg(MapSet.size(set))
 
     # You can't do ranges stepping by 0.5?
     # Instead, double the range and then half the values - now everything is a float
@@ -47,7 +51,7 @@ defmodule Y2023.Day10 do
         is_int?.(row) && is_int?.(col)
       end)
 
-    (max_row + 1) * (max_col + 1) - length(outside) - div(length(path), 2)
+    dbg(max_row + 1) * dbg(max_col + 1) - dbg(length(outside)) - dbg(div(length(path), 2))
   end
 
   defp maybe_add_edge(graph, from, to) do
