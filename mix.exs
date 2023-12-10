@@ -22,7 +22,7 @@ defmodule Advent.MixProject do
   defp deps do
     [
       {:jason, "~> 1.2"},
-      {:libgraph, "~> 0.13.3"},
+      {:libgraph, "~> 0.13"},
       {:benchee, "~> 1.0"},
       {:tz, ">= 0.24.0"}
     ]

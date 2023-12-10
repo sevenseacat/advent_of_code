@@ -29,7 +29,7 @@ defmodule Y2023.Day10 do
       for row <- 0..(max_row * 2), col <- 0..(max_col * 2) do
         {row / 2, col / 2}
       end
-      |> Enum.reduce(Graph.new(), fn {row, col}, graph ->
+      |> Enum.reduce(Graph.new(vertex_identifier: & &1), fn {row, col}, graph ->
         if MapSet.member?(set, {row, col}) do
           graph
         else
