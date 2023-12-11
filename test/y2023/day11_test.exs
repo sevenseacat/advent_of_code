@@ -3,7 +3,7 @@ defmodule Y2023.Day11Test do
   alias Y2023.Day11
   doctest Day11
 
-  test "verification, part 1", do: assert(Day11.part1_verify() == "update or delete me")
+  test "verification, part 1", do: assert(Day11.part1_verify() == 9_723_824)
   # test "verification, part 2", do: assert(Day11.part2_verify() == "update or delete me")
 
   @sample_input """
