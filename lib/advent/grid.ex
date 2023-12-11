@@ -6,6 +6,14 @@ defmodule Advent.Grid do
     |> Enum.reduce(Map.new(), &parse_row/2)
   end
 
+  def size(grid) do
+    coords = Map.keys(grid)
+    {row, _} = Enum.max_by(coords, &elem(&1, 0))
+    {_, col} = Enum.max_by(coords, &elem(&1, 1))
+
+    {row, col}
+  end
+
   defp parse_row({row, row_no}, map) do
     row
     |> String.graphemes()
@@ -23,13 +31,24 @@ defmodule Advent.Grid do
       if {row, col} == highlight do
         "E"
       else
-        list = Map.fetch!(grid, {row, col})
-        if(length(list) > 1, do: "#{length(list)}", else: hd(list))
+        value = Map.get(grid, {row, col})
+
+        case value do
+          x when is_list(x) ->
+            if(length(x) > 1, do: "#{length(x)}", else: hd(x))
+
+          x ->
+            x
+        end
       end
     end
     |> Enum.chunk_every(max_col - min_col + 1)
-    |> Enum.map(&List.to_string/1)
-    |> Enum.map(&IO.puts/1)
+    |> Enum.map(fn row ->
+      row
+      |> Enum.filter(& &1)
+      |> List.to_string()
+      |> IO.puts()
+    end)
 
     grid
   end
