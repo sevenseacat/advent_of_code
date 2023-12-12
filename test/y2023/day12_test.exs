@@ -6,34 +6,44 @@ defmodule Y2023.Day12Test do
   test "verification, part 1", do: assert(Day12.part1_verify() == 7090)
   # test "verification, part 2", do: assert(Day12.part2_verify() == "update or delete me")
 
-  describe "possibilities" do
-    def run_test(input) do
+  describe "part1" do
+    def run_part1(input) do
       input
       |> Day12.parse_input()
-      |> hd()
-      |> Day12.possibilities()
-      |> Enum.sort()
+      |> Day12.part1()
     end
 
-    test "line 1 - known" do
-      actual = run_test("#.#.### 1,1,3")
-      expected = ["#.#.###"]
-      assert actual == expected
-    end
-
-    test "line 1 - unknown" do
-      actual = run_test(".??..??...?##. 1,1,3")
-
-      expected =
-        Enum.sort([".#...#....###.", "..#...#...###.", ".#....#...###.", "..#..#....###."])
-
-      assert actual == expected
+    test "line 1" do
+      assert run_part1("???.### 1,1,3") == 1
     end
 
     test "line 2" do
-      actual = run_test("???.### 1,1,3")
-      expected = ["#.#.###"]
-      assert actual == expected
+      assert run_part1(".??..??...?##. 1,1,3") == 4
     end
+
+    test "line 3" do
+      assert run_part1("?#?#?#?#?#?#?#? 1,3,1,6") == 1
+    end
+
+    test "line 4" do
+      assert run_part1("????.#...#... 4,1,1") == 1
+    end
+
+    test "line 5" do
+      assert run_part1("????.######..#####. 1,6,5") == 4
+    end
+
+    test "line 6" do
+      assert run_part1("?###???????? 3,2,1") == 10
+    end
+  end
+
+  test "part2" do
+    actual =
+      ".??..??...?##. 1,1,3"
+      |> Day12.parse_input()
+      |> Day12.part2()
+
+    assert 16384 == actual
   end
 end

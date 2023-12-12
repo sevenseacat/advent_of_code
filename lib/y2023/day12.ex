@@ -3,23 +3,31 @@ defmodule Y2023.Day12 do
 
   def part1(input) do
     input
-    |> Enum.map(fn row ->
-      row
-      |> possibilities()
-      |> length()
-    end)
+    |> Enum.map(&count_possibilities/1)
     |> Enum.sum()
   end
 
-  # @doc """
-  # iex> Day12.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
+  def part2(input) do
+    input
+    |> Enum.map(&unfold/1)
+    |> part1()
+  end
 
-  def possibilities(%{springs: springs, positions: positions}) do
+  defp unfold(%{springs: springs, positions: positions}, count \\ 5) do
+    springs = List.duplicate(springs, count) |> Enum.intersperse("?") |> List.flatten()
+    positions = List.duplicate(positions, count) |> List.flatten()
+    %{springs: springs, positions: positions}
+  end
+
+  defp count_possibilities(%{springs: springs} = row) do
+    if "?" in springs do
+      find_valid_possibilities(row)
+    else
+      1
+    end
+  end
+
+  defp find_valid_possibilities(%{springs: springs, positions: positions}) do
     regex = ~r/^\.*#{position_regex(positions)}\.*$/
 
     unknown_positions =
@@ -33,11 +41,21 @@ defmodule Y2023.Day12 do
 
     unknown_positions
     |> Advent.combinations(missing_spring_count)
-    |> Enum.map(fn spring_positions ->
-      to_replaced_springs(springs, spring_positions, 0)
-      |> Enum.join()
-    end)
-    |> Enum.filter(fn springs -> Regex.match?(regex, springs) end)
+    |> Stream.chunk_every(1_000_000)
+    |> Task.async_stream(
+      fn list ->
+        Enum.count(list, fn spring_positions ->
+          string =
+            to_replaced_springs(springs, spring_positions, 0)
+            |> Enum.join()
+
+          Regex.match?(regex, string)
+        end)
+      end,
+      timeout: :infinity
+    )
+    |> Enum.map(&elem(&1, 1))
+    |> Enum.sum()
   end
 
   # Turn the list of positions into a regex string
