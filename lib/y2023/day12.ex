@@ -22,22 +22,22 @@ defmodule Y2023.Day12 do
   def possibilities(%{springs: springs, positions: positions}) do
     regex = ~r/^\.*#{position_regex(positions)}\.*$/
 
-    unknown =
+    unknown_positions =
       springs
       |> Enum.with_index()
       |> Enum.filter(fn {s, _p} -> s == "?" end)
+      |> Enum.map(&elem(&1, 1))
 
-    unknown_length = length(unknown)
+    found_springs = Enum.count(springs, &(&1 == "#"))
+    missing_spring_count = Enum.sum(positions) - found_springs
 
-    if unknown_length == 0 do
-      [Enum.join(springs)]
-    else
-      Advent.permutations_with_repetitions(["#", "."], unknown_length)
-      |> Enum.map(fn replacements ->
-        to_replaced_springs(springs, unknown, replacements)
-      end)
-      |> Enum.filter(fn springs -> Regex.match?(regex, springs) end)
-    end
+    unknown_positions
+    |> Advent.combinations(missing_spring_count)
+    |> Enum.map(fn spring_positions ->
+      to_replaced_springs(springs, spring_positions, 0)
+      |> Enum.join()
+    end)
+    |> Enum.filter(fn springs -> Regex.match?(regex, springs) end)
   end
 
   # Turn the list of positions into a regex string
@@ -49,13 +49,18 @@ defmodule Y2023.Day12 do
     |> Enum.join()
   end
 
-  defp to_replaced_springs(springs, unknown, replacements) do
-    unknown
-    |> Enum.with_index()
-    |> Enum.reduce(springs, fn {{_, springs_index}, index}, acc ->
-      List.replace_at(acc, springs_index, Enum.at(replacements, index))
-    end)
-    |> Enum.join()
+  defp replace_all([]), do: []
+  defp replace_all(["?" | rest]), do: ["." | replace_all(rest)]
+  defp replace_all([head | rest]), do: [head | replace_all(rest)]
+  defp to_replaced_springs(springs, [], _position), do: replace_all(springs)
+
+  defp to_replaced_springs(springs, [position | rest], position) do
+    ["#" | to_replaced_springs(tl(springs), rest, position + 1)]
+  end
+
+  defp to_replaced_springs([head | tail], positions, position) do
+    head = if head == "?", do: ".", else: head
+    [head | to_replaced_springs(tail, positions, position + 1)]
   end
 
   def parse_input(input) do
