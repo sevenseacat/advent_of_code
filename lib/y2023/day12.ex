@@ -3,7 +3,8 @@ defmodule Y2023.Day12 do
 
   def part1(input) do
     input
-    |> Enum.map(&count_possibilities/1)
+    |> Task.async_stream(&count_possibilities/1, timeout: :infinity)
+    |> Enum.map(&elem(&1, 1))
     |> Enum.sum()
   end
 
@@ -27,58 +28,75 @@ defmodule Y2023.Day12 do
     end
   end
 
-  defp find_valid_possibilities(%{springs: springs, positions: positions}) do
-    regex = ~r/^\.*#{position_regex(positions)}\.*$/
+  defp find_valid_possibilities(%{positions: positions} = state) do
+    {full, partial} = position_regex(positions)
+    {full, partial} = {~r/^\.*#{full}$/, ~r/^\.*#{partial}$/}
+    state = Map.put(state, :character, 0)
 
-    unknown_positions =
-      springs
-      |> Enum.with_index()
-      |> Enum.filter(fn {s, _p} -> s == "?" end)
-      |> Enum.map(&elem(&1, 1))
-
-    found_springs = Enum.count(springs, &(&1 == "#"))
-    missing_spring_count = Enum.sum(positions) - found_springs
-
-    unknown_positions
-    |> Advent.combinations(missing_spring_count)
-    |> Stream.chunk_every(1_000_000)
-    |> Task.async_stream(
-      fn list ->
-        Enum.count(list, fn spring_positions ->
-          string =
-            to_replaced_springs(springs, spring_positions, 0)
-            |> Enum.join()
-
-          Regex.match?(regex, string)
-        end)
-      end,
-      timeout: :infinity
+    do_search(
+      add_to_queue(PriorityQueue.new(), next_spring(state, partial)),
+      {full, partial},
+      0
     )
-    |> Enum.map(&elem(&1, 1))
-    |> Enum.sum()
+  end
+
+  defp add_to_queue(queue, states) do
+    Enum.reduce(states, queue, fn state, queue ->
+      PriorityQueue.push(queue, state, state.character)
+    end)
+  end
+
+  defp do_search(queue, regex, count), do: do_move(PriorityQueue.pop(queue), regex, count)
+
+  defp do_move({:empty, _queue}, _regex, count), do: count
+
+  defp do_move({{:value, state}, queue}, {full, partial} = regex, count) do
+    if Enum.any?(state.springs, &(&1 == "?")) do
+      do_search(add_to_queue(queue, next_spring(state, partial)), regex, count)
+    else
+      if Regex.match?(full, Enum.join(state.springs)) do
+        do_search(queue, regex, count + 1)
+      else
+        do_search(queue, regex, count)
+      end
+    end
+  end
+
+  defp next_spring(%{springs: springs, character: character} = state, regex) do
+    if Enum.at(springs, character) == "?" do
+      [".", "#"]
+      |> Enum.map(&List.replace_at(springs, character, &1))
+      |> Enum.filter(fn springs ->
+        {check, _} = Enum.split(springs, character + 1)
+        Regex.match?(regex, Enum.join(check))
+      end)
+      |> Enum.map(fn springs ->
+        %{state | springs: springs, character: character + 1}
+      end)
+    else
+      next_spring(%{state | character: character + 1}, regex)
+    end
   end
 
   # Turn the list of positions into a regex string
   # eg. 1,1,3 becomes \#{1}\.+\#{1}\.+\#{3}
   defp position_regex(positions) do
-    positions
-    |> Enum.map(&"\#{#{&1}}")
-    |> Enum.intersperse("\\.+")
-    |> Enum.join()
-  end
+    partial =
+      positions
+      |> Enum.map(&"(\#{1,#{&1}}")
+      |> Enum.intersperse("(\\.+")
+      |> Enum.concat(["\\.*"])
+      |> Enum.concat(List.duplicate("|)", 2 * length(positions) - 1))
+      |> Enum.join()
 
-  defp replace_all([]), do: []
-  defp replace_all(["?" | rest]), do: ["." | replace_all(rest)]
-  defp replace_all([head | rest]), do: [head | replace_all(rest)]
-  defp to_replaced_springs(springs, [], _position), do: replace_all(springs)
+    full =
+      positions
+      |> Enum.map(&"\#{#{&1}}")
+      |> Enum.intersperse("\\.+")
+      |> Enum.concat(["\\.*"])
+      |> Enum.join()
 
-  defp to_replaced_springs(springs, [position | rest], position) do
-    ["#" | to_replaced_springs(tl(springs), rest, position + 1)]
-  end
-
-  defp to_replaced_springs([head | tail], positions, position) do
-    head = if head == "?", do: ".", else: head
-    [head | to_replaced_springs(tail, positions, position + 1)]
+    {full, partial}
   end
 
   def parse_input(input) do
