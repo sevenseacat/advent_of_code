@@ -7,6 +7,13 @@ defmodule Advent do
     for head <- list, tail <- permutations(list -- [head], k - 1), do: [head | tail]
   end
 
+  def permutations_with_repetitions([], _), do: [[]]
+  def permutations_with_repetitions(_list, 0), do: [[]]
+
+  def permutations_with_repetitions(list, k) do
+    for head <- list, tail <- permutations_with_repetitions(list, k - 1), do: [head | tail]
+  end
+
   def full_permutations(list) when is_list(list) do
     permutations(list, length(list))
   end
