@@ -4,9 +4,7 @@ defmodule Y2023.Day12Test do
   doctest Day12
 
   test "verification, part 1", do: assert(Day12.part1_verify() == 7090)
-
-  @tag :skip
-  # test "verification, part 2", do: assert(Day12.part2_verify() == "update or delete me")
+  test "verification, part 2", do: assert(Day12.part2_verify() == 6_792_010_726_878)
 
   describe "part1" do
     def run_part1(input) do
@@ -73,6 +71,10 @@ defmodule Y2023.Day12Test do
 
     test "line 6" do
       assert 506_250 == run_part2("?###???????? 3,2,1")
+    end
+
+    test "the evil input" do
+      assert 3_268_760 == run_part2("?????????? 1,1,4")
     end
   end
 end

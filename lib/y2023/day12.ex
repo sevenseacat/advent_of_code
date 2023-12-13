@@ -3,7 +3,7 @@ defmodule Y2023.Day12 do
 
   def part1(input) do
     input
-    |> Task.async_stream(&count_possibilities/1, timeout: :infinity)
+    |> Task.async_stream(&count_possibilities/1)
     |> Enum.map(&elem(&1, 1))
     |> Enum.sum()
   end
@@ -28,95 +28,57 @@ defmodule Y2023.Day12 do
     end
   end
 
-  defp find_valid_possibilities(state) do
+  defp find_valid_possibilities(%{springs: springs, positions: positions}) do
     state = %{
-      chars: state.springs,
-      expected: state.positions,
-      dot: true,
-      dash: true
+      expected: positions,
+      dot_allowed: true,
+      dash_allowed: true
     }
 
-    state
-    # |> dbg
-    |> next_unknown()
-    # |> dbg
-    |> add_to_queue(:queue.new())
-    |> do_search(0)
+    do_search({springs, [{state, 1}]}, {tl(springs), Map.new()}, 0)
   end
 
-  defp add_to_queue(states, queue) do
-    Enum.reduce(states, queue, &:queue.in/2)
+  defp add_to_queue(states, queue, count) do
+    Enum.reduce(states, queue, fn state, queue ->
+      Map.update(queue, state, count, &(&1 + count))
+    end)
   end
 
-  defp do_search(queue, count), do: do_move(:queue.out(queue), count)
+  defp do_search({_, []}, {nil, _}, match_count), do: match_count
 
-  defp do_move({:empty, _queue}, count), do: count
+  defp do_search({_, []}, {chars, state}, match_count) do
+    # Terminate by setting a nil value for the next level (picked up by the clause above)
+    next = if chars == [], do: nil, else: tl(chars)
+    do_search({chars, Enum.to_list(state)}, {next, Map.new()}, match_count)
+  end
 
-  defp do_move({{:value, state}, queue}, count) do
-    # dbg(count)
-
+  defp do_search({chars, [{state, count} | rest]}, {next_chars, next_level}, match_count) do
     if state.expected == [] do
-      if Enum.any?(state.chars, &(&1 == "#")) do
-        do_search(queue, count)
-      else
-        # IO.puts("match!!!!!! #{inspect(state)}")
-        do_search(queue, count + 1)
-      end
+      count = if Enum.any?(chars, &(&1 == "#")), do: match_count, else: match_count + count
+      do_search({chars, rest}, {next_chars, next_level}, count)
     else
-      state
-      # |> dbg
-      |> next_unknown()
-      # |> dbg
-      |> add_to_queue(queue)
-      |> do_search(count)
+      next_level =
+        process_character(chars, state)
+        |> add_to_queue(next_level, count)
+
+      do_search({chars, rest}, {next_chars, next_level}, match_count)
     end
   end
 
-  defp next_unknown(%{chars: [], expected: expected}) when expected != [], do: []
+  defp process_character([], %{expected: expected}) when expected != [], do: []
 
-  defp next_unknown(%{chars: chars, expected: expected, dot: dot, dash: dash}) do
-    case {hd(chars), dot, dash} do
-      {"#", _, false} ->
+  # This can probably be *way* simplified but it works.
+  # `dash` should be hash (#) but I got used to calling them dot and dash
+  defp process_character([char | _], %{expected: expected, dot_allowed: dot, dash_allowed: dash}) do
+    case {char, dot, dash} do
+      {"#", _dot, false} ->
         []
 
-      {"#", _, true} ->
-        taken = Enum.take_while(chars, &(&1 == "#")) |> length()
-        group_size = hd(expected)
-
-        cond do
-          taken > group_size ->
-            []
-
-          taken == group_size ->
-            [
-              %{
-                chars: Enum.drop(chars, taken),
-                expected: tl(expected),
-                dot: true,
-                dash: false
-              }
-            ]
-
-          taken < group_size ->
-            [
-              %{
-                chars: Enum.drop(chars, taken),
-                expected: [group_size - taken | tl(expected)],
-                dot: false,
-                dash: true
-              }
-            ]
-        end
+      {"#", _dot, true} ->
+        [char_is_dash(expected)]
 
       {".", true, _dash} ->
-        [
-          %{
-            chars: Enum.drop_while(chars, &(&1 == ".")),
-            expected: expected,
-            dot: true,
-            dash: true
-          }
-        ]
+        [char_is_dot(expected)]
 
       {".", false, _dash} ->
         []
@@ -125,61 +87,39 @@ defmodule Y2023.Day12 do
         []
 
       {"?", true, false} ->
-        [
-          %{
-            chars: tl(chars),
-            expected: expected,
-            dot: true,
-            dash: true
-          }
-        ]
+        [char_is_dot(expected)]
 
       {"?", false, true} ->
-        # dash
-        [
-          if hd(expected) == 1 do
-            %{
-              chars: tl(chars),
-              expected: tl(expected),
-              dot: true,
-              dash: false
-            }
-          else
-            %{
-              chars: tl(chars),
-              expected: [hd(expected) - 1 | tl(expected)],
-              dot: false,
-              dash: true
-            }
-          end
-        ]
+        [char_is_dash(expected)]
 
       {"?", true, true} ->
-        [
-          # dot
-          %{
-            chars: tl(chars),
-            expected: expected,
-            dot: true,
-            dash: true
-          },
-          # dash
-          if hd(expected) == 1 do
-            %{
-              chars: tl(chars),
-              expected: tl(expected),
-              dot: true,
-              dash: false
-            }
-          else
-            %{
-              chars: tl(chars),
-              expected: [hd(expected) - 1 | tl(expected)],
-              dot: false,
-              dash: true
-            }
-          end
-        ]
+        [char_is_dot(expected), char_is_dash(expected)]
+    end
+  end
+
+  defp char_is_dot(expected) do
+    %{
+      expected: expected,
+      dot_allowed: true,
+      dash_allowed: true
+    }
+  end
+
+  defp char_is_dash([next | rest]) do
+    case next do
+      1 ->
+        %{
+          expected: rest,
+          dot_allowed: true,
+          dash_allowed: false
+        }
+
+      num ->
+        %{
+          expected: [num - 1 | rest],
+          dot_allowed: false,
+          dash_allowed: true
+        }
     end
   end
 
@@ -195,5 +135,5 @@ defmodule Y2023.Day12 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
