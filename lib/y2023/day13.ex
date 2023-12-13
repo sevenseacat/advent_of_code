@@ -21,8 +21,14 @@ defmodule Y2023.Day13 do
     |> Enum.sum()
   end
 
-  def reflection({grid, max_coord}) do
-    horizontal_reflection(grid, max_coord, 1) || vertical_reflection(grid, max_coord, 1)
+  def reflection({grid, max_coord}, collect_all? \\ false) do
+    horizontal_reflection(grid, max_coord, 1, collect_all?) ||
+      vertical_reflection(grid, max_coord, 1, collect_all?)
+  end
+
+  def all_reflections({grid, max_coord}) do
+    horizontal_reflection(grid, max_coord, 1, true) ++
+      vertical_reflection(grid, max_coord, 1, true)
   end
 
   def smudged_reflection({grid, max_coord}) do
@@ -31,38 +37,54 @@ defmodule Y2023.Day13 do
     grid
     |> Enum.find_value(fn {coord, key} ->
       grid = Map.replace(grid, coord, invert(key))
-      reflection = reflection({grid, max_coord})
-      if reflection && old_reflection != reflection, do: reflection
+
+      valid_reflections =
+        all_reflections({grid, max_coord})
+        |> Enum.reject(fn r -> r == old_reflection end)
+
+      if valid_reflections != [] do
+        hd(valid_reflections)
+      end
     end)
   end
 
   defp invert("."), do: "#"
   defp invert("#"), do: "."
 
-  defp vertical_reflection(grid, coord, col) do
-    reflection(grid, coord, col, :vertical)
+  defp vertical_reflection(grid, coord, col, collect_all?) do
+    reflection(grid, coord, col, :vertical, collect_all?)
   end
 
-  defp horizontal_reflection(grid, {max_row, max_col}, col) do
+  defp horizontal_reflection(grid, {max_row, max_col}, col, collect_all?) do
     for {{row, col}, val} <- grid, into: %{} do
       {{col, row}, val}
     end
-    |> reflection({max_col, max_row}, col, :horizontal)
+    |> reflection({max_col, max_row}, col, :horizontal, collect_all?)
   end
 
-  defp reflection(_grid, {_max_row, max_col}, max_col, _type), do: nil
+  defp reflection(_grid, {_max_row, max_col}, max_col, _type, true), do: []
+  defp reflection(_grid, {_max_row, max_col}, max_col, _type, false), do: nil
 
-  defp reflection(grid, {max_row, max_col}, col, type) do
+  defp reflection(grid, {max_row, max_col}, col, type, collect_all?) do
     to_check = Enum.min([col, max_col - col])
 
-    if to_check > 0 &&
-         Enum.all?(1..to_check, fn val ->
-           line(grid, max_row, col - val + 1) == line(grid, max_row, col + val)
-         end) do
-      {type, col}
+    if valid_reflection?(grid, max_row, col, to_check) do
+      if collect_all? do
+        [{type, col} | reflection(grid, {max_row, max_col}, col + 1, type, collect_all?)]
+      else
+        {type, col}
+      end
     else
-      reflection(grid, {max_row, max_col}, col + 1, type)
+      reflection(grid, {max_row, max_col}, col + 1, type, collect_all?)
     end
+  end
+
+  defp valid_reflection?(_grid, _max_row, _col, 0), do: false
+
+  defp valid_reflection?(grid, max_row, col, to_check) do
+    Enum.all?(1..to_check, fn check ->
+      line(grid, max_row, col - check + 1) == line(grid, max_row, col + check)
+    end)
   end
 
   defp line(grid, max_row, col) do
@@ -77,5 +99,5 @@ defmodule Y2023.Day13 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end

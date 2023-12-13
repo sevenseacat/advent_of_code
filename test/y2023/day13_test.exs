@@ -4,7 +4,7 @@ defmodule Y2023.Day13Test do
   doctest Day13
 
   test "verification, part 1", do: assert(Day13.part1_verify() == 30518)
-  # test "verification, part 2", do: assert(Day13.part2_verify() == "update or delete me")
+  test "verification, part 2", do: assert(Day13.part2_verify() == 36735)
 
   @sample_input """
   #.##..##.
@@ -83,7 +83,7 @@ defmodule Y2023.Day13Test do
       """
 
       actual = Day13.parse_input(input) |> hd() |> Day13.smudged_reflection()
-      assert {:horizontal, 1} == actual
+      assert {:vertical, 10} == actual
     end
   end
 end
