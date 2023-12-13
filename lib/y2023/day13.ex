@@ -3,22 +3,17 @@ defmodule Y2023.Day13 do
 
   alias Advent.Grid
 
-  def part1(input) do
+  def part1(input), do: do_parts(input, &reflection/1)
+  def part2(input), do: do_parts(input, &smudged_reflection/1)
+
+  defp do_parts(input, method) do
     {verticals, horizontals} =
       input
-      |> Enum.map(&reflection/1)
+      |> Enum.map(method)
       |> Enum.split_with(fn {type, _line} -> type == :vertical end)
 
     sum(verticals) + 100 * sum(horizontals)
   end
-
-  # @doc """
-  # iex> Day13.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
 
   defp sum(list) do
     list
@@ -26,10 +21,23 @@ defmodule Y2023.Day13 do
     |> Enum.sum()
   end
 
-  def reflection(grid) do
-    max_coord = Enum.max(Map.keys(grid))
+  def reflection({grid, max_coord}) do
     horizontal_reflection(grid, max_coord, 1) || vertical_reflection(grid, max_coord, 1)
   end
+
+  def smudged_reflection({grid, max_coord}) do
+    old_reflection = reflection({grid, max_coord})
+
+    grid
+    |> Enum.find_value(fn {coord, key} ->
+      grid = Map.replace(grid, coord, invert(key))
+      reflection = reflection({grid, max_coord})
+      if reflection && old_reflection != reflection, do: reflection
+    end)
+  end
+
+  defp invert("."), do: "#"
+  defp invert("#"), do: "."
 
   defp vertical_reflection(grid, coord, col) do
     reflection(grid, coord, col, :vertical)
@@ -63,7 +71,8 @@ defmodule Y2023.Day13 do
 
   def parse_input(input) do
     for grid <- String.split(input, "\n\n", trim: true) do
-      Grid.new(grid)
+      grid = Grid.new(grid)
+      {grid, Grid.size(grid)}
     end
   end
 
