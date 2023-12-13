@@ -28,75 +28,159 @@ defmodule Y2023.Day12 do
     end
   end
 
-  defp find_valid_possibilities(%{positions: positions} = state) do
-    {full, partial} = position_regex(positions)
-    {full, partial} = {~r/^\.*#{full}$/, ~r/^\.*#{partial}$/}
-    state = Map.put(state, :character, 0)
+  defp find_valid_possibilities(state) do
+    state = %{
+      chars: state.springs,
+      expected: state.positions,
+      dot: true,
+      dash: true
+    }
 
-    do_search(
-      add_to_queue(PriorityQueue.new(), next_spring(state, partial)),
-      {full, partial},
-      0
-    )
+    state
+    # |> dbg
+    |> next_unknown()
+    # |> dbg
+    |> add_to_queue(:queue.new())
+    |> do_search(0)
   end
 
-  defp add_to_queue(queue, states) do
-    Enum.reduce(states, queue, fn state, queue ->
-      PriorityQueue.push(queue, state, state.character)
-    end)
+  defp add_to_queue(states, queue) do
+    Enum.reduce(states, queue, &:queue.in/2)
   end
 
-  defp do_search(queue, regex, count), do: do_move(PriorityQueue.pop(queue), regex, count)
+  defp do_search(queue, count), do: do_move(:queue.out(queue), count)
 
-  defp do_move({:empty, _queue}, _regex, count), do: count
+  defp do_move({:empty, _queue}, count), do: count
 
-  defp do_move({{:value, state}, queue}, {full, partial} = regex, count) do
-    if Enum.any?(state.springs, &(&1 == "?")) do
-      do_search(add_to_queue(queue, next_spring(state, partial)), regex, count)
-    else
-      if Regex.match?(full, Enum.join(state.springs)) do
-        do_search(queue, regex, count + 1)
+  defp do_move({{:value, state}, queue}, count) do
+    # dbg(count)
+
+    if state.expected == [] do
+      if Enum.any?(state.chars, &(&1 == "#")) do
+        do_search(queue, count)
       else
-        do_search(queue, regex, count)
+        # IO.puts("match!!!!!! #{inspect(state)}")
+        do_search(queue, count + 1)
       end
-    end
-  end
-
-  defp next_spring(%{springs: springs, character: character} = state, regex) do
-    if Enum.at(springs, character) == "?" do
-      [".", "#"]
-      |> Enum.map(&List.replace_at(springs, character, &1))
-      |> Enum.filter(fn springs ->
-        {check, _} = Enum.split(springs, character + 1)
-        Regex.match?(regex, Enum.join(check))
-      end)
-      |> Enum.map(fn springs ->
-        %{state | springs: springs, character: character + 1}
-      end)
     else
-      next_spring(%{state | character: character + 1}, regex)
+      state
+      # |> dbg
+      |> next_unknown()
+      # |> dbg
+      |> add_to_queue(queue)
+      |> do_search(count)
     end
   end
 
-  # Turn the list of positions into a regex string
-  # eg. 1,1,3 becomes \#{1}\.+\#{1}\.+\#{3}
-  defp position_regex(positions) do
-    partial =
-      positions
-      |> Enum.map(&"(\#{1,#{&1}}")
-      |> Enum.intersperse("(\\.+")
-      |> Enum.concat(["\\.*"])
-      |> Enum.concat(List.duplicate("|)", 2 * length(positions) - 1))
-      |> Enum.join()
+  defp next_unknown(%{chars: [], expected: expected}) when expected != [], do: []
 
-    full =
-      positions
-      |> Enum.map(&"\#{#{&1}}")
-      |> Enum.intersperse("\\.+")
-      |> Enum.concat(["\\.*"])
-      |> Enum.join()
+  defp next_unknown(%{chars: chars, expected: expected, dot: dot, dash: dash}) do
+    case {hd(chars), dot, dash} do
+      {"#", _, false} ->
+        []
 
-    {full, partial}
+      {"#", _, true} ->
+        taken = Enum.take_while(chars, &(&1 == "#")) |> length()
+        group_size = hd(expected)
+
+        cond do
+          taken > group_size ->
+            []
+
+          taken == group_size ->
+            [
+              %{
+                chars: Enum.drop(chars, taken),
+                expected: tl(expected),
+                dot: true,
+                dash: false
+              }
+            ]
+
+          taken < group_size ->
+            [
+              %{
+                chars: Enum.drop(chars, taken),
+                expected: [group_size - taken | tl(expected)],
+                dot: false,
+                dash: true
+              }
+            ]
+        end
+
+      {".", true, _dash} ->
+        [
+          %{
+            chars: Enum.drop_while(chars, &(&1 == ".")),
+            expected: expected,
+            dot: true,
+            dash: true
+          }
+        ]
+
+      {".", false, _dash} ->
+        []
+
+      {"?", false, false} ->
+        []
+
+      {"?", true, false} ->
+        [
+          %{
+            chars: tl(chars),
+            expected: expected,
+            dot: true,
+            dash: true
+          }
+        ]
+
+      {"?", false, true} ->
+        # dash
+        [
+          if hd(expected) == 1 do
+            %{
+              chars: tl(chars),
+              expected: tl(expected),
+              dot: true,
+              dash: false
+            }
+          else
+            %{
+              chars: tl(chars),
+              expected: [hd(expected) - 1 | tl(expected)],
+              dot: false,
+              dash: true
+            }
+          end
+        ]
+
+      {"?", true, true} ->
+        [
+          # dot
+          %{
+            chars: tl(chars),
+            expected: expected,
+            dot: true,
+            dash: true
+          },
+          # dash
+          if hd(expected) == 1 do
+            %{
+              chars: tl(chars),
+              expected: tl(expected),
+              dot: true,
+              dash: false
+            }
+          else
+            %{
+              chars: tl(chars),
+              expected: [hd(expected) - 1 | tl(expected)],
+              dot: false,
+              dash: true
+            }
+          end
+        ]
+    end
   end
 
   def parse_input(input) do
