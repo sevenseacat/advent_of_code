@@ -24,7 +24,7 @@ defmodule Y2023.Day14 do
   end
 
   defp at_max_cycles({first, second, cache}, max_cycle) do
-    target_cycle = fast_forward(max_cycle, second, second - first) + 1
+    target_cycle = fast_forward(max_cycle, second, second - first) + first - 1
 
     Enum.find(cache, fn {_key, cycle} -> cycle == target_cycle end)
     |> elem(0)
@@ -39,8 +39,7 @@ defmodule Y2023.Day14 do
   end
 
   defp spin_all(units, graph, max_coord, current_cycle, cache) do
-    dbg(current_cycle)
-    units = spin(units, graph, max_coord)
+    units = spin(units, graph, max_coord) |> Enum.sort()
 
     if loop = Map.get(cache, units) do
       {loop, current_cycle, cache}
@@ -64,32 +63,35 @@ defmodule Y2023.Day14 do
   end
 
   defp roll_all(units, direction, graph, max_coord) do
-    units = keyed_map(units)
     sort_dir = if direction in [:north, :west], do: :asc, else: :desc
 
     units
     |> Enum.sort_by(
-      fn {_key, {row, col}} ->
+      fn {row, col} ->
         if direction in [:east, :west], do: col, else: row
       end,
       sort_dir
     )
-    |> Enum.reduce(units, fn unit, units ->
-      roll(direction, unit, units, graph, max_coord)
-    end)
-    |> Map.values()
+    |> Enum.map(fn unit -> roll(direction, unit, graph, max_coord) end)
+    |> stack(stack_offset(direction))
   end
 
-  def roll(direction, {_index, {row, col}} = unit, units, graph, max_coord) do
+  # Roll rocks as far as they can go, ignoring the presence of other rollable rocks
+  def roll(direction, {row, col} = unit, graph, max_coord) do
     case direction do
-      :north -> do_roll(unit, units, graph, row, 0, :row, max_coord)
-      :south -> do_roll(unit, units, graph, row, elem(max_coord, 0) + 1, :row, max_coord)
-      :east -> do_roll(unit, units, graph, col, elem(max_coord, 1) + 1, :col, max_coord)
-      :west -> do_roll(unit, units, graph, col, 0, :col, max_coord)
+      :north -> do_roll(unit, graph, row, 0, :row, max_coord)
+      :south -> do_roll(unit, graph, row, elem(max_coord, 0) + 1, :row, max_coord)
+      :east -> do_roll(unit, graph, col, elem(max_coord, 1) + 1, :col, max_coord)
+      :west -> do_roll(unit, graph, col, 0, :col, max_coord)
     end
   end
 
-  defp do_roll({index, unit}, units, graph, actual_value, end_value, direction, max_coord) do
+  defp stack_offset(:north), do: {1, 0}
+  defp stack_offset(:south), do: {-1, 0}
+  defp stack_offset(:east), do: {0, -1}
+  defp stack_offset(:west), do: {0, 1}
+
+  defp do_roll(unit, graph, actual_value, end_value, direction, max_coord) do
     # IO.puts("=== rolling #{inspect(unit)}")
     range = first_value(actual_value, end_value)..end_value
 
@@ -98,7 +100,7 @@ defmodule Y2023.Day14 do
         coord = coord(value, unit, direction)
         # IO.puts("checking #{inspect(coord)}")
 
-        if PathGrid.floor?(graph, coord) && !Enum.find(units, fn {_, unit} -> unit == coord end) do
+        if PathGrid.floor?(graph, coord) do
           {:cont, value + range.step}
         else
           {:halt, value - range.step}
@@ -107,8 +109,25 @@ defmodule Y2023.Day14 do
 
     # it can't roll off the grid
     new_value = on_grid(max_coord, new_value, direction)
+    coord(new_value, unit, direction)
+  end
 
-    Map.update!(units, index, fn unit -> coord(new_value, unit, direction) end)
+  # Rollable rocks may have all rolled to the same coord - re-stack the ones at
+  # the same coord in the right direction
+  # eg. [[1,1], [1,1]], :north -> [[1,1], [2,1]]
+  #     [[2,2], [2,2]], :east -> [[2,2], [2,1]]
+  def stack(list, {o_row, o_col}) do
+    list
+    |> Enum.group_by(& &1)
+    |> Enum.reduce([], fn
+      {_, [coord]}, acc ->
+        [coord | acc]
+
+      {_, [{row, col} | _] = list}, acc ->
+        Enum.reduce(0..(length(list) - 1), acc, fn i, acc ->
+          [{row + i * o_row, col + i * o_col} | acc]
+        end)
+    end)
   end
 
   defp on_grid({row, col}, value, dir) do
@@ -123,14 +142,6 @@ defmodule Y2023.Day14 do
   defp coord(val, {row, _col}, :col), do: {row, val}
   defp coord(val, {_row, col}, :row), do: {val, col}
 
-  defp keyed_map(list) do
-    list
-    |> Enum.with_index()
-    |> Enum.reduce(%{}, fn {item, index}, map ->
-      Map.put(map, index, item)
-    end)
-  end
-
   def parse_input(input) do
     # It's not reeeeally a PathGrid but its an easy way to get all the units
     # and coords and stuff
@@ -142,5 +153,5 @@ defmodule Y2023.Day14 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
