@@ -72,8 +72,8 @@ defmodule Advent.PathGrid do
 
   def display(graph, units \\ []) do
     vertices = Graph.vertices(graph)
-    {{min_row, _}, {max_row, _}} = Enum.min_max_by(vertices, fn {row, _} -> row end) |> dbg
-    {{_, min_col}, {_, max_col}} = Enum.min_max_by(vertices, fn {_, col} -> col end) |> dbg
+    {{min_row, _}, {max_row, _}} = Enum.min_max_by(vertices, fn {row, _} -> row end)
+    {{_, min_col}, {_, max_col}} = Enum.min_max_by(vertices, fn {_, col} -> col end)
 
     for row <- min_row..max_row, col <- min_col..max_col do
       if unit = Enum.find(units, fn unit -> unit.position == {row, col} end) do
@@ -91,6 +91,12 @@ defmodule Advent.PathGrid do
     |> Enum.map(&IO.puts/1)
 
     graph
+  end
+
+  def size(graph) do
+    graph
+    |> Graph.vertices()
+    |> Enum.max()
   end
 
   def wall?(graph, coordinate) do
