@@ -27,7 +27,7 @@ defmodule Advent.PathGrid do
   def new(input) do
     {graph, units, _row} =
       input
-      |> String.split("\n")
+      |> String.split("\n", trim: true)
       |> Enum.reduce({Graph.new(), [], 1}, &parse_row/2)
 
     %__MODULE__{graph: graph, units: units}
@@ -77,7 +77,7 @@ defmodule Advent.PathGrid do
 
     for row <- min_row..max_row, col <- min_col..max_col do
       if unit = Enum.find(units, fn unit -> unit.position == {row, col} end) do
-        unit.type
+        unit.identifier
       else
         cond do
           floor?(graph, {row, col}) -> "."
