@@ -4,7 +4,9 @@ defmodule Y2023.Day14Test do
   doctest Day14
 
   test "verification, part 1", do: assert(Day14.part1_verify() == 105_208)
-  # test "verification, part 2", do: assert(Day14.part2_verify() == "update or delete me")
+
+  @tag :skip
+  test "verification, part 2", do: assert(Day14.part2_verify() == "update or delete me")
 
   @sample_input """
   O....#....
@@ -21,5 +23,9 @@ defmodule Y2023.Day14Test do
 
   test "part 1" do
     assert 136 == Day14.parse_input(@sample_input) |> Day14.part1()
+  end
+
+  test "part 2" do
+    assert 64 == Day14.parse_input(@sample_input) |> Day14.part2()
   end
 end

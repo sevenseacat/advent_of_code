@@ -5,63 +5,115 @@ defmodule Y2023.Day14 do
 
   def part1(%{graph: graph, units: units}) do
     max_coord = PathGrid.size(graph)
-    units = keyed_map(units)
 
     units
-    |> Enum.sort_by(fn {_key, %{position: {row, _col}}} -> row end)
-    |> Enum.reduce(units, fn unit, units ->
-      roll_north(unit, units, graph, max_coord)
-    end)
+    |> roll_all(:north, graph, max_coord)
     |> to_score(max_coord)
   end
 
-  # @doc """
-  # iex> Day14.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
+  def part2(%{graph: graph, units: units}) do
+    max_coord = PathGrid.size(graph)
+    max_cycle = 1_000_000_000
+
+    # There will be a repeat after a given number of cycles - use that to skip forward
+    units
+    |> spin_all(graph, max_coord, 0, %{})
+    # Now we can work out what the max_cycle unit list would be
+    |> at_max_cycles(max_cycle)
+    |> to_score(max_coord)
+  end
+
+  defp at_max_cycles({first, second, cache}, max_cycle) do
+    target_cycle = fast_forward(max_cycle, second, second - first) + 1
+
+    Enum.find(cache, fn {_key, cycle} -> cycle == target_cycle end)
+    |> elem(0)
+  end
+
+  defp fast_forward(max_cycle, cycle, increment) do
+    if cycle > max_cycle do
+      increment - (cycle - max_cycle)
+    else
+      fast_forward(max_cycle, cycle + increment, increment)
+    end
+  end
+
+  defp spin_all(units, graph, max_coord, current_cycle, cache) do
+    dbg(current_cycle)
+    units = spin(units, graph, max_coord)
+
+    if loop = Map.get(cache, units) do
+      {loop, current_cycle, cache}
+    else
+      spin_all(units, graph, max_coord, current_cycle + 1, Map.put(cache, units, current_cycle))
+    end
+  end
 
   defp to_score(units, {max_row, _}) do
     units
-    |> Enum.map(fn {_, %{position: {row, _col}}} ->
+    |> Enum.map(fn %{position: {row, _col}} ->
       max_row - row + 1
     end)
     |> Enum.sum()
   end
 
-  defp roll_north({index, unit}, units, graph, max_coord) do
-    {row, _col} = unit.position
-
-    roll({index, unit}, units, graph, row, 1, :row, max_coord)
+  defp spin(units, graph, max_coord) do
+    units
+    |> roll_all(:north, graph, max_coord)
+    |> roll_all(:west, graph, max_coord)
+    |> roll_all(:south, graph, max_coord)
+    |> roll_all(:east, graph, max_coord)
   end
 
-  defp roll({index, unit}, units, graph, actual_value, end_value, direction, max_coord) do
-    if actual_value == end_value do
-      # can't move it
-      units
-    else
-      # can move it
-      new_value =
-        Enum.reduce_while(first_value(actual_value, end_value)..end_value, nil, fn value, _ ->
-          coord = coord(value, unit.position, direction)
+  defp roll_all(units, direction, graph, max_coord) do
+    units = keyed_map(units)
+    sort_dir = if direction in [:north, :west], do: :asc, else: :desc
 
-          if PathGrid.floor?(graph, coord) &&
-               !Enum.any?(units, fn {_, unit} -> unit.position == coord end) do
-            {:cont, value - 1}
-          else
-            {:halt, value + 1}
-          end
-        end)
+    units
+    |> Enum.sort_by(
+      fn {_key, %{position: {row, col}}} ->
+        if direction in [:east, :west], do: col, else: row
+      end,
+      sort_dir
+    )
+    |> Enum.reduce(units, fn unit, units ->
+      roll(direction, unit, units, graph, max_coord)
+    end)
+    |> Map.values()
+  end
 
-      # it can't roll off the grid
-      new_value = on_grid(max_coord, new_value, direction)
+  def roll(direction, {index, unit}, units, graph, max_coord) do
+    {row, col} = unit.position
 
-      Map.update!(units, index, fn unit ->
-        %{unit | position: coord(new_value, unit.position, direction)}
-      end)
+    case direction do
+      :north -> do_roll({index, unit}, units, graph, row, 0, :row, max_coord)
+      :south -> do_roll({index, unit}, units, graph, row, elem(max_coord, 0) + 1, :row, max_coord)
+      :east -> do_roll({index, unit}, units, graph, col, elem(max_coord, 1) + 1, :col, max_coord)
+      :west -> do_roll({index, unit}, units, graph, col, 0, :col, max_coord)
     end
+  end
+
+  defp do_roll({index, unit}, units, graph, actual_value, end_value, direction, max_coord) do
+    range = first_value(actual_value, end_value)..end_value
+
+    new_value =
+      Enum.reduce_while(range, nil, fn value, _ ->
+        coord = coord(value, unit.position, direction)
+
+        if PathGrid.floor?(graph, coord) &&
+             !Enum.any?(units, fn {_, unit} -> unit.position == coord end) do
+          {:cont, value + range.step}
+        else
+          {:halt, value - range.step}
+        end
+      end)
+
+    # it can't roll off the grid
+    new_value = on_grid(max_coord, new_value, direction)
+
+    Map.update!(units, index, fn unit ->
+      %{unit | position: coord(new_value, unit.position, direction)}
+    end)
   end
 
   defp on_grid({row, col}, value, dir) do
@@ -85,8 +137,8 @@ defmodule Y2023.Day14 do
   end
 
   def parse_input(input) do
-    # It's not reeeeally a PathGrid (maybe it will be for part 2!)
-    # but its an easy way to get all the units and coords and stuff
+    # It's not reeeeally a PathGrid but its an easy way to get all the units
+    # and coords and stuff
     PathGrid.new(input)
   end
 
