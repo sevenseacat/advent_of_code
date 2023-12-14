@@ -73,7 +73,7 @@ defmodule Y2023.Day14 do
       sort_dir
     )
     |> Enum.map(fn unit -> roll(direction, unit, graph, max_coord) end)
-    |> stack(stack_offset(direction))
+    |> unstack(stack_offset(direction))
   end
 
   # Roll rocks as far as they can go, ignoring the presence of other rollable rocks
@@ -116,7 +116,7 @@ defmodule Y2023.Day14 do
   # the same coord in the right direction
   # eg. [[1,1], [1,1]], :north -> [[1,1], [2,1]]
   #     [[2,2], [2,2]], :east -> [[2,2], [2,1]]
-  def stack(list, {o_row, o_col}) do
+  def unstack(list, {o_row, o_col}) do
     list
     |> Enum.group_by(& &1)
     |> Enum.reduce([], fn
