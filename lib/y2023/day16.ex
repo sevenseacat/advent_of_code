@@ -4,39 +4,51 @@ defmodule Y2023.Day16 do
   alias Advent.Grid
 
   def part1(input) do
+    run_beam(input, {1, 1, :right})
+  end
+
+  def part2(input) do
     input
-    |> run_beam(Grid.size(input), {[{1, 1, :right}], []}, MapSet.new())
+    |> all_starting_positions()
+    |> Enum.map(fn start -> run_beam(input, start) end)
+    |> Enum.max()
+  end
+
+  def all_starting_positions(input) do
+    {max_col, max_row} = Grid.size(input)
+
+    (Enum.map(1..max_row, fn row -> [{row, 1, :right}, {row, max_col, :left}] end) ++
+       Enum.map(1..max_col, fn col -> [{1, col, :down}, {max_row, col, :up}] end))
+    |> List.flatten()
+  end
+
+  def run_beam(input, start) do
+    do_run_beam(input, Grid.size(input), {[start], []}, MapSet.new())
+  end
+
+  defp do_run_beam(_grid, _max_coord, {[], []}, cache) do
+    cache
     |> Enum.to_list()
     |> Enum.uniq_by(fn {row, col, _direction} -> {row, col} end)
     |> length
   end
 
-  # @doc """
-  # iex> Day16.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
-
-  defp run_beam(_grid, _max_coord, {[], []}, cache), do: cache
-
-  defp run_beam(grid, max_coord, {[], next}, cache) do
-    run_beam(grid, max_coord, {next, []}, cache)
+  defp do_run_beam(grid, max_coord, {[], next}, cache) do
+    do_run_beam(grid, max_coord, {next, []}, cache)
   end
 
-  defp run_beam(
+  defp do_run_beam(
          grid,
          {max_row, max_col} = max_coord,
          {[{row, col, direction} = current | rest], next},
          cache
        ) do
     if MapSet.member?(cache, current) || row > max_row || row == 0 || col > max_col || col == 0 do
-      run_beam(grid, max_coord, {rest, next}, cache)
+      do_run_beam(grid, max_coord, {rest, next}, cache)
     else
       next = calculate_next_positions(direction, {row, col}, Map.fetch!(grid, {row, col})) ++ next
       cache = MapSet.put(cache, current)
-      run_beam(grid, max_coord, {rest, next}, cache)
+      do_run_beam(grid, max_coord, {rest, next}, cache)
     end
   end
 
@@ -81,5 +93,5 @@ defmodule Y2023.Day16 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
