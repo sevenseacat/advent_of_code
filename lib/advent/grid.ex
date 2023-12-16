@@ -23,12 +23,12 @@ defmodule Advent.Grid do
     end)
   end
 
-  def display(grid, highlight \\ nil) do
+  def display(grid, highlight \\ []) do
     vertices = Map.keys(grid)
     {{min_row, min_col}, {max_row, max_col}} = Enum.min_max(vertices)
 
     for row <- min_row..max_row, col <- min_col..max_col do
-      if {row, col} == highlight do
+      if {row, col} in highlight do
         "E"
       else
         value = Map.get(grid, {row, col})
