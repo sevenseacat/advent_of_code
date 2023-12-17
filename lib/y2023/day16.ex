@@ -10,7 +10,8 @@ defmodule Y2023.Day16 do
   def part2(input) do
     input
     |> all_starting_positions()
-    |> Enum.map(fn start -> run_beam(input, start) end)
+    |> Task.async_stream(fn start -> run_beam(input, start) end)
+    |> Enum.map(fn {:ok, result} -> result end)
     |> Enum.max()
   end
 
