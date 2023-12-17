@@ -66,6 +66,6 @@ defmodule Advent.Grid do
   end
 
   defp colour(char) do
-    IO.ANSI.red() <> char <> IO.ANSI.reset()
+    IO.ANSI.color(4, 0, 5) <> "#{char}" <> IO.ANSI.reset()
   end
 end
