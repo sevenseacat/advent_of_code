@@ -4,7 +4,7 @@ defmodule Y2023.Day17Test do
   doctest Day17
 
   test "verification, part 1", do: assert(Day17.part1_verify() == 886)
-  # test "verification, part 2", do: assert(Day17.part2_verify() == "update or delete me")
+  test "verification, part 2", do: assert(Day17.part2_verify() == 1055)
 
   @sample_input """
   2413432311323
@@ -25,5 +25,25 @@ defmodule Y2023.Day17Test do
   test "part 1" do
     actual = Day17.parse_input(@sample_input) |> Day17.part1()
     assert 102 == actual
+  end
+
+  test "part 2, sample 1" do
+    actual = Day17.parse_input(@sample_input) |> Day17.part2()
+    assert 94 == actual
+  end
+
+  test "part 2, sample 2" do
+    actual =
+      """
+      111111111111
+      999999999991
+      999999999991
+      999999999991
+      999999999991
+      """
+      |> Day17.parse_input()
+      |> Day17.part2()
+
+    assert 71 == actual
   end
 end

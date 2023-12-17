@@ -4,21 +4,18 @@ defmodule Y2023.Day17 do
   alias Advent.Grid
 
   def part1(grid) do
-    find_best_path(grid, {1, 1})
+    find_best_path(grid, {1, 1}, 0..3)
   end
 
-  # @doc """
-  # iex> Day17.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
+  def part2(grid) do
+    find_best_path(grid, {1, 1}, 4..10)
+  end
 
-  defp find_best_path(grid, {row, col}) do
+  defp find_best_path(grid, {row, col}, length_range) do
     PriorityQueue.new()
-    |> add_to_queue([[{row, col, nil, 0}]])
-    |> search(grid, Grid.size(grid), MapSet.new())
+    |> add_to_queue([[{row, col, :down, 0}]])
+    |> add_to_queue([[{row, col, :right, 0}]])
+    |> search(grid, Grid.size(grid), MapSet.new(), length_range)
   end
 
   defp add_to_queue(queue, states) do
@@ -27,42 +24,42 @@ defmodule Y2023.Day17 do
     end)
   end
 
-  defp search(queue, grid, destination, cache) do
-    do_search(PriorityQueue.pop(queue), grid, destination, cache)
+  defp search(queue, grid, destination, cache, length_range) do
+    do_search(PriorityQueue.pop(queue), grid, destination, cache, length_range)
   end
 
-  defp do_search({:empty, _queue}, _grid, _destination, _cache) do
+  defp do_search({:empty, _queue}, _grid, _destination, _cache, _straight_line_length) do
     raise("No path found")
   end
 
-  defp do_search(
-         {{:value, [{row, col, _direction, count} | _rest]}, _queue},
-         _grid,
-         {row, col},
-         _cache
-       ) do
-    # Winner winner chicken dinner.
-    count
-  end
+  defp do_search({{:value, path}, queue}, grid, destination, cache, length_range) do
+    {row, col, _, count} = hd(path)
 
-  defp do_search({{:value, path}, queue}, grid, destination, cache) do
-    if MapSet.member?(cache, cache_key(path)) do
-      # Been here before at a lower heat loss value, ignore
-      search(queue, grid, destination, cache)
+    if {row, col} == destination && passes_final_straight_check?(path, length_range) do
+      # Winner winner chicken dinner.
+      # Grid.display(grid, Enum.map(path, fn {row, col, _, _} -> {row, col} end))
+      count
     else
-      cache = MapSet.put(cache, cache_key(path))
+      cache_key = cache_key(path)
 
-      queue
-      |> add_to_queue(valid_moves(path, grid))
-      |> search(grid, destination, cache)
+      if MapSet.member?(cache, cache_key) do
+        # Been here before at a lower heat loss value, ignore
+        search(queue, grid, destination, cache, length_range)
+      else
+        cache = MapSet.put(cache, cache_key)
+
+        queue
+        |> add_to_queue(valid_moves(path, grid, length_range))
+        |> search(grid, destination, cache, length_range)
+      end
     end
   end
 
-  defp valid_moves([{row, col, direction, value} | _rest] = path, grid) do
+  defp valid_moves([{row, col, direction, value} | _rest] = path, grid, length_range) do
     [{row - 1, col, :up}, {row + 1, col, :down}, {row, col - 1, :left}, {row, col + 1, :right}]
     |> Enum.filter(&in_grid?(grid, &1))
     |> Enum.reject(&backwards?(direction, &1))
-    |> Enum.reject(&too_far_straight?(path, &1))
+    |> Enum.filter(&passes_straight_check?(path, &1, length_range))
     |> Enum.map(fn {row, col, dir} ->
       [{row, col, dir, value + Map.fetch!(grid, {row, col})} | path]
     end)
@@ -84,12 +81,34 @@ defmodule Y2023.Day17 do
     {from, to} in [{:left, :right}, {:right, :left}, {:up, :down}, {:down, :up}]
   end
 
-  defp too_far_straight?([{_, _, dir, _}, {_, _, dir, _}, {_, _, dir, _} | _rest], {_, _, dir}) do
-    true
+  defp passes_straight_check?(
+         [{_, _, from_dir, _} | _rest] = path,
+         {_, _, to_dir},
+         length_range
+       ) do
+    _min..max = length_range
+
+    straight = straight_line_length(path)
+
+    cond do
+      from_dir == to_dir -> straight < max
+      from_dir != to_dir -> straight in length_range
+    end
   end
 
-  defp too_far_straight?(_, _), do: false
+  defp passes_final_straight_check?(path, length_range) do
+    straight_line_length(path) in length_range
+  end
 
+  defp straight_line_length(path) do
+    {_, _, direction, _} = hd(path)
+
+    path
+    |> Enum.take_while(fn {_, _, dir, _} -> dir == direction end)
+    |> length
+  end
+
+  @spec parse_input(binary()) :: any()
   def parse_input(input) do
     input
     |> Grid.new()
@@ -98,5 +117,5 @@ defmodule Y2023.Day17 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
