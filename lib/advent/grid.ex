@@ -28,8 +28,8 @@ defmodule Advent.Grid do
     {{min_row, min_col}, {max_row, max_col}} = Enum.min_max(vertices)
 
     for row <- min_row..max_row, col <- min_col..max_col do
-      if {row, col} in highlight do
-        "E"
+      if val = highlight?(highlight, {row, col}) do
+        val
       else
         value = Map.get(grid, {row, col})
 
@@ -38,7 +38,7 @@ defmodule Advent.Grid do
             if(length(x) > 1, do: "#{length(x)}", else: hd(x))
 
           x ->
-            x
+            "#{x}"
         end
       end
     end
@@ -51,5 +51,21 @@ defmodule Advent.Grid do
     end)
 
     grid
+  end
+
+  defp highlight?(list, coord) when is_list(list) do
+    if coord in list, do: colour("x")
+  end
+
+  defp highlight?(%MapSet{} = mapset, coord) do
+    if MapSet.member?(mapset, coord), do: colour("x")
+  end
+
+  defp highlight?(map, coord) when is_map(map) do
+    if val = Map.get(map, coord), do: colour(val)
+  end
+
+  defp colour(char) do
+    IO.ANSI.red() <> char <> IO.ANSI.reset()
   end
 end
