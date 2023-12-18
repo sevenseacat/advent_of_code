@@ -14,6 +14,18 @@ defmodule Advent.Grid do
     {row, col}
   end
 
+  def min(grid) do
+    coords = Map.keys(grid)
+    {row, _} = Enum.min_by(coords, &elem(&1, 0))
+    {_, col} = Enum.min_by(coords, &elem(&1, 1))
+
+    {row, col}
+  end
+
+  def corners(grid) do
+    {min(grid), size(grid)}
+  end
+
   defp parse_row({row, row_no}, map) do
     row
     |> String.graphemes()
@@ -66,6 +78,7 @@ defmodule Advent.Grid do
   end
 
   defp colour(char) do
-    IO.ANSI.color(4, 0, 5) <> "#{char}" <> IO.ANSI.reset()
+    # Red stands out most against white, at small and large text sizes
+    IO.ANSI.red() <> "#{char}" <> IO.ANSI.reset()
   end
 end
