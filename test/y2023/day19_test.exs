@@ -4,7 +4,7 @@ defmodule Y2023.Day19Test do
   doctest Day19
 
   test "verification, part 1", do: assert(Day19.part1_verify() == 280_909)
-  # test "verification, part 2", do: assert(Day19.part2_verify() == "update or delete me")
+  test "verification, part 2", do: assert(Day19.part2_verify() == 116_138_474_394_508)
 
   @sample_input """
   px{a<2006:qkq,m>2090:A,rfg}
@@ -29,6 +29,11 @@ defmodule Y2023.Day19Test do
   test "part 1" do
     actual = Day19.parse_input(@sample_input) |> Day19.part1()
     assert actual == 19114
+  end
+
+  test "part 2" do
+    actual = Day19.parse_input(@sample_input) |> Day19.part2()
+    assert actual == 167_409_079_868_000
   end
 
   test "parse_input" do
