@@ -43,7 +43,7 @@ defmodule Advent.Grid do
       if val = highlight?(highlight, {row, col}) do
         val
       else
-        value = Map.get(grid, {row, col})
+        value = Map.get(grid, {row, col}, " ")
 
         case value do
           x when is_list(x) ->

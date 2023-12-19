@@ -1,62 +1,62 @@
 defmodule Y2023.Day18 do
   use Advent.Day, no: 18
 
+  @doc """
+  Use the shoelace algorithm to calculate the area of the shape dug by all of
+  the trenches. https://www.101computing.net/the-shoelace-algorithm/
+  Also need to account for each "point" being a 1m^3 cube, with each point being
+  the middle - so we need half a m^3 for each point in the border
+  And one because *shrug*
+  """
   def part1(input) do
-    {_pos, border} = Enum.reduce(input, {{1, 1}, %{{1, 1} => []}}, &dig_trench/2)
-    {{min_row, min_col}, {max_row, max_col}} = Advent.Grid.corners(border)
+    interior =
+      input
+      |> Enum.reduce([{1, 1}], &dig_trench/2)
+      |> tl()
+      |> run_shoelace_algorithm()
 
-    non_path_graph =
-      for row <- (min_row - 1)..(max_row + 1), col <- (min_col - 1)..(max_col + 1) do
-        {row, col}
-      end
-      |> Enum.reduce(Graph.new(vertex_identifier: & &1), fn {row, col}, graph ->
-        if Map.has_key?(border, {row, col}) do
-          graph
-        else
-          graph
-          |> Graph.add_vertex({row, col})
-          |> maybe_add_edge({row, col}, {row - 1, col})
-          |> maybe_add_edge({row, col}, {row, col - 1})
-        end
-      end)
+    border_length =
+      input
+      |> Enum.map(fn {_, length, _} -> length end)
+      |> Enum.sum()
 
-    outside = Graph.reachable(non_path_graph, [{min_row - 1, min_col - 1}])
-
-    (max_row + 3 - min_row) * (max_col + 3 - min_col) - length(outside)
+    interior + div(border_length, 2) + 1
   end
 
-  # @doc """
-  # iex> Day18.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
-
-  defp maybe_add_edge(graph, from, to) do
-    if Graph.has_vertex?(graph, to) do
-      graph
-      |> Graph.add_edge(from, to)
-      |> Graph.add_edge(to, from)
-    else
-      graph
-    end
+  def part2(input) do
+    input
+    |> reparse()
+    |> part1()
   end
 
-  defp dig_trench({direction, length, color}, acc) do
-    Enum.reduce(1..length, acc, fn _, {position, map} ->
-      new_position = move(position, direction)
-      map = Map.update(map, new_position, [color], &[color | &1])
-      {new_position, map}
-    end)
+  def run_shoelace_algorithm(coordinates) do
+    do_shoelace(coordinates, {0, 0}, hd(coordinates))
   end
 
-  defp move({row, col}, direction) do
+  defp do_shoelace([{last_row, last_col}], {sum_one, sum_two}, {first_row, first_col}) do
+    sum_one = sum_one + last_row * first_col
+    sum_two = sum_two + last_col * first_row
+    div(sum_one - sum_two, 2)
+  end
+
+  defp do_shoelace(
+         [{one_row, one_col}, {two_row, two_col} = two | rest],
+         {sum_one, sum_two},
+         first
+       ) do
+    do_shoelace([two | rest], {sum_one + one_row * two_col, sum_two + one_col * two_row}, first)
+  end
+
+  defp dig_trench({direction, length, _color}, [position | _rest] = set) do
+    [move(position, direction, length) | set]
+  end
+
+  defp move({row, col}, direction, length) do
     case direction do
-      "D" -> {row + 1, col}
-      "U" -> {row - 1, col}
-      "L" -> {row, col - 1}
-      "R" -> {row, col + 1}
+      "D" -> {row + length, col}
+      "U" -> {row - length, col}
+      "L" -> {row, col - length}
+      "R" -> {row, col + length}
     end
   end
 
@@ -72,6 +72,19 @@ defmodule Y2023.Day18 do
     end
   end
 
+  @doc """
+  iex> Day18.reparse([{"R", 6, "#70c710"}, {"D", 15, "#0dc571"}])
+  [{"R", 461937, nil}, {"D", 56407, nil}]
+  """
+  def reparse(input) do
+    directions = %{"0" => "R", "1" => "D", "2" => "L", "3" => "U"}
+
+    for {_, _, <<"#", hex::binary-5, direction::binary-1>>} <- input do
+      {num, ""} = Integer.parse(hex, 16)
+      {Map.fetch!(directions, direction), num, nil}
+    end
+  end
+
   def part1_verify, do: input() |> parse_input() |> part1()
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
