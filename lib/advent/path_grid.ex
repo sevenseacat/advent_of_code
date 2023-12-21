@@ -28,7 +28,7 @@ defmodule Advent.PathGrid do
     {graph, units, _row} =
       input
       |> String.split("\n", trim: true)
-      |> Enum.reduce({Graph.new(), [], 1}, &parse_row/2)
+      |> Enum.reduce({Graph.new(vertex_identifier: & &1), [], 1}, &parse_row/2)
 
     %__MODULE__{graph: graph, units: units}
   end
