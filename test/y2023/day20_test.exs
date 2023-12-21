@@ -4,7 +4,7 @@ defmodule Y2023.Day20Test do
   doctest Day20
 
   test "verification, part 1", do: assert(Day20.part1_verify() == 949_764_474)
-  # test "verification, part 2", do: assert(Day20.part2_verify() == "update or delete me")
+  test "verification, part 2", do: assert(Day20.part2_verify() == 243_221_023_462_303)
 
   @sample_1_input """
   broadcaster -> a, b, c
@@ -31,7 +31,7 @@ defmodule Y2023.Day20Test do
         "a" => %{type: :flipflop, outputs: ["b"], status: :off},
         "b" => %{type: :flipflop, outputs: ["c"], status: :off},
         "c" => %{type: :flipflop, outputs: ["inv"], status: :off},
-        "inv" => %{type: :conjunction, outputs: ["a"], received: %{"c" => :low}}
+        "inv" => %{type: :conjunction, outputs: ["a"], inputs: %{"c" => :low}}
       }
 
       assert actual == expected
@@ -43,9 +43,9 @@ defmodule Y2023.Day20Test do
       expected = %{
         "broadcaster" => %{type: :forward, outputs: ["a"]},
         "a" => %{type: :flipflop, outputs: ["inv", "con"], status: :off},
-        "inv" => %{type: :conjunction, outputs: ["b"], received: %{"a" => :low}},
+        "inv" => %{type: :conjunction, outputs: ["b"], inputs: %{"a" => :low}},
         "b" => %{type: :flipflop, outputs: ["con"], status: :off},
-        "con" => %{type: :conjunction, outputs: ["output"], received: %{"a" => :low, "b" => :low}}
+        "con" => %{type: :conjunction, outputs: ["output"], inputs: %{"a" => :low, "b" => :low}}
       }
 
       assert actual == expected
