@@ -2,7 +2,7 @@
 
 My Elixir solutions for [Advent of Code 2023](https://adventofcode.com/2023).
 
-<!-- stars 2023 start --><img src="https://img.shields.io/static/v1?label=2023&message=43%20stars&style=for-the-badge&color=green" alt="43 stars" /><!-- stars 2023 end -->
+<!-- stars 2023 start --><img src="https://img.shields.io/static/v1?label=2023&message=44%20stars&style=for-the-badge&color=green" alt="44 stars" /><!-- stars 2023 end -->
 
 ## Benchmarks
 
@@ -58,4 +58,5 @@ day 20, part 2         20.86       47.93 ms     ±0.68%       47.93 ms       48.
 day 21, part 1          3.48      287.13 ms     ±9.94%      282.88 ms      337.19 ms
 day 22, part 1          0.28         3.57 s     ±0.13%         3.57 s         3.57 s
 day 22, part 2          0.28         3.62 s     ±1.69%         3.62 s         3.67 s
+day 23, part 1          3.81      262.60 ms     ±8.05%      261.90 ms      308.00 ms
 ```

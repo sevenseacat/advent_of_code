@@ -60,7 +60,7 @@ defmodule Advent.PathGrid do
 
     [{row - 1, col}, {row, col - 1}]
     |> Enum.reduce(graph, fn neighbour, graph ->
-      if floor?(graph, neighbour) do
+      if coord_type == :floor && floor?(graph, neighbour) do
         graph
         |> Graph.add_edge({row, col}, neighbour)
         |> Graph.add_edge(neighbour, {row, col})
