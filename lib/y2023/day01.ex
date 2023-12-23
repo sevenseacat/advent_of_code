@@ -56,7 +56,7 @@ defmodule Y2023.Day01 do
   defp find_all_numbers(string, matches) do
     [
       as_number(Enum.find(matches, &String.starts_with?(string, &1)))
-      | find_all_numbers(String.slice(string, 1..-1), matches)
+      | find_all_numbers(String.slice(string, 1..-1//1), matches)
     ]
   end
 
