@@ -42,15 +42,17 @@ defmodule Mix.Tasks.UpdateReadmeStars do
     with {:ok, contents} <- File.read(file) do
       links =
         Enum.map(star_data, fn {year, star_count} ->
-          "<a href=\"./lib/y#{year}/\">#{badge_image(year, star_count, :small)}</a>"
+          "<a href=\"./lib/y#{year}/\">#{badge_image(year, star_count, 50)}</a>"
         end)
         |> Enum.join("<br />\n")
+
+      # And add a new total at the top
 
       contents =
         String.replace(
           contents,
           ~r/#{start_tag()}(.*)#{end_tag()}/s,
-          "#{start_tag()}\n<p>#{links}</p>#{end_tag()}"
+          "#{start_tag()}\n<p>#{total_badge_image(star_data, years())}</p>\n<p>#{links}</p>#{end_tag()}"
         )
 
       File.write!(file, contents)
@@ -69,7 +71,7 @@ defmodule Mix.Tasks.UpdateReadmeStars do
         String.replace(
           contents,
           ~r/#{start_tag(year)}(.*)#{end_tag(year)}/,
-          "#{start_tag(year)}#{badge_image(year, star_count, :large)}#{end_tag(year)}"
+          "#{start_tag(year)}#{badge_image(year, star_count, 50)}#{end_tag(year)}"
         )
 
       File.write!(file, new_contents)
@@ -81,24 +83,31 @@ defmodule Mix.Tasks.UpdateReadmeStars do
   defp start_tag(), do: "<!-- stars start -->"
   defp end_tag(), do: "<!-- stars end -->"
 
-  defp badge_image(year, star_count, size) do
-    "<img src=\"#{badge_url(year, star_count, size)}\" alt=\"#{star_count} stars\" />"
+  defp total_badge_image(star_data, years) do
+    max_stars = length(Enum.to_list(years)) * 50
+    total_stars = Enum.reduce(star_data, 0, fn {_year, stars}, acc -> stars + acc end)
+
+    badge_image("Total", total_stars, max_stars)
   end
 
-  defp badge_url(year, star_count, _size) do
-    string = if star_count == 50, do: "⭐️ 50 stars ⭐️", else: "#{star_count} stars"
+  defp badge_image(year, star_count, max_stars) do
+    "<img src=\"#{badge_url(year, star_count, max_stars)}\" alt=\"#{star_count} stars\" />"
+  end
+
+  defp badge_url(label, star_count, max_stars) do
+    string = if star_count == max_stars, do: "⭐️ #{max_stars} stars ⭐️", else: "#{star_count} stars"
 
     URI.encode(
-      "https://img.shields.io/static/v1?label=#{year}&message=#{string}&style=for-the-badge&color=#{colour(star_count)}"
+      "https://img.shields.io/static/v1?label=#{label}&message=#{string}&style=for-the-badge&color=#{colour(star_count, max_stars)}"
     )
   end
 
-  defp colour(star_count) do
-    case star_count do
-      50 -> "brightgreen"
-      x when x >= 40 -> "green"
-      x when x >= 25 -> "yellow"
-      x when x >= 10 -> "orange"
+  defp colour(star_count, max_stars) do
+    case star_count / max_stars do
+      1.0 -> "brightgreen"
+      x when x >= 0.8 -> "green"
+      x when x >= 0.5 -> "yellow"
+      x when x >= 0.2 -> "orange"
       _ -> "red"
     end
   end
