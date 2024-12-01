@@ -33,7 +33,7 @@ defmodule Y2016.Day04 do
     [decode_letter(letter, cipher) | decode_letters(letters, cipher)]
   end
 
-  def decode_letter(?-, _), do: ' '
+  def decode_letter(?-, _), do: ~c" "
 
   def decode_letter(letter, cipher) do
     new_letter = letter + rem(cipher, 26)

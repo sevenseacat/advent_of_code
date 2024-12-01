@@ -61,11 +61,11 @@ defmodule Y2019.Day17 do
     # B = R,10,R,6,R,4
     # C = R,4,L,12,R,6,L,12
     [
-      'A,B,A,B,C,B,C,A,B,C\n',
-      'R,4,R,10,R,8,R,4\n',
-      'R,10,R,6,R,4\n',
-      'R,4,L,12,R,6,L,12\n',
-      'N\n'
+      ~c"A,B,A,B,C,B,C,A,B,C\n",
+      ~c"R,4,R,10,R,8,R,4\n",
+      ~c"R,10,R,6,R,4\n",
+      ~c"R,4,L,12,R,6,L,12\n",
+      ~c"N\n"
     ]
   end
 

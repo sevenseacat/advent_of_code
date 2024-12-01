@@ -12,15 +12,15 @@ defmodule Y2022.Day05 do
   #  1   2   3   4   5   6   7   8   9
 
   @stacks %{
-    1 => 'RPCDBG',
-    2 => 'HVG',
-    3 => 'NSQDJPM',
-    4 => 'PSLGDCNM',
-    5 => 'JBNCPFLS',
-    6 => 'QBDZVGTS',
-    7 => 'BZMHFTQ',
-    8 => 'CMDBF',
-    9 => 'FCQG'
+    1 => ~c"RPCDBG",
+    2 => ~c"HVG",
+    3 => ~c"NSQDJPM",
+    4 => ~c"PSLGDCNM",
+    5 => ~c"JBNCPFLS",
+    6 => ~c"QBDZVGTS",
+    7 => ~c"BZMHFTQ",
+    8 => ~c"CMDBF",
+    9 => ~c"FCQ"
   }
 
   def part1(input, stacks \\ @stacks), do: do_parts(input, stacks, &mover_9000/3)
