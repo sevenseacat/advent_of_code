@@ -9,13 +9,12 @@ defmodule Y2024.Day01 do
     |> Enum.sum()
   end
 
-  # @doc """
-  # iex> Day01.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
+  def part2(input) do
+    [left, right] = input
+    right_frequencies = Enum.frequencies(right)
+
+    Enum.reduce(left, 0, fn val, acc -> acc + val * Map.get(right_frequencies, val, 0) end)
+  end
 
   def parse_input(input) do
     input
@@ -29,5 +28,5 @@ defmodule Y2024.Day01 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
