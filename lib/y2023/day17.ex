@@ -86,7 +86,7 @@ defmodule Y2023.Day17 do
          {_, _, to_dir},
          length_range
        ) do
-    _min..max = length_range
+    _min..max//1 = length_range
 
     straight = straight_line_length(path)
 

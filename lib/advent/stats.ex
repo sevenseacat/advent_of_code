@@ -2,14 +2,14 @@ defmodule Advent.Stats do
   def years, do: 2015..DateTime.utc_now().year
 
   def count_complete_puzzles(year) do
-    for(day <- 25..1, part <- [2, 1], do: {day, part})
+    for(day <- 25..1//-1, part <- [2, 1], do: {day, part})
     |> Enum.filter(fn {day, part} -> complete?(year, day, part) end)
     |> Enum.count()
   end
 
   # You get the last star only if you have all 49 other stars.
   def complete?(year, 25, 2) do
-    for(day <- 25..1, part <- [2, 1], do: {day, part})
+    for(day <- 25..1//-1, part <- [2, 1], do: {day, part})
     |> tl()
     |> Enum.all?(fn {day, part} -> complete?(year, day, part) end)
   end

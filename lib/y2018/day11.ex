@@ -73,8 +73,8 @@ defmodule Y2018.Day11 do
   end
 
   defp summed_area_table(grid) do
-    Enum.reduce(@max_size..1, %{}, fn x, x_acc ->
-      Enum.reduce(@max_size..1, x_acc, fn y, sat ->
+    Enum.reduce(@max_size..1//-1, %{}, fn x, x_acc ->
+      Enum.reduce(@max_size..1//-1, x_acc, fn y, sat ->
         Map.put(
           sat,
           {x, y},

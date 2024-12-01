@@ -42,7 +42,7 @@ defmodule Y2020.Day14 do
   def apply_v2_bitmask(mask, value) do
     binary_value = integer_to_binary(value)
 
-    Enum.reduce(35..0, [[]], fn index, acc ->
+    Enum.reduce(35..0//-1, [[]], fn index, acc ->
       case Map.get(mask, index) do
         nil -> Enum.reduce(acc, [], &[[0 | &1], [1 | &1] | &2])
         val -> Enum.map(acc, &[Bitwise.bor(val, Enum.at(binary_value, index)) | &1])

@@ -13,8 +13,8 @@ defmodule Y2021.Day24 do
   """
   use Advent.Day, no: 24
 
-  def part1, do: do_parts([{[], 0}], reverse_engineered_funcs(), 9..1)
-  def part2, do: do_parts([{[], 0}], reverse_engineered_funcs(), 1..9)
+  def part1, do: do_parts([{[], 0}], reverse_engineered_funcs(), 9..1//-1)
+  def part2, do: do_parts([{[], 0}], reverse_engineered_funcs(), 1..9//1)
 
   defp do_parts(states, [cmd], range) do
     states
