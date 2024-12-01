@@ -20,7 +20,7 @@ defmodule Y2022.Day05 do
     6 => ~c"QBDZVGTS",
     7 => ~c"BZMHFTQ",
     8 => ~c"CMDBF",
-    9 => ~c"FCQ"
+    9 => ~c"FCQG"
   }
 
   def part1(input, stacks \\ @stacks), do: do_parts(input, stacks, &mover_9000/3)
