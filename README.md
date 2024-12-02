@@ -5,8 +5,8 @@
 My Elixir solutions for [Advent of Code](https://adventofcode.com/) (all years).
 
 <!-- stars start -->
-<p><img src="https://img.shields.io/static/v1?label=Total&message=416%20stars&style=for-the-badge&color=green" alt="416 stars" /></p>
-<p><a href="./lib/y2024/"><img src="https://img.shields.io/static/v1?label=2024&message=2%20stars&style=for-the-badge&color=red" alt="2 stars" /></a><br />
+<p><img src="https://img.shields.io/static/v1?label=Total&message=418%20stars&style=for-the-badge&color=green" alt="418 stars" /></p>
+<p><a href="./lib/y2024/"><img src="https://img.shields.io/static/v1?label=2024&message=4%20stars&style=for-the-badge&color=red" alt="4 stars" /></a><br />
 <a href="./lib/y2023/"><img src="https://img.shields.io/static/v1?label=2023&message=44%20stars&style=for-the-badge&color=green" alt="44 stars" /></a><br />
 <a href="./lib/y2022/"><img src="https://img.shields.io/static/v1?label=2022&message=%E2%AD%90%EF%B8%8F%2050%20stars%20%E2%AD%90%EF%B8%8F&style=for-the-badge&color=brightgreen" alt="50 stars" /></a><br />
 <a href="./lib/y2021/"><img src="https://img.shields.io/static/v1?label=2021&message=46%20stars&style=for-the-badge&color=green" alt="46 stars" /></a><br />
