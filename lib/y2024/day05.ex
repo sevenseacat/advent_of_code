@@ -10,18 +10,42 @@ defmodule Y2024.Day05 do
     |> Enum.sum()
   end
 
-  # @doc """
-  # iex> Day05.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
+  def part2({deps, manuals}) do
+    manuals
+    |> Enum.reject(&in_order?(&1, deps))
+    |> Enum.map(fn manual ->
+      manual
+      |> fix_order(deps)
+      |> Enum.at(floor(length(manual) / 2))
+    end)
+    |> Enum.sum()
+  end
 
   def in_order?([], _), do: true
 
   def in_order?([num1 | rest], deps) do
     !Enum.any?(rest, fn num2 -> {num2, num1} in deps end) && in_order?(rest, deps)
+  end
+
+  defp find_invalid([num1 | rest], deps) do
+    if result = Enum.find(rest, fn num2 -> {num2, num1} in deps end) do
+      {result, num1}
+    else
+      find_invalid(rest, deps)
+    end
+  end
+
+  def fix_order(manual, deps) do
+    {num2, num1} = find_invalid(manual, deps)
+    manual = List.delete(manual, num2)
+    pos1 = Enum.find_index(manual, &(&1 == num1))
+    manual = List.insert_at(manual, pos1, num2)
+
+    if in_order?(manual, deps) do
+      manual
+    else
+      fix_order(manual, deps)
+    end
   end
 
   def parse_input(input) do
@@ -47,5 +71,5 @@ defmodule Y2024.Day05 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
