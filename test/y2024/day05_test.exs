@@ -36,7 +36,7 @@ defmodule Y2024.Day05Test do
 
   test "parse_input" do
     {deps, manuals} = Day05.parse_input(@input)
-    assert hd(deps) == {47, 53}
+    assert MapSet.member?(deps, {47, 53})
     assert hd(manuals) == [75, 47, 61, 53, 29]
   end
 

@@ -24,11 +24,11 @@ defmodule Y2024.Day05 do
   def in_order?([], _), do: true
 
   def in_order?([num1 | rest], deps) do
-    !Enum.any?(rest, fn num2 -> {num2, num1} in deps end) && in_order?(rest, deps)
+    !Enum.any?(rest, fn num2 -> MapSet.member?(deps, {num2, num1}) end) && in_order?(rest, deps)
   end
 
   defp find_invalid([num1 | rest], deps) do
-    if result = Enum.find(rest, fn num2 -> {num2, num1} in deps end) do
+    if result = Enum.find(rest, fn num2 -> MapSet.member?(deps, {num2, num1}) end) do
       {result, num1}
     else
       find_invalid(rest, deps)
@@ -54,7 +54,7 @@ defmodule Y2024.Day05 do
       |> String.split("\n\n", trim: true, parts: 2)
       |> Enum.map(&String.split(&1, "\n", trim: true))
 
-    {Enum.map(deps, &parse_dep/1), Enum.map(manuals, &parse_manual/1)}
+    {Enum.map(deps, &parse_dep/1) |> MapSet.new(), Enum.map(manuals, &parse_manual/1)}
   end
 
   defp parse_dep(string) do
