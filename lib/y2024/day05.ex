@@ -13,12 +13,12 @@ defmodule Y2024.Day05 do
   def part2({deps, manuals}) do
     manuals
     |> Enum.reject(&in_order?(&1, deps))
-    |> Enum.map(fn manual ->
+    |> Task.async_stream(fn manual ->
       manual
       |> fix_order(deps)
       |> Enum.at(floor(length(manual) / 2))
     end)
-    |> Enum.sum()
+    |> Enum.reduce(0, fn {:ok, val}, acc -> acc + val end)
   end
 
   def in_order?([], _), do: true
