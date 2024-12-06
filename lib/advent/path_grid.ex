@@ -70,7 +70,7 @@ defmodule Advent.PathGrid do
     end)
   end
 
-  def display(graph, units \\ []) do
+  def display(graph, units \\ [], highlight \\ []) do
     vertices = Graph.vertices(graph)
     {{min_row, _}, {max_row, _}} = Enum.min_max_by(vertices, fn {row, _} -> row end)
     {{_, min_col}, {_, max_col}} = Enum.min_max_by(vertices, fn {_, col} -> col end)
@@ -85,6 +85,7 @@ defmodule Advent.PathGrid do
           true -> " "
         end
       end
+      |> maybe_highlight({row, col}, highlight)
     end
     |> Enum.chunk_every(max_col - min_col + 1)
     |> Enum.map(&List.to_string/1)
@@ -107,8 +108,21 @@ defmodule Advent.PathGrid do
     Graph.has_vertex?(graph, coordinate) && Graph.vertex_labels(graph, coordinate) == [:floor]
   end
 
+  def in_graph?(graph, coordinate) do
+    Graph.has_vertex?(graph, coordinate)
+  end
+
   def floor_spaces(graph) do
     Graph.vertices(graph)
     |> Enum.filter(fn v -> Graph.vertex_labels(graph, v) == [:floor] end)
+  end
+
+  defp maybe_highlight(char, coord, %MapSet{} = mapset) do
+    if MapSet.member?(mapset, coord), do: colour(char), else: char
+  end
+
+  defp colour(char) do
+    # Red stands out most against white, at small and large text sizes
+    IO.ANSI.red() <> "#{char}" <> IO.ANSI.reset()
   end
 end
