@@ -1,27 +1,28 @@
 defmodule Y2024.Day06 do
   use Advent.Day, no: 06
-  alias Advent.PathGrid
+  alias Advent.Grid
 
-  def part1(%PathGrid{graph: grid, units: [guard]}) do
-    been_at =
-      move(grid, guard.position, :up, MapSet.new([guard.position]))
-      |> MapSet.size()
+  def part1(grid) do
+    {grid, guard} = find_guard(grid)
 
-    # Don't include the starting position
-    been_at - 1
+    move(grid, guard, :up, MapSet.new())
+    |> MapSet.delete(guard)
+    |> MapSet.size()
   end
 
-  def part2(%PathGrid{graph: grid, units: [guard]}) do
-    move(grid, guard.position, :up, MapSet.new())
+  def part2(grid) do
+    {grid, guard} = find_guard(grid)
+
+    move(grid, guard, :up, MapSet.new())
     |> Task.async_stream(fn coord ->
-      coord != guard.position && PathGrid.floor?(grid, coord) &&
-        check_loop(PathGrid.add_wall(grid, coord), guard.position, :up, MapSet.new())
+      coord != guard && floor?(grid, coord) &&
+        check_loop(add_wall(grid, coord), guard, :up, MapSet.new())
     end)
     |> Enum.count(fn {:ok, val} -> val end)
   end
 
   defp move(grid, guard_position, facing, seen) do
-    if !PathGrid.in_graph?(grid, guard_position) do
+    if !in_grid?(grid, guard_position) do
       seen
     else
       {next_pos, next_facing} = move_forward_or_turn(grid, guard_position, facing)
@@ -30,7 +31,7 @@ defmodule Y2024.Day06 do
   end
 
   defp check_loop(grid, guard_position, facing, seen) do
-    if !PathGrid.in_graph?(grid, guard_position) do
+    if !in_grid?(grid, guard_position) do
       false
     else
       {next_pos, next_facing} = move_forward_or_turn(grid, guard_position, facing)
@@ -44,13 +45,13 @@ defmodule Y2024.Day06 do
   end
 
   def parse_input(input) do
-    PathGrid.new(input)
+    Grid.new(input)
   end
 
   defp move_forward_or_turn(grid, position, facing) do
     next_position = forward(position, facing)
 
-    if PathGrid.wall?(grid, next_position) do
+    if wall?(grid, next_position) do
       move_forward_or_turn(grid, position, turn_right(facing))
     else
       {next_position, facing}
@@ -66,6 +67,19 @@ defmodule Y2024.Day06 do
   defp turn_right(:right), do: :down
   defp turn_right(:down), do: :left
   defp turn_right(:left), do: :up
+
+  defp find_guard(grid) do
+    guard =
+      Enum.find(grid, fn {_coord, key} -> key == "^" end)
+      |> elem(0)
+
+    {Map.put(grid, guard, "."), guard}
+  end
+
+  defp wall?(grid, position), do: Map.get(grid, position) == "#"
+  defp floor?(grid, position), do: Map.get(grid, position) == "."
+  defp in_grid?(grid, position), do: Map.get(grid, position) != nil
+  defp add_wall(grid, position), do: Map.put(grid, position, "#")
 
   def part1_verify, do: input() |> parse_input() |> part1()
   def part2_verify, do: input() |> parse_input() |> part2()

@@ -25,7 +25,5 @@ defmodule Y2024.Day06Test do
   end
 
   test "verification, part 1", do: assert(Day06.part1_verify() == 5095)
-
-  @tag timeout: :infinity
   test "verification, part 2", do: assert(Day06.part2_verify() == 1933)
 end
