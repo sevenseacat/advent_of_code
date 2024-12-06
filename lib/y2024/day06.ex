@@ -11,21 +11,35 @@ defmodule Y2024.Day06 do
     been_at - 1
   end
 
-  # @doc """
-  # iex> Day06.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
+  def part2(%PathGrid{graph: grid, units: [guard]}) do
+    move(grid, guard.position, :up, MapSet.new())
+    |> Task.async_stream(fn coord ->
+      coord != guard.position && PathGrid.floor?(grid, coord) &&
+        check_loop(PathGrid.add_wall(grid, coord), guard.position, :up, MapSet.new())
+    end)
+    |> Enum.count(fn {:ok, val} -> val end)
+  end
 
   defp move(grid, guard_position, facing, seen) do
     if !PathGrid.in_graph?(grid, guard_position) do
       seen
     else
       {next_pos, next_facing} = move_forward_or_turn(grid, guard_position, facing)
-      # PathGrid.display(grid, [], seen)
       move(grid, next_pos, next_facing, MapSet.put(seen, next_pos))
+    end
+  end
+
+  defp check_loop(grid, guard_position, facing, seen) do
+    if !PathGrid.in_graph?(grid, guard_position) do
+      false
+    else
+      {next_pos, next_facing} = move_forward_or_turn(grid, guard_position, facing)
+
+      if MapSet.member?(seen, {next_pos, next_facing}) do
+        true
+      else
+        check_loop(grid, next_pos, next_facing, MapSet.put(seen, {next_pos, next_facing}))
+      end
     end
   end
 
@@ -54,5 +68,5 @@ defmodule Y2024.Day06 do
   defp turn_right(:left), do: :up
 
   def part1_verify, do: input() |> parse_input() |> part1()
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end

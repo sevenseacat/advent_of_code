@@ -94,6 +94,12 @@ defmodule Advent.PathGrid do
     graph
   end
 
+  def add_wall(graph, coord) do
+    graph
+    |> Graph.delete_vertex(coord)
+    |> Graph.add_vertex(coord, :wall)
+  end
+
   def size(graph) do
     graph
     |> Graph.vertices()
