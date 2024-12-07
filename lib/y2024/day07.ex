@@ -23,7 +23,8 @@ defmodule Y2024.Day07 do
     Enum.any?(operators, fn op -> valid?({total, [op.(num1, num2) | list]}, operators) end)
   end
 
-  def concat(one, two), do: "#{one}#{two}" |> String.to_integer()
+  # Alternative implementation for String.to_integer("#{one}#{two}") that is so much faster!
+  def concat(one, two), do: one * 10 ** length(Integer.digits(two)) + two
 
   def parse_input(input) do
     input
