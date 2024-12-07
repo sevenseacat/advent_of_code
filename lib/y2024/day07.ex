@@ -11,25 +11,34 @@ defmodule Y2024.Day07 do
 
   defp do_parts(input, operands) do
     input
-    |> Task.async_stream(fn row -> {elem(row, 0), valid?(row, operands)} end)
+    |> Task.async_stream(fn {total, list} -> {total, valid?({total, list}, operands)} end)
     |> Enum.reduce(0, fn {:ok, {value, result}}, acc ->
       if result, do: acc + value, else: acc
     end)
   end
 
   def valid?({total, list}, operands) do
-    operands
-    |> Advent.permutations_with_repetitions(length(list) - 1)
-    |> Enum.any?(fn op_list -> equals?(total, list, op_list) end)
+    check_valid(total, [list], [], operands)
   end
 
-  defp equals?(total, [result], []), do: total == result
+  def check_valid(_total, [], [], _), do: false
 
-  defp equals?(total, [num1, num2 | rest], [op1 | op_rest]) do
-    equals?(total, [op1.(num1, num2) | rest], op_rest)
+  def check_valid(total, [], next, operands), do: check_valid(total, next, [], operands)
+
+  def check_valid(total, [[num] | next], [], operands) do
+    num == total || check_valid(total, next, [], operands)
   end
 
-  defp concat(one, two), do: "#{one}#{two}" |> String.to_integer()
+  def check_valid(total, [[num1, num2 | rest] | next], next_level, operands) do
+    if num1 > total || num2 > total do
+      check_valid(total, next, next_level, operands)
+    else
+      next_states = Enum.map(operands, fn op -> [op.(num1, num2) | rest] end)
+      check_valid(total, next, next_states ++ next_level, operands)
+    end
+  end
+
+  def concat(one, two), do: "#{one}#{two}" |> String.to_integer()
 
   def parse_input(input) do
     input

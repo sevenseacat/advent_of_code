@@ -24,9 +24,11 @@ defmodule Y2024.Day07Test do
   end
 
   test "valid?" do
-    operands = [&Kernel.+/2, &Kernel.*/2]
-    assert Day07.valid?({190, [10, 19]}, operands)
-    assert Day07.valid?({3267, [81, 40, 27]}, operands)
+    operands1 = [&Kernel.+/2, &Kernel.*/2]
+    operands2 = [&Kernel.+/2, &Kernel.*/2, &Day07.concat/2]
+    assert Day07.valid?({190, [10, 19]}, operands1)
+    assert Day07.valid?({3267, [81, 40, 27]}, operands1)
+    refute Day07.valid?({2_939_907_585_850, [8, 8, 957, 6, 1, 1, 2, 4, 2, 3, 1, 8]}, operands2)
   end
 
   test "verification, part 1", do: assert(Day07.part1_verify() == 2_437_272_016_585)
