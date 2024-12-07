@@ -100,6 +100,12 @@ defmodule Advent.PathGrid do
     |> Graph.add_vertex(coord, :wall)
   end
 
+  def add_special_path(graph, {from, to}) do
+    graph
+    |> Graph.add_edge(from, to)
+    |> Graph.add_edge(to, from)
+  end
+
   def size(graph) do
     graph
     |> Graph.vertices()
