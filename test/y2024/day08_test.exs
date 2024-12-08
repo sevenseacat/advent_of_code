@@ -19,26 +19,30 @@ defmodule Y2024.Day08Test do
   """
 
   test "part 1" do
-    actual = Day08.parse_input(@input) |> Day08.part1()
+    actual = Day08.parse_input(@input) |> Day08.part1() |> Enum.sort()
 
     assert [
-             {{1, 7}, _},
-             {{1, 12}, _},
-             {{2, 4}, _},
-             {{3, 5}, _},
-             {{3, 11}, _},
-             {{4, 3}, _},
-             {{5, 10}, _},
-             {{6, 2}, _},
-             {{6, 7}, _},
-             {{7, 4}, _},
-             {{8, 1}, _},
-             {{8, 8}, _},
-             {{11, 11}, _},
-             {{12, 11}, _}
+             {1, 7},
+             {1, 12},
+             {2, 4},
+             {3, 5},
+             {3, 11},
+             {4, 3},
+             {5, 10},
+             {6, 2},
+             {6, 7},
+             {7, 4},
+             {8, 1},
+             {8, 8},
+             {11, 11},
+             {12, 11}
            ] = actual
   end
 
+  test "part 2" do
+    assert Day08.parse_input(@input) |> Day08.part2() |> length() == 34
+  end
+
   test "verification, part 1", do: assert(Day08.part1_verify() == 220)
-  # test "verification, part 2", do: assert(Day08.part2_verify() == "update or delete me")
+  test "verification, part 2", do: assert(Day08.part2_verify() == 813)
 end
