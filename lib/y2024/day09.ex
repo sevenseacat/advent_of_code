@@ -47,57 +47,66 @@ defmodule Y2024.Day09 do
   2858
   """
   def part2(input) do
-    input
-    |> Enum.reduce({0, true, []}, fn num, {file_id, fill?, list} ->
-      type = if fill?, do: :fill, else: :gap
-      next_file_id = if fill?, do: file_id + 1, else: file_id
-      {next_file_id, !fill?, [%{type: type, file_id: file_id, num: num} | list]}
+    list =
+      input
+      |> Enum.reduce({0, 0, true, []}, fn size, {file_id, start_at, fill?, list} ->
+        type = if fill?, do: :fill, else: :gap
+
+        {file_id + 0.5, start_at + size, !fill?,
+         [%{type: type, start_at: start_at, file_id: file_id, size: size} | list]}
+      end)
+      |> elem(3)
+      |> Enum.reject(&(&1.size == 0))
+      |> Enum.map(fn row -> Map.update!(row, :file_id, &trunc/1) end)
+
+    {to_move, gaps} = Enum.split_with(list, &(&1.type == :fill))
+    disk = Map.new(list, &{&1.file_id, &1})
+    gaps = Enum.reverse(gaps)
+
+    defrag(to_move, gaps, [], disk)
+    |> Map.values()
+    |> Enum.sort_by(& &1.start_at)
+    |> Enum.reduce(0, fn file, acc ->
+      Enum.reduce(file.start_at..(file.start_at + file.size - 1), acc, fn index, acc ->
+        acc + index * file.file_id
+      end)
     end)
-    |> elem(2)
-    |> Enum.reverse()
-    |> defrag([])
-    |> Enum.reduce({0, 0}, fn record, {index, acc} ->
-      if record.type == :gap do
-        {index + record.num, acc}
-      else
-        acc =
-          Enum.reduce(0..(record.num - 1), acc, fn sub_index, acc ->
-            acc + (index + sub_index) * record.file_id
+  end
+
+  defp defrag([], _, _, disk), do: disk
+
+  defp defrag([_head | tail], [], gaps, disk), do: defrag(tail, Enum.reverse(gaps), [], disk)
+
+  defp defrag([head | tail], [head_gap | tail_gaps], start_gaps, disk) do
+    if head.start_at < head_gap.start_at do
+      # IO.puts("can't move #{head.file_id}")
+      defrag(tail, Enum.reverse(start_gaps) ++ [head_gap | tail_gaps], [], disk)
+    else
+      if head_gap.size >= head.size do
+        # IO.puts("gonna move #{head.file_id} to #{head_gap.start_at}")
+        leftover_gap_size = head_gap.size - head.size
+
+        gaps =
+          if leftover_gap_size > 0 do
+            new_gap =
+              head_gap
+              |> Map.put(:size, leftover_gap_size)
+              |> Map.put(:start_at, head_gap.start_at + head.size)
+
+            Enum.reverse(start_gaps) ++ [new_gap | tail_gaps]
+          else
+            Enum.reverse(start_gaps) ++ tail_gaps
+          end
+
+        disk =
+          Map.update!(disk, head.file_id, fn head ->
+            %{head | start_at: head_gap.start_at}
           end)
 
-        {index + record.num, acc}
-      end
-    end)
-    |> elem(1)
-  end
-
-  defp defrag([], list), do: Enum.reverse(list)
-
-  defp defrag([%{type: :fill} = head | tail], list) do
-    defrag(tail, [head | list])
-  end
-
-  defp defrag([%{type: :gap, num: num} = head | tail], list) do
-    filler =
-      Enum.find(Enum.reverse(tail), fn %{num: check_num, type: type} ->
-        type == :fill && check_num <= num
-      end)
-
-    if filler do
-      list = [filler | list]
-
-      tail =
-        Enum.map(tail, fn record ->
-          if record == filler, do: %{type: :gap, num: filler.num}, else: record
-        end)
-
-      if num - filler.num == 0 do
-        defrag(tail, list)
+        defrag(tail, gaps, [], disk)
       else
-        defrag([%{type: :gap, num: num - filler.num} | tail], list)
+        defrag([head | tail], tail_gaps, [head_gap | start_gaps], disk)
       end
-    else
-      defrag(tail, [head | list])
     end
   end
 
