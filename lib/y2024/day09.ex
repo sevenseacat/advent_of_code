@@ -42,13 +42,64 @@ defmodule Y2024.Day09 do
     |> elem(1)
   end
 
-  # @doc """
-  # iex> Day09.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
+  @doc """
+  iex> Day09.part2(Integer.digits(2333133121414131402))
+  2858
+  """
+  def part2(input) do
+    input
+    |> Enum.reduce({0, true, []}, fn num, {file_id, fill?, list} ->
+      type = if fill?, do: :fill, else: :gap
+      next_file_id = if fill?, do: file_id + 1, else: file_id
+      {next_file_id, !fill?, [%{type: type, file_id: file_id, num: num} | list]}
+    end)
+    |> elem(2)
+    |> Enum.reverse()
+    |> defrag([])
+    |> Enum.reduce({0, 0}, fn record, {index, acc} ->
+      if record.type == :gap do
+        {index + record.num, acc}
+      else
+        acc =
+          Enum.reduce(0..(record.num - 1), acc, fn sub_index, acc ->
+            acc + (index + sub_index) * record.file_id
+          end)
+
+        {index + record.num, acc}
+      end
+    end)
+    |> elem(1)
+  end
+
+  defp defrag([], list), do: Enum.reverse(list)
+
+  defp defrag([%{type: :fill} = head | tail], list) do
+    defrag(tail, [head | list])
+  end
+
+  defp defrag([%{type: :gap, num: num} = head | tail], list) do
+    filler =
+      Enum.find(Enum.reverse(tail), fn %{num: check_num, type: type} ->
+        type == :fill && check_num <= num
+      end)
+
+    if filler do
+      list = [filler | list]
+
+      tail =
+        Enum.map(tail, fn record ->
+          if record == filler, do: %{type: :gap, num: filler.num}, else: record
+        end)
+
+      if num - filler.num == 0 do
+        defrag(tail, list)
+      else
+        defrag([%{type: :gap, num: num - filler.num} | tail], list)
+      end
+    else
+      defrag(tail, [head | list])
+    end
+  end
 
   def parse_input(input) do
     input
@@ -58,5 +109,5 @@ defmodule Y2024.Day09 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
