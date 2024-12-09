@@ -65,6 +65,10 @@ defmodule Y2019.Day21 do
           |> Enum.uniq_by(fn data -> data end)
         }
       end
+      # If we're back where we started from, ditch this option
+      |> Enum.reject(fn {_path, results} ->
+        Enum.all?(results, fn {registers, _} -> registers.j == false && registers.t == false end)
+      end)
 
     match =
       Enum.find(results, fn {_path, list} ->
