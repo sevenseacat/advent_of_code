@@ -6,6 +6,19 @@ defmodule Advent.Grid do
     |> Enum.reduce(Map.new(), &parse_row/2)
   end
 
+  def use_number_values(grid) do
+    grid
+    |> Enum.map(fn {coord, val} -> {coord, maybe_integer(val)} end)
+    |> Map.new()
+  end
+
+  defp maybe_integer(val) do
+    case Integer.parse(val) do
+      :error -> val
+      {num, _} -> num
+    end
+  end
+
   def size(grid) do
     coords = Map.keys(grid)
     {row, _} = Enum.max_by(coords, &elem(&1, 0))
