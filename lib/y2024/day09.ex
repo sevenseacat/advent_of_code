@@ -61,9 +61,13 @@ defmodule Y2024.Day09 do
 
     {to_move, gaps} = Enum.split_with(list, &(&1.type == :fill))
     disk = Map.new(list, &{&1.file_id, &1})
-    gaps = Enum.reverse(gaps)
 
-    defrag(to_move, gaps, [], disk)
+    gap_map =
+      gaps
+      |> Enum.reverse()
+      |> Enum.group_by(& &1.size)
+
+    defrag(to_move, gap_map, disk)
     |> Map.values()
     |> Enum.sort_by(& &1.start_at)
     |> Enum.reduce(0, fn file, acc ->
@@ -73,41 +77,61 @@ defmodule Y2024.Day09 do
     end)
   end
 
-  defp defrag([], _, _, disk), do: disk
+  defp defrag([], _, disk), do: disk
 
-  defp defrag([_head | tail], [], gaps, disk), do: defrag(tail, Enum.reverse(gaps), [], disk)
+  defp defrag([head | tail], gap_map, disk) do
+    if gap = find_valid_gap(gap_map, head) do
+      #  IO.puts("moving #{head.file_id} to #{gap.start_at}")
+      leftover_gap_size = gap.size - head.size
 
-  defp defrag([head | tail], [head_gap | tail_gaps], start_gaps, disk) do
-    if head.start_at < head_gap.start_at do
-      # IO.puts("can't move #{head.file_id}")
-      defrag(tail, Enum.reverse(start_gaps) ++ [head_gap | tail_gaps], [], disk)
-    else
-      if head_gap.size >= head.size do
-        # IO.puts("gonna move #{head.file_id} to #{head_gap.start_at}")
-        leftover_gap_size = head_gap.size - head.size
+      gap_map =
+        if leftover_gap_size > 0 do
+          #   IO.puts("adding new gap of size #{leftover_gap_size} at #{gap.start_at + head.size}")
 
-        gaps =
-          if leftover_gap_size > 0 do
-            new_gap =
-              head_gap
-              |> Map.put(:size, leftover_gap_size)
-              |> Map.put(:start_at, head_gap.start_at + head.size)
+          new_gap =
+            gap
+            |> Map.put(:size, leftover_gap_size)
+            |> Map.put(:start_at, gap.start_at + head.size)
 
-            Enum.reverse(start_gaps) ++ [new_gap | tail_gaps]
-          else
-            Enum.reverse(start_gaps) ++ tail_gaps
-          end
-
-        disk =
-          Map.update!(disk, head.file_id, fn head ->
-            %{head | start_at: head_gap.start_at}
+          gap_map
+          |> Map.update(new_gap.size, [new_gap], fn list ->
+            [new_gap | list]
+            |> Enum.sort_by(& &1.start_at)
           end)
+        else
+          gap_map
+        end
+        |> Map.update!(gap.size, fn list -> tl(list) end)
 
-        defrag(tail, gaps, [], disk)
-      else
-        defrag([head | tail], tail_gaps, [head_gap | start_gaps], disk)
-      end
+      disk =
+        Map.update!(disk, head.file_id, fn head ->
+          %{head | start_at: gap.start_at}
+        end)
+
+      defrag(tail, gap_map, disk)
+    else
+      # IO.puts("can't move #{head.file_id}")
+      defrag(tail, gap_map, disk)
     end
+  end
+
+  defp find_valid_gap(gap_map, %{size: min_size, start_at: max_start_at}) do
+    # IO.puts("looking for gap of size #{min_size}")
+
+    Enum.reduce(gap_map, nil, fn
+      {_gap_size, []}, acc ->
+        acc
+
+      {gap_size, gaps}, acc ->
+        gap = hd(gaps)
+
+        if gap_size >= min_size && gap.start_at < max_start_at &&
+             (!acc || acc.start_at > gap.start_at) do
+          gap
+        else
+          acc
+        end
+    end)
   end
 
   def parse_input(input) do
