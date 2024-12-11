@@ -4,7 +4,9 @@ defmodule Y2019.Day21 do
 
   def part1(%Intcode{} = program) do
     program
-    |> Intcode.add_inputs(~c"#{find_formula()}\nWALK\n")
+    |> Intcode.add_inputs(
+      ~c"#{find_formula(possible_var_combinations([:a, :b, :c, :d]))}\nWALK\n"
+    )
     |> Intcode.run()
     |> Intcode.outputs()
     |> List.last()
@@ -18,7 +20,7 @@ defmodule Y2019.Day21 do
   #   input
   # end
 
-  def find_formula do
+  def find_formula(var_combinations) do
     [
       {[],
        [
@@ -45,14 +47,14 @@ defmodule Y2019.Day21 do
          # [true, false, true, 1] => ?,
        ]}
     ]
-    |> jump()
+    |> jump(var_combinations)
   end
 
-  def jump(stuff) do
+  def jump(possible_paths, var_combinations) do
     results =
-      for [one, two] <- possible_var_combinations(),
+      for [one, two] <- var_combinations,
           {name, op} <- possible_operations(),
-          {path, list} <- stuff do
+          {path, list} <- possible_paths do
         {
           ["#{name} #{one} #{two}" | path],
           Enum.map(list, fn {registers, result} ->
@@ -84,7 +86,7 @@ defmodule Y2019.Day21 do
       |> Enum.join("\n")
       |> String.to_charlist()
     else
-      jump(results)
+      jump(results, var_combinations)
     end
   end
 
@@ -96,19 +98,8 @@ defmodule Y2019.Day21 do
     ]
   end
 
-  def possible_var_combinations do
-    [
-      [:a, :t],
-      [:b, :t],
-      [:c, :t],
-      [:d, :t],
-      [:j, :t],
-      [:a, :j],
-      [:b, :j],
-      [:c, :j],
-      [:d, :j],
-      [:t, :j]
-    ]
+  def possible_var_combinations(range) do
+    [[:t, :j], [:j, :t] | Enum.flat_map(range, fn from -> [[from, :t], [from, :j]] end)]
   end
 
   def parse_input(input) do
