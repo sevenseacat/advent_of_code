@@ -1,5 +1,5 @@
 defmodule Y2019.Day21Test do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
   alias Y2019.Day21
   doctest Day21
 
