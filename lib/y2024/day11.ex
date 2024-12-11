@@ -27,11 +27,11 @@ defmodule Y2024.Day11 do
     input
     |> Enum.reduce(%{}, fn num, acc ->
       # We don't care about the order of stones, we only care about how many of each number we have
-      # So for each number, store what numbers we pre-compute to replace them with, and a count
-      Map.update(acc, num, {replace(num), 1}, fn {replace, count} -> {replace, count + 1} end)
+      # # So for each number, store what numbers we pre-compute to replace them with, and a count
+      Map.update(acc, num, 1, fn count -> count + 1 end)
     end)
     |> blink(times)
-    |> Enum.map(fn {_num, {_replace, count}} -> count end)
+    |> Map.values()
     |> Enum.sum()
   end
 
@@ -39,23 +39,17 @@ defmodule Y2024.Day11 do
 
   defp blink(input, times) do
     input
-    |> Enum.reduce(%{}, fn {num, {to_replace, count}}, acc ->
+    |> Enum.reduce(%{}, fn {num, count}, acc ->
       # We might be replacing one stone with two, so reduce again
-      Enum.reduce(to_replace, acc, fn replace_num, acc ->
-        # If this is a number we've already seen, we know what to replace it with already
-        replace_with = Map.get(input, replace_num, {nil, 0}) |> elem(0) || replace(replace_num)
-
-        Map.update(acc, replace_num, {replace_with, count}, fn {replace, old_count} ->
-          {replace, count + old_count}
-        end)
+      Enum.reduce(replace(num), acc, fn replace_num, acc ->
+        Map.update(acc, replace_num, count, fn old_count -> count + old_count end)
       end)
-      |> Map.put_new(num, {to_replace, 0})
     end)
     |> blink(times - 1)
   end
 
   defp replace(stone) do
-    digits = digits(stone)
+    digits = length(Integer.digits(stone))
 
     replacement_rule =
       Enum.find(replacement_rules(), fn {condition, _} -> condition.(stone, digits) end)
@@ -77,8 +71,6 @@ defmodule Y2024.Day11 do
       {fn _stone, _digits -> true end, fn stone, _digits -> [stone * 2024] end}
     ]
   end
-
-  defp digits(num), do: length(Integer.digits(num))
 
   def parse_input(input) do
     input
