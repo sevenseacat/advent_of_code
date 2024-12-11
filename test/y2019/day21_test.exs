@@ -4,5 +4,5 @@ defmodule Y2019.Day21Test do
   doctest Day21
 
   test "verification, part 1", do: assert(Day21.part1_verify() == 19_349_939)
-  # test "verification, part 2", do: assert(Day21.part2_verify() == "update or delete me")
+  #  test "verification, part 2", do: assert(Day21.part2_verify() == "update or delete me")
 end

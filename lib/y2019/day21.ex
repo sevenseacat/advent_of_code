@@ -4,50 +4,91 @@ defmodule Y2019.Day21 do
 
   def part1(%Intcode{} = program) do
     program
-    |> Intcode.add_inputs(
-      ~c"#{find_formula(possible_var_combinations([:a, :b, :c, :d]))}\nWALK\n"
-    )
+    |> Intcode.add_inputs(~c"#{find_part_1_formula([:a, :b, :c, :d])}\nWALK\n")
     |> Intcode.run()
     |> Intcode.outputs()
     |> List.last()
   end
 
-  # @doc """
-  # iex> Day21.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
+  # This doesn't actually ever finish
+  # def part2(program) do
+  #   result =
+  #     program
+  #     |> Intcode.add_inputs(
+  #       ~c"#{find_part_2_formula([:a, :b, :c, :d, :e, :f, :g, :h, :i])}\nRUN\n"
+  #     )
+  #     |> Intcode.run()
+  #     |> Intcode.outputs()
+
+  #   IO.puts(result)
+
+  #   List.last(result)
   # end
 
-  def find_formula(var_combinations) do
+  def find_part_1_formula(vars) do
     [
       {[],
        [
          # If we're in front of a gap we have to jump
-         {%{a: false, b: false, c: false, d: true, t: false, j: false}, true},
-         {%{a: false, b: false, c: true, d: true, t: false, j: false}, true},
-         {%{a: false, b: true, c: false, d: true, t: false, j: false}, true},
-         {%{a: false, b: true, c: true, d: true, t: false, j: false}, true},
+         {".###", true},
+         {"..##", true},
+         {".#.#", true},
+         {"...#", true},
 
          # Never jump when the fourth square is a hole because you'll fall in it
-         {%{a: true, b: true, c: true, d: false, t: false, j: false}, false},
-         {%{a: true, b: false, c: false, d: false, t: false, j: false}, false},
-         {%{a: true, b: true, c: false, d: false, t: false, j: false}, false},
-         {%{a: true, b: false, c: true, d: false, t: false, j: false}, false},
+         {"###.", false},
+         {"#...", false},
+         {"##..", false},
+         {"#.#.", false},
 
          # Nothing to worry about, keep walking forward
-         {%{a: true, b: true, c: true, d: true, t: false, j: false}, false},
+         {"####", false},
 
          # Jump just in case you can't after the gap
-         {%{a: true, b: false, c: false, d: true, t: false, j: false}, true},
-         {%{a: true, b: true, c: false, d: true, t: false, j: false}, true}
+         {"#..#", true},
+         {"##.#", true}
 
          # These ones I don't know about yet because either move could work
          # [true, false, true, 1] => ?,
-       ]}
+       ]
+       |> expand_combinations(vars)}
     ]
-    |> jump(var_combinations)
+    |> jump(possible_var_combinations(vars))
+  end
+
+  # def find_part_2_formula(vars) do
+  #   [
+  #     {
+  #       [],
+  #       [
+  #         {".########", true},
+  #         {"..#######", true},
+  #         {"...######", true},
+  #         {"#########", false},
+  #         {"##.######", true},
+  #         {"##...####", false},
+  #         {".#.##.#.#", true},
+  #         {"#.#.#####", false},
+  #         {"#.#.##.#.", false},
+  #         {"##.#.##.#", false},
+  #         {"#...#####", false},
+  #         {"##...####", false}
+  #       ]
+  #       |> expand_combinations(vars)
+  #     }
+  #   ]
+  #   |> jump(possible_var_combinations(vars))
+  # end
+
+  defp expand_combinations(list, vars) do
+    Enum.map(list, fn {road, result} ->
+      bools =
+        road
+        |> String.graphemes()
+        |> Enum.map(&(&1 == "#"))
+
+      {Enum.zip(vars, bools) |> Map.new() |> Map.merge(%{t: false, j: false}), result}
+    end)
   end
 
   def jump(possible_paths, var_combinations) do
@@ -64,7 +105,6 @@ defmodule Y2019.Day21 do
                op.([Map.fetch!(registers, one), Map.fetch!(registers, two)])
              ), result}
           end)
-          |> Enum.uniq_by(fn data -> data end)
         }
       end
       # If we're back where we started from, ditch this option
@@ -99,7 +139,7 @@ defmodule Y2019.Day21 do
   end
 
   def possible_var_combinations(range) do
-    [[:t, :j], [:j, :t] | Enum.flat_map(range, fn from -> [[from, :t], [from, :j]] end)]
+    [[:t, :j] | Enum.flat_map(range, fn from -> [[from, :t], [from, :j]] end)]
   end
 
   def parse_input(input) do
