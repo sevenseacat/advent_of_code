@@ -2,7 +2,7 @@
 
 My Elixir solutions for [Advent of Code 2024](https://adventofcode.com/2024).
 
-<!-- stars 2024 start --><img src="https://img.shields.io/static/v1?label=2024&message=24%20stars&style=for-the-badge&color=orange" alt="24 stars" /><!-- stars 2024 end -->
+<!-- stars 2024 start --><img src="https://img.shields.io/static/v1?label=2024&message=25%20stars&style=for-the-badge&color=yellow" alt="25 stars" /><!-- stars 2024 end -->
 
 ## Benchmarks
 
@@ -38,4 +38,5 @@ day 11, part 1        838.21        1.19 ms     ±4.86%        1.21 ms        1.
 day 11, part 2         19.52       51.22 ms     ±1.86%       51.26 ms       53.37 ms
 day 12, part 1          7.16      139.70 ms     ±1.82%      139.22 ms      144.95 ms
 day 12, part 2          6.84      146.22 ms     ±1.32%      145.82 ms      151.25 ms
+day 13, part 1          4.91      203.63 ms     ±0.46%      203.49 ms      206.75 ms
 ```
