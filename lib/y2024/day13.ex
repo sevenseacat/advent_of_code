@@ -2,29 +2,19 @@ defmodule Y2024.Day13 do
   use Advent.Day, no: 13
 
   @doc """
-  iex> Day13.part1([
+  iex> Day13.parts([
   ...>   %{buttons: %{a: %{x: 94, y: 34, cost: 3}, b: %{x: 22, y: 67, cost: 1}},
   ...>     prize: %{x: 8400, y: 5400}}
   ...> ])
   280
-  """
-  def part1(machines) do
-    machines
-    |> Enum.map(&find_solution/1)
-    |> Enum.reduce(0, fn
-      %{a: a, b: b}, acc -> acc + a.tokens + b.tokens
-      nil, acc -> acc
-    end)
-  end
 
-  @doc """
-  iex> Day13.part2([
+  iex> Day13.parts([
   ...>   %{buttons: %{a: %{x: 26, y: 66, cost: 3}, b: %{x: 67, y: 21, cost: 1}},
   ...>     prize: %{x: 10000000012748, y: 10000000012176}}
   ...> ])
   459236326669
   """
-  def part2(machines) do
+  def parts(machines) do
     machines
     |> Enum.map(&find_solution/1)
     |> Enum.reduce(0, fn
@@ -55,8 +45,6 @@ defmodule Y2024.Day13 do
         a: %{presses: trunc(a_presses), tokens: trunc(a_presses) * button_a.cost},
         b: %{presses: trunc(b_presses), tokens: trunc(b_presses) * button_b.cost}
       }
-    else
-      nil
     end
   end
 
@@ -87,6 +75,6 @@ defmodule Y2024.Day13 do
     %{x: String.to_integer(x) + offset, y: String.to_integer(y) + offset}
   end
 
-  def part1_verify, do: input() |> parse_input(0) |> part1()
-  def part2_verify, do: input() |> parse_input(10_000_000_000_000) |> part2()
+  def part1_verify, do: input() |> parse_input(0) |> parts()
+  def part2_verify, do: input() |> parse_input(10_000_000_000_000) |> parts()
 end
