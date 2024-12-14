@@ -49,6 +49,14 @@ defmodule Advent.Grid do
   end
 
   def display(grid, highlight \\ []) do
+    grid
+    |> rows(highlight)
+    |> Enum.map(&IO.puts/1)
+
+    grid
+  end
+
+  def rows(grid, highlight \\ []) do
     vertices = Map.keys(grid)
     {{min_row, min_col}, {max_row, max_col}} = Enum.min_max(vertices)
 
@@ -72,10 +80,7 @@ defmodule Advent.Grid do
       row
       |> Enum.filter(& &1)
       |> List.to_string()
-      |> IO.puts()
     end)
-
-    grid
   end
 
   defp highlight?(list, coord) when is_list(list) do
