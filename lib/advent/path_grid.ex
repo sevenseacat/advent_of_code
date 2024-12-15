@@ -133,6 +133,10 @@ defmodule Advent.PathGrid do
     if MapSet.member?(mapset, coord), do: colour(char), else: char
   end
 
+  defp maybe_highlight(char, coord, list) when is_list(list) do
+    if Enum.member?(list, coord), do: colour(char), else: char
+  end
+
   defp colour(char) do
     # Red stands out most against white, at small and large text sizes
     IO.ANSI.red() <> "#{char}" <> IO.ANSI.reset()
