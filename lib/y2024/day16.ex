@@ -4,24 +4,24 @@ defmodule Y2024.Day16 do
   alias Advent.PathGrid
 
   def part1(path_grid) do
-    from = Enum.find(path_grid.units, &(&1.identifier == "S")).position
-    to = Enum.find(path_grid.units, &(&1.identifier == "E")).position
-
-    {_path, score} = find_lowest_score(path_grid.graph, from, to)
-    score
+    do_parts(path_grid) |> elem(0)
   end
 
-  # @doc """
-  # iex> Day16.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
+  def part2(path_grid) do
+    do_parts(path_grid)
+    |> elem(1)
+    |> MapSet.size()
+  end
 
-  defp find_lowest_score(graph, from, to) do
+  defp do_parts(path_grid) do
+    from = Enum.find(path_grid.units, &(&1.identifier == "S")).position
+    to = Enum.find(path_grid.units, &(&1.identifier == "E")).position
+    find_lowest_scores(path_grid.graph, from, to)
+  end
+
+  defp find_lowest_scores(graph, from, to) do
     queue = queue_next_states(PriorityQueue.new(), {from, :east, [{from, :east}], 0}, graph)
-    do_search(PriorityQueue.pop(queue), graph, to, MapSet.new([{from, :east}]))
+    do_search(PriorityQueue.pop(queue), graph, to, %{{from, :east} => {0, []}})
   end
 
   defp queue_next_states(queue, {coord, facing, path, score}, graph) do
@@ -48,13 +48,53 @@ defmodule Y2024.Day16 do
 
   defp do_search({{:value, {coord, facing, path, score}}, queue}, graph, to, seen) do
     if coord == to do
-      {path, score}
+      # We've found a best path! We might have had multiple branches that combined
+      # together to get to this point though
+      {score, get_all_paths(path, seen)}
     else
-      if MapSet.member?(seen, {coord, facing}) do
-        do_search(PriorityQueue.pop(queue), graph, to, seen)
-      else
-        queue = queue_next_states(queue, {coord, facing, path, score}, graph)
-        do_search(PriorityQueue.pop(queue), graph, to, MapSet.put(seen, {coord, facing}))
+      case Map.get(seen, {coord, facing}) do
+        {^score, old_path} ->
+          # We've found an alternate way of getting to this point
+          # We can cut this path (but record that it existed)
+          seen = Map.put(seen, {coord, facing}, {score, [path | old_path]})
+          do_search(PriorityQueue.pop(queue), graph, to, seen)
+
+        # We've seen a better way of getting to this point (skip)
+        {old_score, _old_path} when old_score < score ->
+          do_search(PriorityQueue.pop(queue), graph, to, seen)
+
+        _ ->
+          # Either the first time we've seen this coordinate, or this is a better way
+          # of getting to it (actions are the same)
+          seen = Map.put(seen, {coord, facing}, {score, path})
+          queue = queue_next_states(queue, {coord, facing, path, score}, graph)
+          do_search(PriorityQueue.pop(queue), graph, to, seen)
+      end
+    end
+  end
+
+  # This feels rather unnecessary but I can't think of a better way to do it
+  # A BFS over all of the points in the path to build all of the ways we got there
+  defp get_all_paths(path, seen) do
+    do_get_all_paths(path, [], MapSet.new(), seen)
+  end
+
+  defp do_get_all_paths([], [], path, _seen), do: path
+
+  defp do_get_all_paths([], next, path, seen) do
+    do_get_all_paths(List.flatten(next), [], path, seen)
+  end
+
+  defp do_get_all_paths([{coord, _} = one | rest], next, path, seen) do
+    if MapSet.member?(path, coord) do
+      do_get_all_paths(rest, next, path, seen)
+    else
+      case Map.fetch(seen, one) do
+        :error ->
+          do_get_all_paths(rest, next, MapSet.put(path, coord), seen)
+
+        {:ok, {_score, points}} ->
+          do_get_all_paths(rest, [points | next], MapSet.put(path, coord), seen)
       end
     end
   end
@@ -64,5 +104,5 @@ defmodule Y2024.Day16 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
