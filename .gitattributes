@@ -1,2 +1,2 @@
 lib/y*/input/day*.txt filter=git-crypt diff=git-crypt
-test/y*/input/day*.txt filter=git-crypt diff=git-crypt
+test/y*/input/*.txt filter=git-crypt diff=git-crypt
