@@ -3,7 +3,7 @@ defmodule Y2024.Day18 do
 
   alias Advent.PathGrid
 
-  def part1(bytes, size \\ 50, byte_num \\ 1024) do
+  def part1(bytes, size \\ 70, byte_num \\ 1024) do
     fallen = Enum.take(bytes, byte_num)
 
     graph =
@@ -14,13 +14,17 @@ defmodule Y2024.Day18 do
     length(Graph.get_shortest_path(graph, {0, 0}, {size, size})) - 1
   end
 
-  # @doc """
-  # iex> Day18.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
+  def part2(bytes, size \\ 70) do
+    Enum.reduce_while(bytes, empty_grid({0, 0}, {size, size}), fn {row, col}, graph ->
+      graph = PathGrid.add_wall(graph, {row, col})
+
+      if Graph.get_shortest_path(graph, {0, 0}, {size, size}) == nil do
+        {:halt, "#{row},#{col}"}
+      else
+        {:cont, graph}
+      end
+    end)
+  end
 
   @doc """
   iex> Day18.parse_input("5,4\\n4,2\\n4,5\\n3,0\\n")
@@ -58,5 +62,5 @@ defmodule Y2024.Day18 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1(70, 1024)
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
