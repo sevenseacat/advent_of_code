@@ -95,9 +95,15 @@ defmodule Advent.PathGrid do
   end
 
   def add_wall(graph, coord) do
+    edges =
+      graph
+      |> Graph.in_neighbors(coord)
+      |> Enum.flat_map(&[{&1, coord}, {coord, &1}])
+
     graph
-    |> Graph.delete_vertex(coord)
-    |> Graph.add_vertex(coord, :wall)
+    |> Graph.delete_edges(edges)
+    |> Graph.remove_vertex_labels(coord)
+    |> Graph.label_vertex(coord, :wall)
   end
 
   def add_special_path(graph, {from, to}) do

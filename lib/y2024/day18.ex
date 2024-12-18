@@ -49,13 +49,9 @@ defmodule Y2024.Day18 do
 
         [{row - 1, col}, {row, col - 1}]
         |> Enum.reduce(graph, fn neighbour, graph ->
-          if PathGrid.floor?(graph, neighbour) do
-            graph
-            |> Graph.add_edge({row, col}, neighbour)
-            |> Graph.add_edge(neighbour, {row, col})
-          else
-            graph
-          end
+          graph
+          |> Graph.add_edge({row, col}, neighbour)
+          |> Graph.add_edge(neighbour, {row, col})
         end)
       end)
     end)
