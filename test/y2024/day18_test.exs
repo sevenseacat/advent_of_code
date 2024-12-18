@@ -12,8 +12,6 @@ defmodule Y2024.Day18Test do
   end
 
   test "verification, part 1", do: assert(Day18.part1_verify() == 436)
-
-  @tag timeout: :infinity
   test "verification, part 2", do: assert(Day18.part2_verify() == "61,50")
 
   def test_data(), do: File.read!("test/y2024/input/day18/sample.txt")

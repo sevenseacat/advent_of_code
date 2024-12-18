@@ -4,26 +4,42 @@ defmodule Y2024.Day18 do
   alias Advent.PathGrid
 
   def part1(bytes, size \\ 70, byte_num \\ 1024) do
-    fallen = Enum.take(bytes, byte_num)
-
-    graph =
-      Enum.reduce(fallen, empty_grid({0, 0}, {size, size}), fn coord, graph ->
-        PathGrid.add_wall(graph, coord)
-      end)
-
-    length(Graph.get_shortest_path(graph, {0, 0}, {size, size})) - 1
+    empty_grid({0, 0}, {size, size})
+    |> get_path(bytes, byte_num, size)
+    |> length()
+    |> Kernel.-(1)
   end
 
   def part2(bytes, size \\ 70) do
-    Enum.reduce_while(bytes, empty_grid({0, 0}, {size, size}), fn {row, col}, graph ->
-      graph = PathGrid.add_wall(graph, {row, col})
+    max_bytes = length(bytes)
+    empty_grid = empty_grid({0, 0}, {size, size})
 
-      if Graph.get_shortest_path(graph, {0, 0}, {size, size}) == nil do
-        {:halt, "#{row},#{col}"}
-      else
-        {:cont, graph}
-      end
-    end)
+    # Binary search this thing.
+    {row, col} = run_binary_search(empty_grid, bytes, 0, max_bytes, size)
+    "#{row},#{col}"
+  end
+
+  defp run_binary_search(_grid, bytes, val, val, _), do: Enum.at(bytes, val - 1)
+
+  defp run_binary_search(grid, bytes, min, max, size) do
+    at = min + div(max - min, 2)
+
+    if get_path(grid, bytes, at, size) do
+      run_binary_search(grid, bytes, at + 1, max, size)
+    else
+      run_binary_search(grid, bytes, min, at, size)
+    end
+  end
+
+  defp get_path(grid, bytes, byte_num, size) do
+    fallen = Enum.take(bytes, byte_num)
+
+    graph =
+      Enum.reduce(fallen, grid, fn coord, graph ->
+        PathGrid.add_wall(graph, coord)
+      end)
+
+    Graph.get_shortest_path(graph, {0, 0}, {size, size})
   end
 
   @doc """
@@ -49,9 +65,13 @@ defmodule Y2024.Day18 do
 
         [{row - 1, col}, {row, col - 1}]
         |> Enum.reduce(graph, fn neighbour, graph ->
-          graph
-          |> Graph.add_edge({row, col}, neighbour)
-          |> Graph.add_edge(neighbour, {row, col})
+          if Graph.has_vertex?(graph, neighbour) do
+            graph
+            |> Graph.add_edge({row, col}, neighbour)
+            |> Graph.add_edge(neighbour, {row, col})
+          else
+            graph
+          end
         end)
       end)
     end)
