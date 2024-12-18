@@ -16,5 +16,5 @@ defmodule Y2024.Day16Test do
   test "verification, part 1", do: assert(Day16.part1_verify() == 91464)
   test "verification, part 2", do: assert(Day16.part2_verify() == 494)
 
-  def test_data(name), do: File.read!("test/y2024/input/#{name}.txt")
+  def test_data(name), do: File.read!("test/y2024/input/day16/#{name}.txt")
 end
