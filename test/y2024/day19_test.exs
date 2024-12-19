@@ -20,12 +20,16 @@ defmodule Y2024.Day19Test do
     assert Day19.parse_input(@sample) |> Day19.part1() == 6
   end
 
+  test "part2" do
+    assert Day19.parse_input(@sample) |> Day19.part2() == 16
+  end
+
   test "parse_input" do
     assert %{from: from, to: to} = Day19.parse_input(@sample)
-    assert [["r"], ["w", "r"] | _rest] = from
-    assert [["b", "r", "w", "r", "r"], ["b", "g", "g", "r"] | _rest] = to
+    assert ["r", "wr" | _rest] = from
+    assert ["brwrr", "bggr" | _rest] = to
   end
 
   test "verification, part 1", do: assert(Day19.part1_verify() == 285)
-  # test "verification, part 2", do: assert(Day19.part2_verify() == "update or delete me")
+  test "verification, part 2", do: assert(Day19.part2_verify() == 636_483_903_099_279)
 end
