@@ -2,16 +2,17 @@ defmodule Y2024.Day19 do
   use Advent.Day, no: 19
 
   def part1(%{from: from_towels, to: to_towels}) do
-    Enum.count(to_towels, fn to ->
-      ways_to_make(to, from_towels) != 0
+    Task.async_stream(to_towels, fn to ->
+      ways_to_make(to, from_towels)
     end)
+    |> Enum.count(fn {:ok, count} -> count != 0 end)
   end
 
   def part2(%{from: from_towels, to: to_towels}) do
-    Enum.map(to_towels, fn to ->
+    Task.async_stream(to_towels, fn to ->
       ways_to_make(to, from_towels)
     end)
-    |> Enum.sum()
+    |> Enum.reduce(0, fn {:ok, count}, acc -> acc + count end)
   end
 
   def ways_to_make(to, from_towels) do
