@@ -27,14 +27,7 @@ defmodule Y2017.Day21 do
     # https://stackoverflow.com/a/43062529/560215
     |> Enum.map(&for <<x::binary-size(chunk_size) <- &1>>, do: x)
     |> Enum.chunk_every(chunk_size)
-    |> Enum.flat_map(&transpose/1)
-  end
-
-  # https://stackoverflow.com/a/42887944/560215
-  defp transpose(rows) do
-    rows
-    |> List.zip()
-    |> Enum.map(&Tuple.to_list/1)
+    |> Enum.flat_map(&Advent.transpose/1)
   end
 
   def transform_chunks(grid, rules) do
@@ -52,7 +45,7 @@ defmodule Y2017.Day21 do
 
     grid
     |> Enum.chunk_every(chunk_size)
-    |> Enum.flat_map(&transpose/1)
+    |> Enum.flat_map(&Advent.transpose/1)
     |> Enum.map(&Enum.join/1)
   end
 
