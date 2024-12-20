@@ -106,6 +106,32 @@ defmodule Advent.PathGrid do
     |> Graph.label_vertex(coord, :wall)
   end
 
+  def remove_wall(graph, coord) do
+    graph =
+      graph
+      |> Graph.remove_vertex_labels(coord)
+      |> Graph.label_vertex(coord, :floor)
+
+    coord
+    |> neighbouring_coords()
+    |> Enum.reduce(graph, fn neighbour, graph ->
+      if floor?(graph, neighbour) do
+        graph
+        |> Graph.add_edge(coord, neighbour)
+        |> Graph.add_edge(neighbour, coord)
+      else
+        graph
+      end
+    end)
+  end
+
+  def neighbouring_coords({row, col}) do
+    [{0, 1}, {0, -1}, {1, 0}, {-1, 0}]
+    |> Enum.map(fn {o_row, o_col} ->
+      {row + o_row, col + o_col}
+    end)
+  end
+
   def add_special_path(graph, {from, to}) do
     graph
     |> Graph.add_edge(from, to)
@@ -133,6 +159,11 @@ defmodule Advent.PathGrid do
   def floor_spaces(graph) do
     Graph.vertices(graph)
     |> Enum.filter(fn v -> Graph.vertex_labels(graph, v) == [:floor] end)
+  end
+
+  def wall_spaces(graph) do
+    Graph.vertices(graph)
+    |> Enum.filter(fn v -> Graph.vertex_labels(graph, v) == [:wall] end)
   end
 
   defp maybe_highlight(char, coord, %MapSet{} = mapset) do
