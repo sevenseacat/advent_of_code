@@ -20,28 +20,44 @@ defmodule Y2024.Day20 do
   # end
 
   def cheats({graph, from, to}) do
-    baseline = Graph.get_shortest_path(graph, from, to) |> MapSet.new()
-    baseline_length = MapSet.size(baseline)
+    # The default path through the grid takes *every floor space*. Use this
+    # to our advantage.
+    baseline = Graph.get_shortest_path(graph, from, to)
 
-    PathGrid.wall_spaces(graph)
-    |> Enum.filter(fn coord ->
-      neighbours = PathGrid.neighbouring_coords(coord)
+    map =
+      baseline
+      |> Enum.with_index()
+      |> Map.new()
 
-      Enum.any?(neighbours, &MapSet.member?(baseline, &1)) &&
-        Enum.count(PathGrid.neighbouring_coords(coord), fn coord ->
-          PathGrid.floor?(graph, coord)
-        end) >= 2
+    # For each step in the path, see what happens if we knock out walls around it
+    # and skip ahead in the path
+    Enum.flat_map(baseline, fn {row, col} ->
+      from_index = Map.get(map, {row, col})
+
+      Enum.map([{0, -1}, {0, 1}, {-1, 0}, {1, 0}], fn {o_row, o_col} ->
+        to_index = Map.get(map, {row + o_row * 2, col + o_col * 2})
+        maybe_wall = {row + o_row, col + o_col}
+
+        cond do
+          !PathGrid.in_graph?(graph, maybe_wall) ->
+            nil
+
+          PathGrid.floor?(graph, maybe_wall) ->
+            nil
+
+          to_index == nil ->
+            nil
+
+          to_index < from_index ->
+            nil
+
+          true ->
+            # This will be the saving of time - 2 is the length of the shortcut
+            to_index - from_index - 2
+        end
+      end)
+      |> Enum.reject(&(&1 == nil))
     end)
-    |> Task.async_stream(fn coord ->
-      path =
-        graph
-        |> PathGrid.remove_wall(coord)
-        |> Graph.get_shortest_path(from, to)
-
-      baseline_length - length(path)
-    end)
-    |> Enum.map(fn {:ok, val} -> val end)
-    |> Enum.reject(&(&1 == 0))
     |> Enum.frequencies()
   end
 
