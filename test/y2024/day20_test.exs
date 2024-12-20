@@ -36,9 +36,9 @@ defmodule Y2024.Day20Test do
       64 => 1
     }
 
-    assert Day20.parse_input(@sample) |> Day20.cheats() == expected
+    assert Day20.parse_input(@sample) |> Day20.cheats(2) == expected
   end
 
   test "verification, part 1", do: assert(Day20.part1_verify() == 1289)
-  # test "verification, part 2", do: assert(Day20.part2_verify() == "update or delete me")
+  test "verification, part 2", do: assert(Day20.part2_verify() == 982_425)
 end
