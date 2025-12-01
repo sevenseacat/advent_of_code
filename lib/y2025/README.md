@@ -2,7 +2,7 @@
 
 My Elixir solutions for [Advent of Code 2025](https://adventofcode.com/2025).
 
-<!-- stars 2025 start --><img src="https://img.shields.io/static/v1?label=2025&message=1%20stars&style=for-the-badge&color=red" alt="1 stars" /><!-- stars 2025 end -->
+<!-- stars 2025 start --><img src="https://img.shields.io/static/v1?label=2025&message=2%20stars&style=for-the-badge&color=red" alt="2 stars" /><!-- stars 2025 end -->
 
 ## Benchmarks
 
@@ -14,5 +14,6 @@ You can check out the code yourself and run the benchmarks with `mix bench 2025`
 
 ```
 Name                     ips        average  deviation         median         99th %
-day 01, part 1        2.92 K      342.43 μs     ±5.55%      336.67 μs      432.52 μs
+day 01, part 1        2.93 K        0.34 ms     ±3.91%        0.34 ms        0.40 ms
+day 01, part 2        0.27 K        3.75 ms     ±1.56%        3.74 ms        3.97 ms
 ```

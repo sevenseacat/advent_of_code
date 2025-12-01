@@ -19,13 +19,35 @@ defmodule Y2025.Day01 do
     |> elem(0)
   end
 
-  # @doc """
-  # iex> Day01.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
+  @doc """
+  iex> Day01.part2([-68, -30, 48])
+  2
+
+  iex> Day01.part2([-68, -30, 48, -5, 60]) # passes zero
+  3
+
+  iex> Day01.part2([-68, -30, 48, -5, 60, 55]) # lands on zero
+  4
+
+  iex> Day01.part2([-68, -30, 48, -5, 60, -55, -1, -99, 14, -82])
+  6
+  """
+  def part2(input) do
+    input
+    |> Enum.reduce({0, 50}, fn turn, {count, position} ->
+      new_position = position + turn
+
+      times =
+        if turn > 0 do
+          Enum.count((position + 1)..new_position, &(rem(&1, 100) == 0))
+        else
+          Enum.count((position - 1)..new_position//-1, &(rem(&1, 100) == 0))
+        end
+
+      {count + times, new_position}
+    end)
+    |> elem(0)
+  end
 
   @doc """
   iex> Day01.parse_input("L68\\nL30\\nR48\\nL5\\nR60\\nL55\\nL1\\nL99\\nR14\\nL82")
@@ -41,5 +63,5 @@ defmodule Y2025.Day01 do
   defp parse_turn(<<"R", rest::binary>>), do: String.to_integer(rest)
 
   def part1_verify, do: input() |> parse_input() |> part1()
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
