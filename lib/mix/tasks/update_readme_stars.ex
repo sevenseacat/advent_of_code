@@ -42,7 +42,7 @@ defmodule Mix.Tasks.UpdateReadmeStars do
     with {:ok, contents} <- File.read(file) do
       links =
         Enum.map(star_data, fn {year, star_count} ->
-          "<a href=\"./lib/y#{year}/\">#{badge_image(year, star_count, 50)}</a>"
+          "<a href=\"./lib/y#{year}/\">#{badge_image(year, star_count, max_stars(year))}</a>"
         end)
         |> Enum.join("<br />\n")
 
@@ -71,7 +71,7 @@ defmodule Mix.Tasks.UpdateReadmeStars do
         String.replace(
           contents,
           ~r/#{start_tag(year)}(.*)#{end_tag(year)}/,
-          "#{start_tag(year)}#{badge_image(year, star_count, 50)}#{end_tag(year)}"
+          "#{start_tag(year)}#{badge_image(year, star_count, max_stars(year))}#{end_tag(year)}"
         )
 
       File.write!(file, new_contents)
@@ -115,4 +115,7 @@ defmodule Mix.Tasks.UpdateReadmeStars do
   defp readmes() do
     Enum.map(years(), fn year -> "lib/y#{year}/README.md" end)
   end
+
+  defp max_stars(year) when year >= 2025, do: 25
+  defp max_stars(_year), do: 50
 end
