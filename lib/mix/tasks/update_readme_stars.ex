@@ -116,6 +116,6 @@ defmodule Mix.Tasks.UpdateReadmeStars do
     Enum.map(years(), fn year -> "lib/y#{year}/README.md" end)
   end
 
-  defp max_stars(year) when year >= 2025, do: 25
+  defp max_stars(year) when year >= 2025, do: 24
   defp max_stars(_year), do: 50
 end
