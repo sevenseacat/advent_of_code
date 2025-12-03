@@ -59,10 +59,9 @@ defmodule Y2025.Day03 do
       end
 
     largest = Enum.max(search)
-    index = Enum.find_index(row, &(&1 == largest))
-    {_pre, post} = Enum.split(search, index)
+    more = Enum.drop_while(search, &(&1 != largest))
 
-    max_joltage(tl(post) ++ rest, num - 1, [largest | progress])
+    max_joltage(tl(more) ++ rest, num - 1, [largest | progress])
   end
 
   @doc """
