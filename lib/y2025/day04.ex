@@ -3,27 +3,42 @@ defmodule Y2025.Day04 do
   alias Advent.Grid
 
   def part1(input) do
-    find_removable_rolls(input)
+    input
+    |> MapSet.new()
+    |> find_removable_rolls()
     |> length
   end
 
-  def part2(input, count \\ 0) do
-    removable = find_removable_rolls(input)
+  def part2(input) do
+    input
+    |> MapSet.new()
+    |> find_recursive_removable_rolls(input, 0)
+  end
 
-    if removable == [] do
+  defp find_recursive_removable_rolls(input, to_check, count) do
+    removable_with_adjacent = find_removable_rolls(input, to_check)
+
+    if removable_with_adjacent == [] do
       count
     else
-      removable
-      |> Enum.reduce(input, fn {position, _}, acc -> Map.put(acc, position, ".") end)
-      |> part2(count + length(removable))
+      to_remove = Enum.map(removable_with_adjacent, &elem(&1, 0))
+
+      # Only rolls that are adjacent to a removed roll are removable on the next pass
+      unique_adjacents =
+        (Enum.flat_map(removable_with_adjacent, &elem(&1, 1)) |> Enum.uniq()) -- to_remove
+
+      input
+      |> MapSet.difference(MapSet.new(to_remove))
+      |> find_recursive_removable_rolls(unique_adjacents, count + length(to_remove))
     end
   end
 
-  defp find_removable_rolls(input) do
-    input
-    |> Enum.filter(fn {position, item} ->
-      item == "@" && length(adjacent_rolls(position, input)) < 4
-    end)
+  defp find_removable_rolls(input, to_check \\ nil) do
+    to_check = to_check || input
+
+    to_check
+    |> Enum.map(fn position -> {position, adjacent_rolls(position, input)} end)
+    |> Enum.filter(fn {_position, rolls} -> length(rolls) < 4 end)
   end
 
   defp adjacent_rolls({row, col}, input) do
@@ -37,11 +52,14 @@ defmodule Y2025.Day04 do
       {row + 1, col},
       {row + 1, col + 1}
     ]
-    |> Enum.filter(fn position -> Map.get(input, position) == "@" end)
+    |> Enum.filter(fn position -> MapSet.member?(input, position) end)
   end
 
   def parse_input(input) do
-    Grid.new(input)
+    input
+    |> Grid.new()
+    |> Enum.filter(fn {_pos, item} -> item == "@" end)
+    |> Enum.map(fn {pos, _item} -> pos end)
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()

@@ -20,12 +20,12 @@ defmodule Y2025.Day04Test do
   """
 
   test "part 1" do
-    grid = Advent.Grid.new(@sample)
-    assert Day04.part1(grid) == 13
+    actual = @sample |> Day04.parse_input() |> Day04.part1()
+    assert actual == 13
   end
 
   test "part 2" do
-    grid = Advent.Grid.new(@sample)
-    assert Day04.part2(grid) == 43
+    actual = @sample |> Day04.parse_input() |> Day04.part2()
+    assert actual == 43
   end
 end
