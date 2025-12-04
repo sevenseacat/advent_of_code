@@ -3,19 +3,28 @@ defmodule Y2025.Day04 do
   alias Advent.Grid
 
   def part1(input) do
+    find_removable_rolls(input)
+    |> length
+  end
+
+  def part2(input, count \\ 0) do
+    removable = find_removable_rolls(input)
+
+    if removable == [] do
+      count
+    else
+      removable
+      |> Enum.reduce(input, fn {position, _}, acc -> Map.put(acc, position, ".") end)
+      |> part2(count + length(removable))
+    end
+  end
+
+  defp find_removable_rolls(input) do
     input
     |> Enum.filter(fn {position, item} ->
       item == "@" && length(adjacent_rolls(position, input)) < 4
     end)
   end
-
-  # @doc """
-  # iex> Day04.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
 
   defp adjacent_rolls({row, col}, input) do
     [
@@ -35,6 +44,6 @@ defmodule Y2025.Day04 do
     Grid.new(input)
   end
 
-  def part1_verify, do: input() |> parse_input() |> part1() |> length()
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part1_verify, do: input() |> parse_input() |> part1()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end

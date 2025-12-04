@@ -4,7 +4,7 @@ defmodule Y2025.Day04Test do
   doctest Day04
 
   test "verification, part 1", do: assert(Day04.part1_verify() == 1433)
-  # test "verification, part 2", do: assert(Day04.part2_verify() == "update or delete me")
+  test "verification, part 2", do: assert(Day04.part2_verify() == 8616)
 
   @sample """
   ..@@.@@@@.
@@ -21,6 +21,11 @@ defmodule Y2025.Day04Test do
 
   test "part 1" do
     grid = Advent.Grid.new(@sample)
-    assert length(Day04.part1(grid)) == 13
+    assert Day04.part1(grid) == 13
+  end
+
+  test "part 2" do
+    grid = Advent.Grid.new(@sample)
+    assert Day04.part2(grid) == 43
   end
 end

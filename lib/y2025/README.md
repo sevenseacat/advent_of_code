@@ -2,7 +2,7 @@
 
 My Elixir solutions for [Advent of Code 2025](https://adventofcode.com/2025).
 
-<!-- stars 2025 start --><img src="https://img.shields.io/static/v1?label=2025&message=7%20stars&style=for-the-badge&color=orange" alt="7 stars" /><!-- stars 2025 end -->
+<!-- stars 2025 start --><img src="https://img.shields.io/static/v1?label=2025&message=8%20stars&style=for-the-badge&color=orange" alt="8 stars" /><!-- stars 2025 end -->
 
 ## Benchmarks
 
@@ -21,4 +21,5 @@ day 02, part 2          2.27      441.17 ms     ±1.27%      440.36 ms      455.
 day 03, part 1        787.83        1.27 ms     ±3.95%        1.25 ms        1.42 ms
 day 03, part 2        623.54        1.60 ms     ±4.19%        1.58 ms        1.79 ms
 day 04, part 1         81.61       12.25 ms     ±2.68%       12.36 ms       12.83 ms
+day 04, part 2          4.31      231.93 ms     ±0.89%      232.20 ms      236.43 ms
 ```
