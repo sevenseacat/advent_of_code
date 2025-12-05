@@ -7,13 +7,42 @@ defmodule Y2025.Day05 do
     |> length()
   end
 
-  # @doc """
-  # iex> Day05.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
+  def part2({ranges, _available}) do
+    ranges
+    |> Enum.sort()
+    |> remove_contained_ranges()
+    |> combine_overlapping_ranges()
+    |> Enum.sum_by(fn {from, to} -> to - from + 1 end)
+  end
+
+  defp remove_contained_ranges(ranges) do
+    ranges
+    |> Enum.reject(fn {from_a, to_a} ->
+      Enum.any?(ranges, fn {from_b, to_b} ->
+        from_a != from_b && to_a != to_b && from_a >= from_b && to_a <= to_b
+      end)
+    end)
+  end
+
+  defp combine_overlapping_ranges([]), do: []
+
+  defp combine_overlapping_ranges([{from_a, to_a} | rest]) do
+    overlap_index =
+      Enum.find_index(rest, fn {from_b, to_b} ->
+        # |       |         a
+        #     |        |    b
+        from_b >= from_a && from_b <= to_a && to_b >= to_a
+      end)
+
+    case overlap_index do
+      nil ->
+        [{from_a, to_a} | combine_overlapping_ranges(rest)]
+
+      index ->
+        {{_, to_b}, rest} = List.pop_at(rest, index)
+        combine_overlapping_ranges([{from_a, to_b} | rest])
+    end
+  end
 
   defp fresh?(number, ranges) do
     Enum.any?(ranges, fn {from, to} -> number >= from && number <= to end)
@@ -44,5 +73,5 @@ defmodule Y2025.Day05 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end

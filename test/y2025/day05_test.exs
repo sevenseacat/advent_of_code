@@ -4,7 +4,7 @@ defmodule Y2025.Day05Test do
   doctest Day05
 
   test "verification, part 1", do: assert(Day05.part1_verify() == 511)
-  # test "verification, part 2", do: assert(Day05.part2_verify() == "update or delete me")
+  test "verification, part 2", do: assert(Day05.part2_verify() == 350_939_902_751_909)
 
   @sample """
   3-5
@@ -23,5 +23,10 @@ defmodule Y2025.Day05Test do
   test "part 1" do
     actual = Day05.parse_input(@sample) |> Day05.part1()
     assert actual == 3
+  end
+
+  test "part 2" do
+    actual = Day05.parse_input(@sample) |> Day05.part2()
+    assert actual == 14
   end
 end
