@@ -15,16 +15,9 @@ defmodule Y2025.Day06 do
   def parse_input(input, opt \\ nil) do
     rows = String.split(input, "\n", trim: true)
     cols = Enum.max(Enum.map(rows, &String.length/1))
+    rows = Enum.map(rows, &String.pad_trailing(&1, cols))
 
-    {last, spaces} =
-      Enum.filter(0..cols, fn col ->
-        Enum.all?(rows, &(String.at(&1, col) == " "))
-      end)
-      |> Enum.reduce({0, []}, fn num, {prev, acc} ->
-        {num, [num - prev | acc]}
-      end)
-
-    spaces = Enum.reverse([last | spaces])
+    spaces = find_space_columns(rows)
 
     [ops | nums] =
       rows
@@ -54,10 +47,7 @@ defmodule Y2025.Day06 do
     if opt == :transpose do
       nums
       |> Enum.map(fn num_row ->
-        max_length = Enum.max_by(num_row, &String.length/1) |> String.length()
-
         num_row
-        |> Enum.map(&String.pad_trailing(&1, max_length))
         |> Enum.map(&String.graphemes/1)
         |> Advent.transpose()
         |> Enum.map(&Enum.join/1)
@@ -68,14 +58,38 @@ defmodule Y2025.Day06 do
     else
       nums
     end
-    |> Enum.map(fn num_row ->
+    |> convert_strings_to_nums()
+    |> Enum.zip(ops)
+  end
+
+  defp find_space_columns(rows) do
+    rows
+    |> Enum.map(&String.codepoints(&1))
+    |> iterate_over_rows(0)
+  end
+
+  defp iterate_over_rows(rows, index) do
+    if Enum.any?(rows, &Enum.empty?(&1)) do
+      [index]
+    else
+      tls = Enum.map(rows, &tl(&1))
+
+      if Enum.all?(rows, &(hd(&1) == " ")) do
+        [index | iterate_over_rows(tls, 1)]
+      else
+        iterate_over_rows(tls, index + 1)
+      end
+    end
+  end
+
+  defp convert_strings_to_nums(rows) do
+    Enum.map(rows, fn num_row ->
       Enum.map(num_row, fn num ->
         num
         |> String.trim()
         |> String.to_integer()
       end)
     end)
-    |> Enum.zip(ops)
   end
 
   def part1_verify, do: input() |> parse_input() |> parts()
