@@ -5,18 +5,8 @@ defmodule Y2025.Day06 do
     Enum.sum_by(input, &evaluate/1)
   end
 
-  # @doc """
-  # iex> Day06.part2("update or delete me")
-  # "update or delete me"
-  # """
-  # def part2(input) do
-  #   input
-  # end
-
-  defp evaluate(row) do
-    [op | nums] = Enum.reverse(row)
-
-    Enum.reduce(tl(nums), hd(nums), fn num, acc ->
+  defp evaluate({[num | nums], op}) do
+    Enum.reduce(nums, num, fn num, acc ->
       apply(Kernel, op, [num, acc])
     end)
   end
@@ -85,7 +75,7 @@ defmodule Y2025.Day06 do
         |> String.to_integer()
       end)
     end)
-    |> Enum.zip_with(ops, fn a, b -> a ++ [b] end)
+    |> Enum.zip(ops)
   end
 
   def part1_verify, do: input() |> parse_input() |> parts()

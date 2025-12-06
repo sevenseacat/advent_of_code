@@ -15,12 +15,24 @@ defmodule Y2025.Day06Test do
 
   test "parse_input (part 1)" do
     answer = Day06.parse_input(@sample)
-    assert answer == [[123, 45, 6, :*], [328, 64, 98, :+], [51, 387, 215, :*], [64, 23, 314, :+]]
+
+    assert answer == [
+             {[123, 45, 6], :*},
+             {[328, 64, 98], :+},
+             {[51, 387, 215], :*},
+             {[64, 23, 314], :+}
+           ]
   end
 
   test "parse_input (part 2)" do
     answer = Day06.parse_input(@sample, :transpose)
-    assert answer == [[356, 24, 1, :*], [8, 248, 369, :+], [175, 581, 32, :*], [4, 431, 623, :+]]
+
+    assert answer == [
+             {[356, 24, 1], :*},
+             {[8, 248, 369], :+},
+             {[175, 581, 32], :*},
+             {[4, 431, 623], :+}
+           ]
   end
 
   test "part 1" do
