@@ -12,59 +12,28 @@ defmodule Y2025.Day06 do
   end
 
   # This is an awful function but it works?
-  def parse_input(input, opt \\ nil) do
+  def parse_input(input, part_no \\ :part1) do
     rows = String.split(input, "\n", trim: true)
     cols = Enum.max(Enum.map(rows, &String.length/1))
     rows = Enum.map(rows, &String.pad_trailing(&1, cols))
 
-    spaces = find_space_columns(rows)
-
-    [ops | nums] =
-      rows
-      |> Enum.map(fn row ->
-        spaces
-        |> Enum.reduce({row, []}, fn space, {row, acc} ->
-          {chunk, rest} = String.split_at(row, space)
-          {rest, [chunk | acc]}
-        end)
-        |> elem(1)
-        |> Enum.reverse()
-      end)
-      |> Enum.reverse()
-
-    ops =
-      Enum.map(ops, fn op ->
-        op
-        |> String.trim()
-        |> String.to_atom()
-      end)
+    spaces = find_space_offsets(rows)
+    [ops | nums] = split_at_offsets(rows, spaces)
 
     nums =
       nums
       |> Enum.reverse()
       |> Advent.transpose()
 
-    if opt == :transpose do
-      nums
-      |> Enum.map(fn num_row ->
-        num_row
-        |> Enum.map(&String.graphemes/1)
-        |> Advent.transpose()
-        |> Enum.map(&Enum.join/1)
-        |> Enum.map(&String.trim/1)
-        |> Enum.reject(&(&1 == ""))
-        |> Enum.reverse()
-      end)
-    else
-      nums
-    end
+    nums
+    |> maybe_transpose_again(part_no)
     |> convert_strings_to_nums()
-    |> Enum.zip(ops)
+    |> Enum.zip(atomize_ops(ops))
   end
 
-  defp find_space_columns(rows) do
+  defp find_space_offsets(rows) do
     rows
-    |> Enum.map(&String.codepoints(&1))
+    |> Enum.map(&String.graphemes(&1))
     |> iterate_over_rows(0)
   end
 
@@ -82,6 +51,35 @@ defmodule Y2025.Day06 do
     end
   end
 
+  defp split_at_offsets(rows, spaces) do
+    rows
+    |> Enum.map(fn row ->
+      spaces
+      |> Enum.reduce({row, []}, fn space, {row, acc} ->
+        {chunk, rest} = String.split_at(row, space)
+        {rest, [chunk | acc]}
+      end)
+      |> elem(1)
+      |> Enum.reverse()
+    end)
+    |> Enum.reverse()
+  end
+
+  defp maybe_transpose_again(rows, :part1), do: rows
+
+  defp maybe_transpose_again(rows, :part2) do
+    rows
+    |> Enum.map(fn row ->
+      row
+      |> Enum.map(&String.graphemes/1)
+      |> Advent.transpose()
+      |> Enum.map(&Enum.join/1)
+      |> Enum.map(&String.trim/1)
+      |> Enum.reject(&(&1 == ""))
+      |> Enum.reverse()
+    end)
+  end
+
   defp convert_strings_to_nums(rows) do
     Enum.map(rows, fn num_row ->
       Enum.map(num_row, fn num ->
@@ -92,6 +90,14 @@ defmodule Y2025.Day06 do
     end)
   end
 
+  defp atomize_ops(ops) do
+    Enum.map(ops, fn op ->
+      op
+      |> String.trim()
+      |> String.to_atom()
+    end)
+  end
+
   def part1_verify, do: input() |> parse_input() |> parts()
-  def part2_verify, do: input() |> parse_input(:transpose) |> parts()
+  def part2_verify, do: input() |> parse_input(:part2) |> parts()
 end

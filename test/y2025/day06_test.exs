@@ -25,7 +25,7 @@ defmodule Y2025.Day06Test do
   end
 
   test "parse_input (part 2)" do
-    answer = Day06.parse_input(@sample, :transpose)
+    answer = Day06.parse_input(@sample, :part2)
 
     assert answer == [
              {[356, 24, 1], :*},
