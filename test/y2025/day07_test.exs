@@ -4,7 +4,7 @@ defmodule Y2025.Day07Test do
   doctest Day07
 
   test "verification, part 1", do: assert(Day07.part1_verify() == 1566)
-  # test "verification, part 2", do: assert(Day07.part2_verify() == "update or delete me")
+  test "verification, part 2", do: assert(Day07.part2_verify() == 5_921_061_943_075)
 
   @sample """
   .......S.......
@@ -28,5 +28,10 @@ defmodule Y2025.Day07Test do
   test "part 1" do
     answer = @sample |> Day07.parse_input() |> Day07.part1()
     assert answer == 21
+  end
+
+  test "part 2" do
+    answer = @sample |> Day07.parse_input() |> Day07.part2()
+    assert answer == 40
   end
 end
