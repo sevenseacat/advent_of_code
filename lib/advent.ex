@@ -56,4 +56,10 @@ defmodule Advent do
     two = common_elements(rest)
     one -- one -- two
   end
+
+  def time(label \\ "time", func) do
+    {t, result} = :timer.tc(func, :millisecond)
+    IO.puts("#{label}: #{t}ms")
+    result
+  end
 end

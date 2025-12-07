@@ -24,7 +24,9 @@ defmodule Advent.MixProject do
       {:jason, "~> 1.2"},
       {:libgraph, "~> 0.13"},
       {:benchee, "~> 1.0"},
-      {:tz, ">= 0.24.0"}
+      {:tz, ">= 0.24.0"},
+      {:nx, "~> 0.10.0"},
+      {:exla, "~> 0.9"}
     ]
   end
 end

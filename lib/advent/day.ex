@@ -39,6 +39,8 @@ defmodule Advent.Day do
       end
 
       defdelegate benchee_config(), to: unquote(__MODULE__)
+
+      import Advent, only: [time: 1, time: 2]
     end
   end
 
