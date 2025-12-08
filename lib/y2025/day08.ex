@@ -3,8 +3,10 @@ defmodule Y2025.Day08 do
 
   def part1(input, num_joins \\ 10) do
     graph = to_bare_graph(input)
+    distances = compute_all_distances(input)
+    connected = MapSet.new(input)
 
-    join_boxes(input, graph, num_joins)
+    join_boxes(graph, distances, connected, num_joins)
     |> Graph.components()
     |> Enum.sort_by(&(-length(&1)))
     |> Enum.take(3)
@@ -13,8 +15,10 @@ defmodule Y2025.Day08 do
 
   def part2(input) do
     graph = to_bare_graph(input)
+    distances = compute_all_distances(input)
+    connected = MapSet.new(input)
 
-    {{x1, _, _}, {x2, _, _}} = join_boxes(input, graph, 100_000_000)
+    {{x1, _, _}, {x2, _, _}} = join_boxes(graph, distances, connected, 100_000)
 
     x1 * x2
   end
@@ -23,32 +27,27 @@ defmodule Y2025.Day08 do
     Enum.reduce(boxes, Graph.new(), fn node, graph -> Graph.add_vertex(graph, node) end)
   end
 
-  defp join_boxes(_boxes, graph, 0), do: graph
-
-  defp join_boxes(boxes, graph, count) do
-    {from, to, _distance} =
-      Enum.map(boxes, fn box ->
-        {closest, distance} = find_closest(box, boxes, graph)
-        {box, closest, distance}
-      end)
-      |> Enum.min_by(fn {_from, _to, distance} -> distance end)
-
-    graph = join_groups(graph, from, to)
-
-    if length(Graph.components(graph)) == 1 do
-      {from, to}
-    else
-      join_boxes(boxes, graph, count - 1)
-    end
+  defp compute_all_distances(boxes) do
+    Advent.combinations(boxes, 2)
+    |> Enum.map(fn [one, two] -> {one, two, distance(one, two)} end)
+    |> Enum.sort_by(fn {_, _, distance} -> distance end)
   end
 
-  defp find_closest(from, boxes, graph) do
-    connected = Graph.neighbors(graph, from)
+  defp join_boxes(graph, _distances, _connected, 0), do: graph
 
-    boxes
-    |> Enum.reject(fn box -> box == from || box in connected end)
-    |> Enum.map(fn to = box -> {box, distance(from, to)} end)
-    |> Enum.min_by(fn {_box, distance} -> distance end)
+  defp join_boxes(graph, [{from, to, _} | distances], connected, count) do
+    graph = join_groups(graph, from, to)
+
+    connected =
+      connected
+      |> MapSet.delete(from)
+      |> MapSet.delete(to)
+
+    if MapSet.size(connected) == 0 do
+      {from, to}
+    else
+      join_boxes(graph, distances, connected, count - 1)
+    end
   end
 
   defp distance({x1, y1, z1}, {x2, y2, z2}) do
