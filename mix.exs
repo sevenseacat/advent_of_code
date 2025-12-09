@@ -26,7 +26,8 @@ defmodule Advent.MixProject do
       {:benchee, "~> 1.0"},
       {:tz, ">= 0.24.0"},
       {:nx, "~> 0.10.0"},
-      {:exla, "~> 0.9"}
+      {:exla, "~> 0.9"},
+      {:seg_seg, "~> 1.0"}
     ]
   end
 end
