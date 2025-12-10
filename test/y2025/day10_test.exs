@@ -4,7 +4,7 @@ defmodule Y2025.Day10Test do
   doctest Day10
 
   test "verification, part 1", do: assert(Day10.part1_verify() == 438)
-  # test "verification, part 2", do: assert(Day10.part2_verify() == "update or delete me")
+  test "verification, part 2", do: assert(Day10.part2_verify() == 16463)
 
   @sample """
   [.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
@@ -38,15 +38,17 @@ defmodule Y2025.Day10Test do
   end
 
   test "find_min_presses (part 2)" do
-    row = @sample |> Day10.parse_input() |> Enum.at(1)
-    assert Day10.part2([row]) == 12
+    rows = @sample |> Day10.parse_input()
 
-    # answer =
-    #   "[#####.###.] (4,7,8) (0,1,2,3,5,6,8,9) (0,4,5,7,8,9) (2,3,5) (0,2,3,4,5,6,7,8) (5,6) (0,1,2,3,4,5,9) (0,1,2,5,6,9) (0,3,4,5,6,7,8,9) (3,4,5,6,8) (0,1,2,3,4,5,6,7,9) (0,8) (3,4,8,9) {261,225,243,252,56,278,262,29,257,242}"
-    #   |> Day10.parse_input()
-    #   |> Day10.part2()
+    assert Day10.part2([Enum.at(rows, 0)]) == 10
+    assert Day10.part2([Enum.at(rows, 1)]) == 12
+    assert Day10.part2([Enum.at(rows, 2)]) == 11
 
-    # Not the actual answer but getting the test to run
-    # assert answer == 12
+    answer =
+      "[#####.###.] (4,7,8) (0,1,2,3,5,6,8,9) (0,4,5,7,8,9) (2,3,5) (0,2,3,4,5,6,7,8) (5,6) (0,1,2,3,4,5,9) (0,1,2,5,6,9) (0,3,4,5,6,7,8,9) (3,4,5,6,8) (0,1,2,3,4,5,6,7,9) (0,8) (3,4,8,9) {261,225,243,252,56,278,262,29,257,242}"
+      |> Day10.parse_input()
+      |> Day10.part2()
+
+    assert answer == 287
   end
 end

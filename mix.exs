@@ -27,7 +27,8 @@ defmodule Advent.MixProject do
       {:tz, ">= 0.24.0"},
       {:nx, "~> 0.10.0"},
       {:exla, "~> 0.9"},
-      {:seg_seg, "~> 1.0"}
+      {:seg_seg, "~> 1.0"},
+      {:dantzig, github: "Pascal736/dantzig", branch: "add-variable-type-support"}
     ]
   end
 end

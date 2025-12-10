@@ -14,20 +14,69 @@ defmodule Y2025.Day10 do
   end
 
   def part2(input) do
-    press_fn = fn val -> val + 1 end
-
-    check_fn = fn state, target ->
-      Enum.any?(state.current, fn {pos, val} -> val > target[pos] end)
-    end
-
+    # This can be modelled as a set of simultaneous equations!
+    # eg. [.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
+    #             a   b     c    d    e      f
+    # can be written as e + f = 3; b + f = 5; c + d + e = 4; a + b + d = 7
+    # But there are more unknowns (buttons) than results (# of lights.)
+    # Plus all the numbers have to be positive.
+    # Enter Dantzig!
     input
-    |> Advent.pmap(
-      fn row ->
-        initial = Map.new(row.lights, fn {pos, _val} -> {pos, 0} end)
-        find_min_presses(row, initial, row.joltage, press_fn, check_fn)
-      end,
-      timeout: 60000
-    )
+    |> Enum.map(fn row ->
+      problem = Dantzig.Problem.new(direction: :minimize)
+
+      {problem, variables} =
+        Enum.reduce(
+          1..length(row.buttons),
+          {problem, []},
+          fn num, {problem, variables} ->
+            {problem, variable} =
+              Dantzig.Problem.new_variable(problem, "#{num}",
+                min: 0,
+                type: :integer
+              )
+
+            {problem, [variable | variables]}
+          end
+        )
+
+      variables = Enum.reverse(variables)
+
+      size = map_size(row.lights) - 1
+
+      matrices =
+        Enum.map(row.buttons, fn button ->
+          for i <- 0..size do
+            if i in button, do: 1, else: 0
+          end
+        end)
+        |> Advent.transpose()
+
+      {:ok, solution} =
+        matrices
+        |> Enum.with_index()
+        |> Enum.reduce(problem, fn {matrix, index}, problem ->
+          applied_vars =
+            Enum.zip(matrix, variables)
+            |> Enum.filter(fn {val, _var} -> val == 1 end)
+            |> Enum.map(&elem(&1, 1))
+
+          Dantzig.Problem.add_constraint(
+            problem,
+            Dantzig.Constraint.new(
+              Dantzig.Polynomial.sum(applied_vars),
+              :==,
+              Map.get(row.joltage, index)
+            )
+          )
+        end)
+        |> Dantzig.Problem.increment_objective(Dantzig.Polynomial.sum(variables))
+        |> Dantzig.solve()
+
+      solution.variables
+      |> Map.values()
+      |> Enum.sum()
+    end)
     |> Enum.sum()
   end
 
@@ -136,5 +185,5 @@ defmodule Y2025.Day10 do
   end
 
   def part1_verify, do: input() |> parse_input() |> part1()
-  # def part2_verify, do: input() |> parse_input() |> part2()
+  def part2_verify, do: input() |> parse_input() |> part2()
 end
