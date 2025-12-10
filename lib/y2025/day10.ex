@@ -1,6 +1,8 @@
 defmodule Y2025.Day10 do
   use Advent.Day, no: 10
 
+  alias Dantzig.{Constraint, Polynomial, Problem}
+
   def part1(input) do
     press_fn = fn val -> !val end
     check_fn = fn _state, _target -> false end
@@ -22,19 +24,17 @@ defmodule Y2025.Day10 do
     # Plus all the numbers have to be positive.
     # Enter Dantzig!
     input
-    |> Enum.map(fn row ->
-      problem = Dantzig.Problem.new(direction: :minimize)
+    |> Advent.pmap(fn row ->
+      problem = Problem.new(direction: :minimize)
 
+      # Set up the problem with all of the variables, one for each button
       {problem, variables} =
         Enum.reduce(
           1..length(row.buttons),
           {problem, []},
           fn num, {problem, variables} ->
             {problem, variable} =
-              Dantzig.Problem.new_variable(problem, "#{num}",
-                min: 0,
-                type: :integer
-              )
+              Problem.new_variable(problem, "#{num}", min: 0, type: :integer)
 
             {problem, [variable | variables]}
           end
@@ -42,36 +42,24 @@ defmodule Y2025.Day10 do
 
       variables = Enum.reverse(variables)
 
-      size = map_size(row.lights) - 1
+      # Add constraints - the formulas for each light value, eg. e + f = 3
+      problem =
+        Map.keys(row.lights)
+        |> Enum.reduce(problem, fn light, problem ->
+          applicable_buttons =
+            Enum.zip(variables, row.buttons)
+            |> Enum.filter(fn {_val, button} -> light in button end)
+            |> Enum.map(&elem(&1, 0))
 
-      matrices =
-        Enum.map(row.buttons, fn button ->
-          for i <- 0..size do
-            if i in button, do: 1, else: 0
-          end
+          constraint =
+            Constraint.new(Polynomial.sum(applicable_buttons), :==, Map.get(row.joltage, light))
+
+          Problem.add_constraint(problem, constraint)
         end)
-        |> Advent.transpose()
+        |> Problem.increment_objective(Polynomial.sum(variables))
 
-      {:ok, solution} =
-        matrices
-        |> Enum.with_index()
-        |> Enum.reduce(problem, fn {matrix, index}, problem ->
-          applied_vars =
-            Enum.zip(matrix, variables)
-            |> Enum.filter(fn {val, _var} -> val == 1 end)
-            |> Enum.map(&elem(&1, 1))
-
-          Dantzig.Problem.add_constraint(
-            problem,
-            Dantzig.Constraint.new(
-              Dantzig.Polynomial.sum(applied_vars),
-              :==,
-              Map.get(row.joltage, index)
-            )
-          )
-        end)
-        |> Dantzig.Problem.increment_objective(Dantzig.Polynomial.sum(variables))
-        |> Dantzig.solve()
+      # Solve it!
+      {:ok, solution} = Dantzig.solve(problem)
 
       solution.variables
       |> Map.values()
