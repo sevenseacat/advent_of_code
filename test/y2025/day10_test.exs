@@ -27,8 +27,26 @@ defmodule Y2025.Day10Test do
     assert answer == 7
   end
 
-  test "find_min_presses" do
-    answer = @sample |> Day10.parse_input() |> Enum.at(1) |> Day10.find_min_presses()
-    assert answer == 3
+  test "part2" do
+    answer = @sample |> Day10.parse_input() |> Day10.part2()
+    assert answer == 33
+  end
+
+  test "find_min_presses (part 1)" do
+    row = @sample |> Day10.parse_input() |> Enum.at(1)
+    assert Day10.part1([row]) == 3
+  end
+
+  test "find_min_presses (part 2)" do
+    row = @sample |> Day10.parse_input() |> Enum.at(1)
+    assert Day10.part2([row]) == 12
+
+    # answer =
+    #   "[#####.###.] (4,7,8) (0,1,2,3,5,6,8,9) (0,4,5,7,8,9) (2,3,5) (0,2,3,4,5,6,7,8) (5,6) (0,1,2,3,4,5,9) (0,1,2,5,6,9) (0,3,4,5,6,7,8,9) (3,4,5,6,8) (0,1,2,3,4,5,6,7,9) (0,8) (3,4,8,9) {261,225,243,252,56,278,262,29,257,242}"
+    #   |> Day10.parse_input()
+    #   |> Day10.part2()
+
+    # Not the actual answer but getting the test to run
+    # assert answer == 12
   end
 end
