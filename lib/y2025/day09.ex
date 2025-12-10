@@ -3,7 +3,7 @@ defmodule Y2025.Day09 do
 
   def part1(input) do
     input
-    |> Advent.permutations(2)
+    |> Advent.combinations(2)
     |> Enum.map(fn [a, b] -> {a, b, rectangle_size({a, b})} end)
     |> Enum.max_by(fn {_a, _b, size} -> size end)
     |> elem(2)
@@ -13,7 +13,7 @@ defmodule Y2025.Day09 do
     edges = build_edges(input)
 
     input
-    |> Advent.permutations(2)
+    |> Advent.combinations(2)
     |> Enum.map(fn [a, b] -> {a, b, rectangle_size({a, b})} end)
     |> Enum.sort_by(fn {_a, _b, size} -> -size end)
     |> Enum.find(fn {a, b, _size} -> !any_exterior_edges?([a, b], edges) end)
