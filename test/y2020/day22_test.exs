@@ -4,7 +4,7 @@ defmodule Y2020.Day22Test do
   doctest Day22
 
   test "verification, part 1", do: assert(Day22.part1_verify() == 35562)
-  # test "verification, part 2", do: assert(Day22.part2_verify() == "update or delete me")
+  test "verification, part 2", do: assert(Day22.part2_verify() == 34424)
 
   @sample """
   Player 1:

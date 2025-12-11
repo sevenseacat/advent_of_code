@@ -5,13 +5,13 @@
 My Elixir solutions for [Advent of Code](https://adventofcode.com/) (all years).
 
 <!-- stars start -->
-<p><img src="https://img.shields.io/static/v1?label=Total&message=481%20stars&style=for-the-badge&color=green" alt="481 stars" /></p>
+<p><img src="https://img.shields.io/static/v1?label=Total&message=482%20stars&style=for-the-badge&color=green" alt="482 stars" /></p>
 <p><a href="./lib/y2025/"><img src="https://img.shields.io/static/v1?label=2025&message=22%20stars&style=for-the-badge&color=green" alt="22 stars" /></a><br />
 <a href="./lib/y2024/"><img src="https://img.shields.io/static/v1?label=2024&message=38%20stars&style=for-the-badge&color=yellow" alt="38 stars" /></a><br />
 <a href="./lib/y2023/"><img src="https://img.shields.io/static/v1?label=2023&message=44%20stars&style=for-the-badge&color=green" alt="44 stars" /></a><br />
 <a href="./lib/y2022/"><img src="https://img.shields.io/static/v1?label=2022&message=%E2%AD%90%EF%B8%8F%2050%20stars%20%E2%AD%90%EF%B8%8F&style=for-the-badge&color=brightgreen" alt="50 stars" /></a><br />
 <a href="./lib/y2021/"><img src="https://img.shields.io/static/v1?label=2021&message=46%20stars&style=for-the-badge&color=green" alt="46 stars" /></a><br />
-<a href="./lib/y2020/"><img src="https://img.shields.io/static/v1?label=2020&message=40%20stars&style=for-the-badge&color=green" alt="40 stars" /></a><br />
+<a href="./lib/y2020/"><img src="https://img.shields.io/static/v1?label=2020&message=41%20stars&style=for-the-badge&color=green" alt="41 stars" /></a><br />
 <a href="./lib/y2019/"><img src="https://img.shields.io/static/v1?label=2019&message=41%20stars&style=for-the-badge&color=green" alt="41 stars" /></a><br />
 <a href="./lib/y2018/"><img src="https://img.shields.io/static/v1?label=2018&message=%E2%AD%90%EF%B8%8F%2050%20stars%20%E2%AD%90%EF%B8%8F&style=for-the-badge&color=brightgreen" alt="50 stars" /></a><br />
 <a href="./lib/y2017/"><img src="https://img.shields.io/static/v1?label=2017&message=%E2%AD%90%EF%B8%8F%2050%20stars%20%E2%AD%90%EF%B8%8F&style=for-the-badge&color=brightgreen" alt="50 stars" /></a><br />
