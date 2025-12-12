@@ -4,5 +4,7 @@ defmodule Y2024.Day22Test do
   doctest Day22
 
   test "verification, part 1", do: assert(Day22.part1_verify() == 17_005_483_322)
-  # test "verification, part 2", do: assert(Day22.part2_verify() == "update or delete me")
+
+  @tag timeout: :infinity
+  test "verification, part 2", do: assert(Day22.part2_verify() == 1910)
 end
