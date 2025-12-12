@@ -4,7 +4,10 @@ defmodule Y2024.Day23Test do
   doctest Day23
 
   test "verification, part 1", do: assert(Day23.part1_verify() == 893)
-  # test "verification, part 2", do: assert(Day23.part2_verify() == "update or delete me")
+
+  test "verification, part 2" do
+    assert Day23.part2_verify() == "cw,dy,ef,iw,ji,jv,ka,ob,qv,ry,ua,wt,xz"
+  end
 
   @sample """
   kh-tc
@@ -43,5 +46,9 @@ defmodule Y2024.Day23Test do
 
   test "part1" do
     assert Day23.parse_input(@sample) |> Day23.part1() == 7
+  end
+
+  test "part2" do
+    assert Day23.parse_input(@sample) |> Day23.part2() == "co,de,ka,ta"
   end
 end
